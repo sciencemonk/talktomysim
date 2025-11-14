@@ -386,297 +386,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
             </div>
           )}
         </div>
-
-        {/* Chat Interface */}
-        {isMobile ? (
-          // Mobile: Sheet that slides from bottom
-          <>
-            <Sheet open={chatOpen} onOpenChange={setChatOpen}>
-              <SheetContent 
-                side="bottom" 
-                className="h-[70vh] p-0 flex flex-col"
-              >
-                {/* Chat Header */}
-                <div className="border-b border-border p-4 flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    {store?.avatar_url ? (
-                      <img
-                        src={store.avatar_url}
-                        alt="Agent"
-                        className="h-10 w-10 rounded-full border-2 border-primary object-cover"
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
-                        <Bot className="h-5 w-5 text-primary" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-semibold">{store?.store_name || 'Store'} AI</h3>
-                      <p className="text-xs text-muted-foreground">Online now</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chat Messages */}
-                <ScrollArea className="flex-1 p-4">
-                  <div className="space-y-4">
-                    {chatMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        {msg.productId ? (
-                          // Product card message
-                          (() => {
-                            const product = products.find(p => p.id === msg.productId);
-                            return product ? (
-                              <div 
-                                className="max-w-[90%]"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ChatProductCard
-                                  product={product}
-                                  onViewProduct={(productId) => {
-                                    const product = products.find(p => p.id === productId);
-                                    if (product) {
-                                      setSelectedProduct(product);
-                                      setProductModalOpen(true);
-                                    }
-                                  }}
-                                />
-                              </div>
-                            ) : null;
-                          })()
-                        ) : (
-                          // Regular text message
-                          <div
-                            className={`rounded-lg p-3 max-w-[80%] break-words ${
-                              msg.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
-                            }`}
-                          >
-                            <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{msg.content}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    {isSending && (
-                      <div className="flex justify-start">
-                        <div className="bg-muted rounded-lg p-3">
-                          <div className="flex gap-1">
-                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce" />
-                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.2s]" />
-                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.4s]" />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div ref={messagesEndRef} />
-                </ScrollArea>
-
-                {/* Chat Input */}
-                <div className="p-4 border-t border-border flex-shrink-0">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Type a message..."
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      disabled={isSending}
-                    />
-                    <Button 
-                      size="icon" 
-                      onClick={handleSendMessage}
-                      disabled={!chatMessage.trim() || isSending}
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* Floating Chat Button - Mobile */}
-            {!chatOpen && (
-              <Button
-                size="icon"
-                className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-[100]"
-                onClick={() => setChatOpen(true)}
-              >
-                {store?.avatar_url ? (
-                  <img
-                    src={store.avatar_url}
-                    alt="Chat"
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  <Bot className="h-6 w-6" />
-                )}
-              </Button>
-            )}
-          </>
-        ) : (
-          // Desktop: Floating Chat Widget
-          <div className="fixed z-[100] bottom-6 right-6">
-            {chatOpen ? (
-              // Chat Window
-              <Card className="shadow-2xl flex flex-col bg-background w-[380px] h-[500px] rounded-lg">
-                <CardHeader className="border-b border-border flex-shrink-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {store?.avatar_url ? (
-                        <img
-                          src={store.avatar_url}
-                          alt="Agent"
-                          className="h-10 w-10 rounded-full border-2 border-primary object-cover"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
-                          <Bot className="h-5 w-5 text-primary" />
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-semibold">{store?.store_name || 'Store'} AI</h3>
-                        <p className="text-xs text-muted-foreground">Online now</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setChatOpen(false)}
-                      className="z-[110]"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
-                  <ScrollArea className="flex-1 p-4 h-[calc(500px-140px)]">
-                    <div className="space-y-4">
-                      {chatMessages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          {msg.productId ? (
-                            // Product card message
-                            (() => {
-                              const product = products.find(p => p.id === msg.productId);
-                              return product ? (
-                                <div 
-                                  className="max-w-[90%]"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <ChatProductCard
-                                    product={product}
-                                    onViewProduct={(productId) => {
-                                      const product = products.find(p => p.id === productId);
-                                      if (product) {
-                                        setSelectedProduct(product);
-                                        setProductModalOpen(true);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              ) : null;
-                            })()
-                          ) : (
-                            // Regular text message
-                            <div
-                              className={`rounded-lg p-3 max-w-[80%] break-words ${
-                                msg.role === 'user'
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-muted'
-                              }`}
-                            >
-                              <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{msg.content}</p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                      {isSending && (
-                        <div className="flex justify-start">
-                          <div className="bg-muted rounded-lg p-3">
-                            <div className="flex gap-1">
-                              <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce" />
-                              <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.2s]" />
-                              <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.4s]" />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div ref={messagesEndRef} />
-                  </ScrollArea>
-                  <div className="p-4 border-t border-border">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Type a message..."
-                        value={chatMessage}
-                        onChange={(e) => setChatMessage(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        disabled={isSending}
-                      />
-                      <Button 
-                        size="icon" 
-                        onClick={handleSendMessage}
-                        disabled={!chatMessage.trim() || isSending}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              // Chat Avatar Button
-              <Button
-                size="icon"
-                className="h-14 w-14 rounded-full shadow-2xl"
-                onClick={() => setChatOpen(true)}
-              >
-                {store?.avatar_url ? (
-                  <img
-                    src={store.avatar_url}
-                    alt="Chat"
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  <Bot className="h-6 w-6" />
-                )}
-              </Button>
-            )}
-          </div>
-        )}
       </div>
-
-      {/* Edit Modal */}
-      <StoreEditModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        store={store}
-        onUpdate={onUpdate}
-      />
-
-      {/* Agent Edit Modal */}
-      <AgentEditModal
-        open={agentEditModalOpen}
-        onOpenChange={setAgentEditModalOpen}
-        store={store}
-        onUpdate={onUpdate}
-      />
 
       {/* Product Detail Modal */}
       {productModalOpen && (
@@ -689,6 +399,31 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
           }}
           storeWalletAddress={store?.crypto_wallet || ''}
           storeName={store?.store_name || 'Store'}
+        />
+      )}
+
+      {/* Chat Sidebar - Desktop Only */}
+      {!isMobile && (
+        <StoreChatSidebar
+          isOpen={chatOpen}
+          onToggle={() => setChatOpen(!chatOpen)}
+          store={{
+            store_name: store?.store_name || 'Store',
+            avatar_url: store?.avatar_url
+          }}
+          chatMessages={chatMessages}
+          chatMessage={chatMessage}
+          setChatMessage={setChatMessage}
+          handleSendMessage={handleSendMessage}
+          isSending={isSending}
+          products={products}
+          onViewProduct={(productId) => {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+              setSelectedProduct(product);
+              setProductModalOpen(true);
+            }
+          }}
         />
       )}
     </div>

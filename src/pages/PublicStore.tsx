@@ -1,7 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+
+const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { StoreChatSidebar } from "@/components/StoreChatSidebar";
@@ -9,8 +12,6 @@ import { Package, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 
 type Product = {
   id: string;
@@ -57,17 +58,12 @@ export default function PublicStore() {
   const [chatMessage, setChatMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (username) {
       loadStore();
     }
   }, [username]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, isSending]);
 
   useEffect(() => {
     if (store?.greeting_message && chatMessages.length === 0 && chatOpen) {
@@ -84,7 +80,6 @@ export default function PublicStore() {
     try {
       setLoading(true);
 
-      // Load store by username
       const { data: storeData, error: storeError } = await supabase
         .from('stores')
         .select('*')
@@ -101,7 +96,6 @@ export default function PublicStore() {
 
       setStore(storeData);
 
-      // Load products for this store
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('*')
@@ -124,59 +118,35 @@ export default function PublicStore() {
     }
   };
 
-  const handleSendMessage = async (presetMessage?: ChatMessage) => {
-    const messageToSend = presetMessage || (chatMessage.trim() ? {
+  const handleSendMessage = async (purchaseMessage?: ChatMessage) => {
+    const messageToSend = purchaseMessage || {
       id: Date.now().toString(),
       role: 'user' as const,
       content: chatMessage.trim(),
       timestamp: new Date()
-    } : null);
-    
-    if (!messageToSend || isSending || !store?.id) return;
+    };
 
-    // Only add to messages if not already added (preset messages are pre-added)
-    if (!presetMessage) {
+    if (!messageToSend.content.trim() || isSending || !store?.id) return;
+
+    if (!purchaseMessage) {
       setChatMessages(prev => [...prev, messageToSend]);
+      setChatMessage('');
     }
-    setChatMessage('');
+    
     setIsSending(true);
 
     try {
-      const allMessages = presetMessage 
-        ? [...chatMessages, messageToSend]
-        : chatMessages;
-      
-      const messagesToSend = allMessages.map(msg => ({
-        role: msg.role === 'agent' ? 'assistant' : msg.role,
+      const conversationHistory = chatMessages.map(msg => ({
+        role: msg.role,
         content: msg.content
       }));
 
-      const response = await fetch(
-        `https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/store-agent-chat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4`
-          },
-          body: JSON.stringify({
-            messages: messagesToSend,
-            storeId: store.id
-          })
-        }
-      );
+      conversationHistory.push({
+        role: messageToSend.role,
+        content: messageToSend.content
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to get response');
-      }
-
-      if (!response.body) {
-        throw new Error('No response body');
-      }
-
-      // Create placeholder for streaming message
-      const agentMessageId = (Date.now() + 1).toString();
+      const agentMessageId = `agent-${Date.now()}`;
       setChatMessages(prev => [...prev, {
         id: agentMessageId,
         role: 'agent',
@@ -184,11 +154,30 @@ export default function PublicStore() {
         timestamp: new Date()
       }]);
 
-      // Stream the response
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/store-agent-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({
+            storeId: store.id,
+            message: messageToSend.content,
+            conversationHistory,
+            products
+          })
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to get response');
+      if (!response.body) throw new Error('No response body');
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
       let fullContent = '';
+      let buffer = '';
       let toolCalls: any[] = [];
 
       while (true) {
@@ -218,7 +207,6 @@ export default function PublicStore() {
                 ));
               }
 
-              // Handle tool calls - display product cards
               if (delta_tool_calls) {
                 for (const toolCall of delta_tool_calls) {
                   const index = toolCall.index;
@@ -239,7 +227,6 @@ export default function PublicStore() {
                 }
               }
 
-              // Check for completed tool calls
               const finishReason = parsed.choices?.[0]?.finish_reason;
               if (finishReason === 'tool_calls' && toolCalls.length > 0) {
                 for (const toolCall of toolCalls) {
@@ -248,7 +235,6 @@ export default function PublicStore() {
                       const args = JSON.parse(toolCall.function.arguments);
                       const productId = args.product_id;
                       
-                      // Add product card message
                       setChatMessages(prev => [...prev, {
                         id: `product-${Date.now()}-${Math.random()}`,
                         role: 'agent',
@@ -301,102 +287,85 @@ export default function PublicStore() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex">
-      {/* Theme Toggle - Fixed Top Right */}
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
 
-      {/* Store Content */}
       <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-[400px]' : 'mr-0'}`}>
         <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
-        <div className="max-w-6xl mx-auto">
-          {/* Store Header */}
-          <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
-            <div className="flex justify-center">
-              {store.logo_url ? (
-                <img
-                  src={store.logo_url}
-                  alt={store.store_name}
-                  className="h-24 object-contain"
-                />
-              ) : (
-                <h1 className="text-4xl font-bold">{store.store_name}</h1>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
+              <div className="flex justify-center">
+                {store.logo_url ? (
+                  <img src={store.logo_url} alt={store.store_name} className="h-24 object-contain" />
+                ) : (
+                  <h1 className="text-4xl font-bold">{store.store_name}</h1>
+                )}
+              </div>
+              {store.store_description && (
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{store.store_description}</p>
               )}
             </div>
-            {store.store_description && (
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                {store.store_description}
-              </p>
+
+            {products.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6">Products</h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {products.map((product) => (
+                    <Card
+                      key={product.id}
+                      className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setProductModalOpen(true);
+                      }}
+                    >
+                      {product.image_urls && product.image_urls.length > 0 && (
+                        <div className="aspect-square overflow-hidden bg-muted">
+                          <img
+                            src={product.image_urls[0]}
+                            alt={product.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold mb-2">{product.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold">${formatPrice(product.price)} {product.currency}</span>
+                          <Button size="sm" variant="outline">View Details</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {products.length === 0 && (
+              <div className="text-center py-12">
+                <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">No products yet</p>
+                <p className="text-sm text-muted-foreground">Check back soon!</p>
+              </div>
             )}
           </div>
-
-          {/* Products Grid */}
-          {products.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Products</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {products.map((product) => (
-                  <Card
-                    key={product.id}
-                    className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
-                    onClick={() => {
-                      setSelectedProduct(product);
-                      setProductModalOpen(true);
-                    }}
-                  >
-                    {product.image_urls && product.image_urls.length > 0 && (
-                      <div className="aspect-square overflow-hidden bg-muted">
-                        <img
-                          src={product.image_urls[0]}
-                          alt={product.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-2">{product.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold">
-                          ${formatPrice(product.price)} {product.currency}
-                        </span>
-                        <Button size="sm" variant="outline">
-                          View Details
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {products.length === 0 && (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No products yet</p>
-              <p className="text-sm text-muted-foreground">Check back soon!</p>
-            </div>
-          )}
+          
+          <footer className="mt-16 mb-8 flex justify-center">
+            <a
+              href="https://simproject.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Create your own Agentic Storefront
+            </a>
+          </footer>
         </div>
-        
-        {/* Footer Badge */}
-        <footer className="mt-16 mb-8 flex justify-center">
-          <a
-            href="https://simproject.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
-          >
-            <ExternalLink className="h-3 w-3" />
-            Create your own Agentic Storefront
-          </a>
-        </footer>
       </div>
       
-      {/* Product Detail Modal */}
       <ProductDetailModal
         product={selectedProduct}
         isOpen={productModalOpen}
@@ -407,7 +376,6 @@ export default function PublicStore() {
         storeWalletAddress={store.crypto_wallet || ''}
         storeName={store.store_name}
         onPurchaseSuccess={(productTitle) => {
-          // Add a message about the purchase to the chat
           const purchaseMessage: ChatMessage = {
             id: Date.now().toString(),
             role: 'user',
@@ -415,149 +383,31 @@ export default function PublicStore() {
             timestamp: new Date()
           };
           setChatMessages(prev => [...prev, purchaseMessage]);
-          
-          // Trigger AI response
           handleSendMessage(purchaseMessage);
         }}
       />
 
-      {/* Footer Badge */}
-      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
-        <a
-          href="https://simproject.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
-        >
-          <ExternalLink className="h-3 w-3" />
-          Create your own Agentic Storefront
-        </a>
-      </footer>
-
-      {/* Floating Chat Button */}
-      {!chatOpen && (
-        <Button
-          onClick={() => setChatOpen(true)}
-          size="lg"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 p-0 overflow-hidden"
-        >
-          {store.avatar_url ? (
-            <img
-              src={store.avatar_url}
-              alt="Chat"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <Bot className="h-6 w-6" />
-          )}
-        </Button>
-      )}
-
-      {/* Chat Window */}
-      {chatOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col">
-          <div className="flex items-center justify-between p-4 border-b bg-background">
-            <div className="flex items-center gap-3">
-              {store.avatar_url ? (
-                <div className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden flex-shrink-0">
-                  <img
-                    src={store.avatar_url}
-                    alt="Agent"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary flex-shrink-0">
-                  <Bot className="h-6 w-6 text-primary" />
-                </div>
-              )}
-              <div>
-                <h3 className="font-semibold">{store.store_name} AI</h3>
-                <p className="text-xs text-muted-foreground">Online now</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setChatOpen(false)}
-              className="h-8 w-8 rounded-full"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {msg.productId ? (
-                    // Product card message
-                    (() => {
-                      const product = products.find(p => p.id === msg.productId);
-                      return product ? (
-                        <div className="max-w-[90%]">
-                          <ChatProductCard
-                            product={product}
-                            onViewProduct={(productId) => {
-                              const product = products.find(p => p.id === productId);
-                              if (product) {
-                                setSelectedProduct(product);
-                                setProductModalOpen(true);
-                              }
-                            }}
-                          />
-                        </div>
-                      ) : null;
-                    })()
-                  ) : (
-                    <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                        msg.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground'
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {isSending && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg p-3">
-                    <p className="text-sm text-muted-foreground">Typing...</p>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          <div className="p-4 border-t bg-card">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage();
-              }}
-              className="flex gap-2"
-            >
-              <Input
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                placeholder="Type your message..."
-                disabled={isSending}
-                className="flex-1"
-              />
-              <Button type="submit" size="icon" disabled={isSending || !chatMessage.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
-        </Card>
-      )}
+      <StoreChatSidebar
+        isOpen={chatOpen}
+        onToggle={() => setChatOpen(!chatOpen)}
+        store={{
+          store_name: store.store_name,
+          avatar_url: store.avatar_url
+        }}
+        chatMessages={chatMessages}
+        chatMessage={chatMessage}
+        setChatMessage={setChatMessage}
+        handleSendMessage={() => handleSendMessage()}
+        isSending={isSending}
+        products={products}
+        onViewProduct={(productId) => {
+          const product = products.find(p => p.id === productId);
+          if (product) {
+            setSelectedProduct(product);
+            setProductModalOpen(true);
+          }
+        }}
+      />
     </div>
   );
 }
