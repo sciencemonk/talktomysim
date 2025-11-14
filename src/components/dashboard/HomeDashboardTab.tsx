@@ -78,7 +78,9 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
         }
         
         toast.success('Store created successfully!');
-        window.location.reload();
+        setIsEditingRoute(false);
+        // Dispatch event to reload store data without full page refresh
+        window.dispatchEvent(new CustomEvent('store-updated'));
         return;
       }
 
@@ -102,7 +104,8 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
       
       toast.success('Store username updated successfully');
       setIsEditingRoute(false);
-      window.location.reload();
+      // Dispatch event to reload store data without full page refresh
+      window.dispatchEvent(new CustomEvent('store-updated'));
     } catch (error: any) {
       console.error('Error in handleUpdateRoute:', error);
       toast.error(`An error occurred: ${error?.message || 'Please try again'}`);

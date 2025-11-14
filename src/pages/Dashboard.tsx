@@ -51,10 +51,18 @@ const Dashboard = () => {
         setActiveView(event.detail);
       }
     };
+    
+    // Listen for store updates
+    const handleStoreUpdate = () => {
+      loadStore();
+    };
+    
     window.addEventListener('navigate-dashboard', handleNavigation);
+    window.addEventListener('store-updated', handleStoreUpdate);
 
     return () => {
       window.removeEventListener('navigate-dashboard', handleNavigation);
+      window.removeEventListener('store-updated', handleStoreUpdate);
     };
   }, [user, navigate, location.search, solanaAddress]);
 
