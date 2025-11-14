@@ -26,7 +26,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { userProfileService } from "@/services/userProfileService";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
-import { SignInModal } from "@/components/SignInModal";
 
 type MarketplaceItem = {
   id: string;
@@ -49,7 +48,6 @@ const Marketplace = () => {
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showBetaRequest, setShowBetaRequest] = useState(false);
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const { isSignedIn } = useIsSignedIn();
   const { evmAddress } = useEvmAddress();
@@ -677,7 +675,7 @@ const Marketplace = () => {
 
           <div className="text-center">
             <button
-              onClick={() => setSignInModalOpen(true)}
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
             >
               Start Your Integration
@@ -850,11 +848,6 @@ const Marketplace = () => {
           </div>
         </div>
       </footer>
-      
-      <SignInModal 
-        open={signInModalOpen} 
-        onOpenChange={setSignInModalOpen}
-      />
     </div>;
 };
 export default Marketplace;
