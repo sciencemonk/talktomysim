@@ -30,7 +30,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Check for stored wallet address and fetch profile
     const storedWallet = localStorage.getItem('coinbase_wallet_address');
-    if (storedWallet) {
+    const explicitSignout = localStorage.getItem('explicit_signout');
+    
+    // Don't auto-authenticate if user explicitly signed out
+    if (storedWallet && explicitSignout !== 'true') {
       refreshUserProfile(storedWallet).then(() => {
         setLoading(false);
       });
@@ -58,6 +61,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUser = (userData: any) => {
+    // Check if user explicitly signed out - prevent re-authentication
+    const explicitSignout = localStorage.getItem('explicit_signout');
+    if (explicitSignout === 'true') {
+      console.log('Blocked auto re-authentication after explicit sign out');
+      return;
+    }
+    
     setUser(userData);
     setSession({ user: userData });
     if (userData?.address) {
