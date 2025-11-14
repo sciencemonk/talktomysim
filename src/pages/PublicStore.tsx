@@ -287,11 +287,12 @@ export default function PublicStore() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+      {/* Main Content */}
+      <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-96' : 'mr-0'}`}>
+        <div className="fixed top-4 left-4 z-50">
+          <ThemeToggle />
+        </div>
 
-      <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-[400px]' : 'mr-0'}`}>
         <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
           <div className="max-w-6xl mx-auto">
             <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
@@ -400,6 +401,7 @@ export default function PublicStore() {
         handleSendMessage={() => handleSendMessage()}
         isSending={isSending}
         products={products}
+        positioning="fixed"
         onViewProduct={(productId) => {
           const product = products.find(p => p.id === productId);
           if (product) {
