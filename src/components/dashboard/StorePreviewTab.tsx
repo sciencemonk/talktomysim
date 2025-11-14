@@ -2,15 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, ExternalLink, Package, Edit, X, Send, Bot } from "lucide-react";
+import { MessageSquare, ExternalLink, Package, Edit, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { StoreEditModal } from "./StoreEditModal";
 import { AgentEditModal } from "./AgentEditModal";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
-import { ChatProductCard } from "@/components/ChatProductCard";
+import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { formatPrice } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
