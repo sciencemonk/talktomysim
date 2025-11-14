@@ -118,78 +118,79 @@ export default function PublicStore() {
       </div>
 
       {/* Store Content */}
-      <div className="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
-        {/* Store Header */}
-        <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
-          <div className="flex justify-center">
-            {store.avatar_url ? (
-              <img
-                src={store.avatar_url}
-                alt={store.store_name}
-                className="h-24 object-contain"
-              />
-            ) : (
-              <h1 className="text-4xl font-bold">{store.store_name}</h1>
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Store Header */}
+          <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
+            <div className="flex justify-center">
+              {store.avatar_url ? (
+                <img
+                  src={store.avatar_url}
+                  alt={store.store_name}
+                  className="h-24 object-contain"
+                />
+              ) : (
+                <h1 className="text-4xl font-bold">{store.store_name}</h1>
+              )}
+            </div>
+            {store.store_description && (
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                {store.store_description}
+              </p>
             )}
           </div>
-          {store.avatar_url && <h1 className="text-4xl font-bold mt-2">{store.store_name}</h1>}
-          {store.store_description && (
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {store.store_description}
-            </p>
+
+          {/* Products Grid */}
+          {products.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Products</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {products.map((product) => (
+                  <Card
+                    key={product.id}
+                    className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setProductModalOpen(true);
+                    }}
+                  >
+                    {product.image_urls && product.image_urls.length > 0 && (
+                      <div className="aspect-square overflow-hidden bg-muted">
+                        <img
+                          src={product.image_urls[0]}
+                          alt={product.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold mb-2">{product.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold">
+                          ${formatPrice(product.price)} {product.currency}
+                        </span>
+                        <Button size="sm" variant="outline">
+                          View Details
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {products.length === 0 && (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground">No products yet</p>
+              <p className="text-sm text-muted-foreground">Check back soon!</p>
+            </div>
           )}
         </div>
-
-        {/* Products Grid */}
-        {products.length > 0 ? (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Products</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <Card
-                  key={product.id}
-                  className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setProductModalOpen(true);
-                  }}
-                >
-                  {product.image_urls && product.image_urls.length > 0 && (
-                    <div className="aspect-square overflow-hidden bg-muted">
-                      <img
-                        src={product.image_urls[0]}
-                        alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-1">{product.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold">
-                        ${formatPrice(product.price)} {product.currency}
-                      </span>
-                      <Button size="sm" variant="outline">
-                        View Details
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-xl font-semibold mb-2">No Products Yet</h3>
-            <p className="text-muted-foreground">
-              This store hasn't added any products yet. Check back soon!
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Product Detail Modal */}
