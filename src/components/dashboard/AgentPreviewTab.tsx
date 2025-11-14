@@ -224,9 +224,9 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
             Live Demo
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col p-0">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          <ScrollArea className="flex-1 p-4 min-h-0" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
