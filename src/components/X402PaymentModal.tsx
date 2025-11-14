@@ -378,7 +378,7 @@ export const X402PaymentModal = ({
         <DialogHeader>
           <DialogTitle>Payment Required</DialogTitle>
           <DialogDescription>
-            To chat with {simName}, you need to pay ${price.toFixed(2)} USDC on Solana
+            To chat with {simName}, you need to pay ${price % 1 === 0 ? price : price.toFixed(2)} USDC on Solana
           </DialogDescription>
         </DialogHeader>
 
@@ -492,7 +492,7 @@ export const X402PaymentModal = ({
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Price:</span>
-              <span className="font-medium">${price.toFixed(2)} USDC</span>
+              <span className="font-medium">${price % 1 === 0 ? price : price.toFixed(2)} USDC</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Network:</span>
@@ -559,15 +559,15 @@ export const X402PaymentModal = ({
                 ) : usdcBalance === null ? (
                   'Loading...'
                 ) : usdcBalance < price ? (
-                  `Insufficient USDC (Need ${price.toFixed(2)})`
+                  `Insufficient USDC (Need ${price % 1 === 0 ? price : price.toFixed(2)})`
                 ) : (
-                  `Pay ${price.toFixed(2)} USDC`
+                  `Pay ${price % 1 === 0 ? price : price.toFixed(2)} USDC`
                 )}
               </Button>
               
               {usdcBalance !== null && usdcBalance < price && (
                 <p className="text-xs text-destructive text-center">
-                  You need {(price - usdcBalance).toFixed(2)} more USDC
+                  You need {((price - usdcBalance) % 1 === 0 ? (price - usdcBalance) : (price - usdcBalance).toFixed(2))} more USDC
                 </p>
               )}
             </div>
