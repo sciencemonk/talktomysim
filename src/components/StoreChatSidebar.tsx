@@ -60,24 +60,35 @@ export const StoreChatSidebar = ({
   return (
     <>
       {/* Toggle Button - Always visible */}
-      <button
-        onClick={onToggle}
-        className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-border hover:scale-105 ${
-          isOpen ? 'right-[400px]' : 'right-4'
-        }`}
-      >
-        {store.avatar_url ? (
-          <img 
-            src={store.avatar_url} 
-            alt={store.store_name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-            {store.store_name?.[0]}
+      <div className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 ${
+        isOpen ? 'right-[400px]' : 'right-4'
+      } group`}>
+        <button
+          onClick={onToggle}
+          className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-border transition-transform duration-200 ${
+            !isOpen ? 'hover:scale-110' : ''
+          }`}
+        >
+          {store.avatar_url ? (
+            <img 
+              src={store.avatar_url} 
+              alt={store.store_name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
+              {store.store_name?.[0]}
+            </div>
+          )}
+        </button>
+        
+        {/* Badge - Only visible when closed */}
+        {!isOpen && (
+          <div className="absolute -bottom-8 right-0 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            Launch AI Agent
           </div>
         )}
-      </button>
+      </div>
 
       {/* Sidebar */}
       <div
