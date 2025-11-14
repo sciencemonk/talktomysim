@@ -71,6 +71,21 @@ serve(async (req) => {
         products.map((p: any) => `- "${p.title}": ${p.id}`).join('\n');
     }
     
+    // Track which products have been shown in this conversation
+    const shownProductIds = new Set<string>();
+    for (const msg of messages) {
+      if (msg.role === 'assistant' && typeof msg.content === 'string') {
+        // Check if message contains product ID references
+        const matches = msg.content.match(/product_id":\s*"([^"]+)"/g);
+        if (matches) {
+          matches.forEach(match => {
+            const id = match.match(/"([^"]+)"/)?.[1];
+            if (id) shownProductIds.add(id);
+          });
+        }
+      }
+    }
+
     const systemPrompt = `You are an AI shopping assistant for ${store.store_name || 'this store'}.
 
 STORE DESCRIPTION:
@@ -85,12 +100,17 @@ PRIMARY FOCUS: ${store.primary_focus || 'Customer satisfaction'}
 
 ${productContext}${productIdMapping}
 
+${shownProductIds.size > 0 ? `\nPRODUCTS ALREADY SHOWN: ${Array.from(shownProductIds).map(id => products?.find((p: any) => p.id === id)?.title || id).join(', ')}` : ''}
+
 CRITICAL GUIDELINES:
 - ALWAYS use the show_product tool when mentioning any specific product to the customer
 - The tool will display a beautiful product card with image, price, and purchase button
 - After using show_product, you can add brief commentary about the product
 - Never just describe a product in text - ALWAYS call show_product first
 - Use the exact product IDs listed above when calling show_product
+- IMPORTANT: When asked for "other" or "different" products, show products that HAVEN'T been shown yet
+- Keep track of conversation context - don't repeat the same products you've already shown
+- If you've shown all products and user asks for more, let them know you've shown everything available
 - Be helpful and guide customers toward products that match their needs`;
 
     console.log('System prompt:', systemPrompt);
