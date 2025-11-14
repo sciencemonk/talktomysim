@@ -252,14 +252,18 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-8 pb-8">
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Home</h2>
+        <p className="text-muted-foreground">
+          Manage your store settings and view recent activity
+        </p>
+      </div>
+
       {/* Store Settings */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <StoreIcon className="h-5 w-5 text-primary" />
-            <CardTitle>Store Settings</CardTitle>
-          </div>
+          <CardTitle>Store Settings</CardTitle>
           <CardDescription>
             Configure your store's basic information
           </CardDescription>
