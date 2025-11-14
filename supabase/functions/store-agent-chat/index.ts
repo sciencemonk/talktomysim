@@ -19,7 +19,20 @@ serve(async (req) => {
 
   try {
     const { conversationHistory, storeId, message, products: clientProducts } = await req.json();
-    const messages: ChatMessage[] = conversationHistory || [];
+    
+    // Convert conversation history and fix role names (agent -> assistant)
+    const messages: ChatMessage[] = (conversationHistory || []).map((msg: any) => ({
+      role: msg.role === 'agent' ? 'assistant' : msg.role,
+      content: msg.content
+    }));
+    
+    // Add the new user message
+    if (message) {
+      messages.push({
+        role: 'user',
+        content: message
+      });
+    }
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
