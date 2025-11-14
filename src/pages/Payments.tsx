@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Wallet, TrendingUp, DollarSign, Copy, AlertCircle, Save, Package, Clock, CheckCircle, ExternalLink } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Copy, AlertCircle, Save, Package, Clock, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
@@ -90,6 +90,19 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
     if (store?.id) {
       loadOrders();
     }
+  }, [store?.id]);
+
+  // Reload orders when page becomes visible (user returns from another tab/window)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && store?.id) {
+        console.log('Page visible, reloading orders...');
+        loadOrders();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [store?.id]);
 
   const loadOrders = async () => {
@@ -431,11 +444,28 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
 
       {/* Orders Section */}
       <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Orders</h3>
-          <p className="text-sm text-muted-foreground">
-            Track and manage your store orders
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Orders</h3>
+            <p className="text-sm text-muted-foreground">
+              Track and manage your store orders
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadOrders}
+            disabled={ordersLoading}
+          >
+            {ordersLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              'Refresh'
+            )}
+          </Button>
         </div>
 
         {ordersLoading ? (
