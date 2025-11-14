@@ -265,7 +265,7 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={simLogoAnimated} alt="SIM" className="h-8 w-auto" />
+                <img src={simLogoAnimated} alt="SIM" className="h-10 w-auto object-contain" />
               </button>
               
               {/* Right side - User dropdown or Sign In + Theme Toggle */}
