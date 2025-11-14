@@ -18,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    const { conversationHistory, storeId, message, products: clientProducts } = await req.json();
+    const { conversationHistory, storeId, message, products: clientProducts, shownProductIds: clientShownProductIds } = await req.json();
     
     // Convert conversation history and fix role names (agent -> assistant)
     const messages: ChatMessage[] = (conversationHistory || []).map((msg: any) => ({
@@ -85,20 +85,8 @@ serve(async (req) => {
         products.map((p: any) => `- "${p.title}": ${p.id}`).join('\n');
     }
     
-    // Track which products have been shown in this conversation
-    const shownProductIds = new Set<string>();
-    for (const msg of messages) {
-      if (msg.role === 'assistant' && typeof msg.content === 'string') {
-        // Check if message contains product ID references
-        const matches = msg.content.match(/product_id":\s*"([^"]+)"/g);
-        if (matches) {
-          matches.forEach(match => {
-            const id = match.match(/"([^"]+)"/)?.[1];
-            if (id) shownProductIds.add(id);
-          });
-        }
-      }
-    }
+    // Track which products have been shown using client-provided list
+    const shownProductIds = new Set<string>(clientShownProductIds || []);
 
     const systemPrompt = `You are an AI shopping assistant for ${store.store_name || 'this store'}.
 

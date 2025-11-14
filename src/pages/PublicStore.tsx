@@ -133,15 +133,24 @@ export default function PublicStore() {
     setIsSending(true);
 
     try {
-      const conversationHistory = chatMessages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      // Filter out product-only messages (they have productId but no content)
+      // and build conversation history with only text messages
+      const conversationHistory = chatMessages
+        .filter(msg => msg.content.trim() !== '' && !msg.productId)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
 
       conversationHistory.push({
         role: messageToSend.role,
         content: messageToSend.content
       });
+      
+      // Track which products have already been shown in this conversation
+      const shownProductIds = chatMessages
+        .filter(msg => msg.productId)
+        .map(msg => msg.productId);
 
       const agentMessageId = `agent-${Date.now()}`;
       setChatMessages(prev => [...prev, {
@@ -163,7 +172,8 @@ export default function PublicStore() {
             storeId: store.id,
             message: messageToSend.content,
             conversationHistory,
-            products
+            products,
+            shownProductIds
           })
         }
       );
