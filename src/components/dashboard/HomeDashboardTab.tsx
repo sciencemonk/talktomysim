@@ -115,24 +115,24 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
   };
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-4 md:space-y-8 pb-8">
       {/* Welcome Header */}
       <div className="space-y-1">
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-2xl md:text-4xl font-bold tracking-tight">
           Welcome back
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-sm md:text-lg text-muted-foreground">
           Here's what's happening with your store today
         </p>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-3 md:gap-6 md:grid-cols-2">
         {/* Total Earnings Card */}
         <Card className="border-2">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm font-medium">Total Earnings</CardDescription>
-            <CardTitle className="text-4xl font-bold tabular-nums">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardDescription className="text-xs md:text-sm font-medium">Total Earnings</CardDescription>
+            <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
               ${totalEarnings.toFixed(2)}
             </CardTitle>
           </CardHeader>
@@ -149,9 +149,9 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
 
         {/* Store Performance Card */}
         <Card className="border-2">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm font-medium">Store Performance</CardDescription>
-            <CardTitle className="text-4xl font-bold tabular-nums">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardDescription className="text-xs md:text-sm font-medium">Store Performance</CardDescription>
+            <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
               0
             </CardTitle>
           </CardHeader>
@@ -165,15 +165,15 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
       </div>
 
       {/* Store Configuration */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-3 md:gap-6 md:grid-cols-2">
         {/* Public Store URL */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3 md:pb-4">
             <div className="flex items-center gap-2">
-              <ExternalLink className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Public Store URL</CardTitle>
+              <ExternalLink className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+              <CardTitle className="text-base md:text-lg">Public Store URL</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               Share this link with customers to visit your store
             </CardDescription>
           </CardHeader>
@@ -262,12 +262,12 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
 
         {/* Embed Agent */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3 md:pb-4">
             <div className="flex items-center gap-2">
-              <Code className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Embed on Your Website</CardTitle>
+              <Code className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+              <CardTitle className="text-base md:text-lg">Embed on Your Website</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               Add your AI agent to any website with this embed code
             </CardDescription>
           </CardHeader>
@@ -275,7 +275,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
             {storeUrl ? (
               <>
                 <div className="relative">
-                  <pre className="px-3 py-2 bg-muted rounded-lg text-xs overflow-x-auto max-h-32">
+                  <pre className="px-2 py-1.5 md:px-3 md:py-2 bg-muted rounded-lg text-xs overflow-x-auto max-h-24 md:max-h-32">
                     <code>{`<script src="${window.location.origin}/embed.js"></script>
 <script>
   AgentEmbed.init({
@@ -312,24 +312,24 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
 
       {/* Quick Actions */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-3 md:pb-4">
+          <CardTitle className="text-base md:text-lg">Quick Actions</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Get started with these essential tasks
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 md:gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Button
               variant="outline"
-              className="justify-start h-auto py-4 px-4"
+              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
               onClick={() => {
                 const event = new CustomEvent('navigate-dashboard', { detail: 'agent' });
                 window.dispatchEvent(event);
               }}
             >
               <div className="text-left">
-                <div className="font-semibold">Configure Agent</div>
+                <div className="font-semibold text-sm">Configure Agent</div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Customize your AI assistant
                 </div>
@@ -337,14 +337,14 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
             </Button>
             <Button
               variant="outline"
-              className="justify-start h-auto py-4 px-4"
+              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
               onClick={() => {
                 const event = new CustomEvent('navigate-dashboard', { detail: 'catalog' });
                 window.dispatchEvent(event);
               }}
             >
               <div className="text-left">
-                <div className="font-semibold">Add Products</div>
+                <div className="font-semibold text-sm">Add Products</div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Build your product catalog
                 </div>
@@ -352,14 +352,14 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
             </Button>
             <Button
               variant="outline"
-              className="justify-start h-auto py-4 px-4"
+              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
               onClick={() => {
                 const event = new CustomEvent('navigate-dashboard', { detail: 'store' });
                 window.dispatchEvent(event);
               }}
             >
               <div className="text-left">
-                <div className="font-semibold">Preview Store</div>
+                <div className="font-semibold text-sm">Preview Store</div>
                 <div className="text-xs text-muted-foreground mt-1">
                   See how customers view your store
                 </div>
@@ -371,22 +371,22 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
 
       {/* Recent Activity */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3 md:pb-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Recent Activity</CardTitle>
+            <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+            <CardTitle className="text-base md:text-lg">Recent Activity</CardTitle>
           </div>
-          <CardDescription>
+          <CardDescription className="text-xs md:text-sm">
             Latest updates and interactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-4">
-              <TrendingUp className="h-6 w-6 text-muted-foreground" />
+          <div className="text-center py-8 md:py-12">
+            <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted mb-3 md:mb-4">
+              <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold mb-1">No activity yet</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-semibold mb-1 text-sm md:text-base">No activity yet</h3>
+            <p className="text-xs md:text-sm text-muted-foreground">
               Your store activity will appear here once customers start interacting with your agent
             </p>
           </div>
