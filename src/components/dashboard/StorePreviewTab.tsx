@@ -179,7 +179,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                 ));
               }
 
-              // Handle tool calls
+              // Handle tool calls - display product cards immediately
               if (delta_tool_calls) {
                 for (const toolCall of delta_tool_calls) {
                   const index = toolCall.index;
@@ -199,31 +199,35 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                   }
                 }
               }
+
+              // Check for completed tool calls with finish_reason
+              const finishReason = parsed.choices?.[0]?.finish_reason;
+              if (finishReason === 'tool_calls' && toolCalls.length > 0) {
+                // Process and display tool calls immediately
+                for (const toolCall of toolCalls) {
+                  if (toolCall.function.name === 'show_product' && toolCall.function.arguments) {
+                    try {
+                      const args = JSON.parse(toolCall.function.arguments);
+                      const productId = args.product_id;
+                      
+                      // Add product card message immediately
+                      setChatMessages(prev => [...prev, {
+                        id: `product-${Date.now()}-${Math.random()}`,
+                        role: 'agent',
+                        content: '',
+                        productId: productId,
+                        timestamp: new Date()
+                      }]);
+                    } catch (e) {
+                      console.error('Error processing tool call:', e);
+                    }
+                  }
+                }
+                // Clear tool calls after processing
+                toolCalls = [];
+              }
             } catch (e) {
               // Skip invalid JSON
-            }
-          }
-        }
-      }
-
-      // Process completed tool calls
-      if (toolCalls.length > 0) {
-        for (const toolCall of toolCalls) {
-          if (toolCall.function.name === 'show_product') {
-            try {
-              const args = JSON.parse(toolCall.function.arguments);
-              const productId = args.product_id;
-              
-              // Add product card message
-              setChatMessages(prev => [...prev, {
-                id: `product-${Date.now()}`,
-                role: 'agent',
-                content: '',
-                productId: productId,
-                timestamp: new Date()
-              }]);
-            } catch (e) {
-              console.error('Error processing tool call:', e);
             }
           }
         }
@@ -409,16 +413,21 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                       >
                         {msg.productId ? (
                           // Product card message
-                          <ChatProductCard
-                            product={products.find(p => p.id === msg.productId)!}
-                            onViewProduct={(productId) => {
-                              const product = products.find(p => p.id === productId);
-                              if (product) {
-                                setSelectedProduct(product);
-                                setProductModalOpen(true);
-                              }
-                            }}
-                          />
+                          (() => {
+                            const product = products.find(p => p.id === msg.productId);
+                            return product ? (
+                              <ChatProductCard
+                                product={product}
+                                onViewProduct={(productId) => {
+                                  const product = products.find(p => p.id === productId);
+                                  if (product) {
+                                    setSelectedProduct(product);
+                                    setProductModalOpen(true);
+                                  }
+                                }}
+                              />
+                            ) : null;
+                          })()
                         ) : (
                           // Regular text message
                           <div
