@@ -49,6 +49,7 @@ const Marketplace = () => {
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
   const { isSignedIn } = useIsSignedIn();
   const { evmAddress } = useEvmAddress();
   const { currentUser: cdpUser } = useCurrentUser();
@@ -295,9 +296,14 @@ const Marketplace = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <div className="scale-90">
-                    <AuthButton />
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setSignInModalOpen(true)}
+                    className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  >
+                    Sign In
+                  </Button>
                 )}
                 <ThemeToggle />
               </div>
@@ -317,9 +323,13 @@ const Marketplace = () => {
               </p>
               
               {/* Sign In Button */}
-              <div className="flex justify-center">
-                <AuthButton />
-              </div>
+              <Button
+                onClick={() => setSignInModalOpen(true)}
+                size="lg"
+                className="bg-white text-black hover:bg-white/90 text-lg px-8 py-6 h-auto font-semibold"
+              >
+                Sign In
+              </Button>
             </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
@@ -773,9 +783,13 @@ const Marketplace = () => {
           </div>
 
           <div className="text-center">
-            <div className="flex justify-center">
-              <AuthButton />
-            </div>
+            <Button
+              onClick={() => setSignInModalOpen(true)}
+              size="lg"
+              className="text-lg px-8 py-6 h-auto font-semibold"
+            >
+              Get Started
+            </Button>
           </div>
         </div>
       </div>
@@ -798,9 +812,13 @@ const Marketplace = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <div className="flex justify-center">
-                <AuthButton />
-              </div>
+              <Button
+                onClick={() => setSignInModalOpen(true)}
+                size="lg"
+                className="text-lg px-8 py-6 h-auto font-semibold"
+              >
+                Get Started
+              </Button>
             </div>
 
             {/* Trust indicators */}
