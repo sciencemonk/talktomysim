@@ -24,6 +24,7 @@ type Product = {
     name: boolean;
     phone: boolean;
     address: boolean;
+    wallet: boolean;
     custom_fields: Array<{name: string; label: string; required: boolean}>;
   };
 };
@@ -49,6 +50,7 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
     name: true,
     phone: false,
     address: false,
+    wallet: false,
     custom_fields: [] as Array<{name: string; label: string; required: boolean}>
   });
   const [images, setImages] = useState<string[]>([]);
@@ -70,6 +72,7 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         name: true,
         phone: false,
         address: false,
+        wallet: false,
         custom_fields: []
       });
       setImages(product.image_urls || []);
@@ -86,6 +89,7 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         name: true,
         phone: false,
         address: false,
+        wallet: false,
         custom_fields: []
       });
       setImages([]);
@@ -394,6 +398,19 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
                   />
                   <Label htmlFor="address" className="text-sm font-normal cursor-pointer">
                     Shipping Address
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="wallet"
+                    checked={checkoutFields.wallet}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, wallet: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="wallet" className="text-sm font-normal cursor-pointer">
+                    SOL Wallet Address
                   </Label>
                 </div>
               </div>

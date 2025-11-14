@@ -23,6 +23,18 @@ interface X402PaymentModalProps {
   simName: string;
   price: number;
   walletAddress: string;
+  product?: {
+    id: string;
+    title: string;
+    checkout_fields?: {
+      email?: boolean;
+      name?: boolean;
+      phone?: boolean;
+      address?: boolean;
+      wallet?: boolean;
+    };
+  };
+  storeId?: string;
 }
 
 export const X402PaymentModal = ({ 
@@ -31,18 +43,57 @@ export const X402PaymentModal = ({
   onPaymentSuccess,
   simName,
   price,
-  walletAddress
+  walletAddress,
+  product,
+  storeId
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [buyerInfo, setBuyerInfo] = useState({
+    email: '',
+    name: '',
+    phone: '',
+    address: '',
+    wallet: ''
+  });
   const { publicKey, sendTransaction, connected } = useWallet();
   const { connection } = useConnection();
 
   // USDC mint address on Solana mainnet
   const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
+  const validateRequiredFields = () => {
+    if (product?.checkout_fields) {
+      if (product.checkout_fields.email && !buyerInfo.email) {
+        toast.error('Please enter your email address');
+        return false;
+      }
+      if (product.checkout_fields.name && !buyerInfo.name) {
+        toast.error('Please enter your full name');
+        return false;
+      }
+      if (product.checkout_fields.phone && !buyerInfo.phone) {
+        toast.error('Please enter your phone number');
+        return false;
+      }
+      if (product.checkout_fields.address && !buyerInfo.address) {
+        toast.error('Please enter your shipping address');
+        return false;
+      }
+      if (product.checkout_fields.wallet && !buyerInfo.wallet) {
+        toast.error('Please enter your SOL wallet address');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handlePayment = async () => {
     if (!connected || !publicKey) {
       toast.error('Please connect your Solana wallet first');
+      return;
+    }
+
+    if (!validateRequiredFields()) {
       return;
     }
 
@@ -153,6 +204,44 @@ export const X402PaymentModal = ({
 
       console.log('Transaction confirmed:', signature);
 
+      // Store the order in the database if this is a product purchase
+      if (product && storeId) {
+        const orderData: any = {
+          product_id: product.id,
+          store_id: storeId,
+          amount: price,
+          currency: 'USDC',
+          payment_signature: signature,
+          status: 'completed'
+        };
+
+        if (product.checkout_fields) {
+          if (product.checkout_fields.email) orderData.buyer_email = buyerInfo.email;
+          if (product.checkout_fields.name) orderData.buyer_name = buyerInfo.name;
+          if (product.checkout_fields.phone) orderData.buyer_phone = buyerInfo.phone;
+          if (product.checkout_fields.address) {
+            orderData.buyer_address = { address: buyerInfo.address };
+          }
+          if (product.checkout_fields.wallet) {
+            orderData.custom_field_data = { wallet_address: buyerInfo.wallet };
+          }
+        }
+
+        try {
+          const { error: orderError } = await supabase
+            .from('orders' as any)
+            .insert(orderData);
+
+          if (orderError) {
+            console.error('Failed to store order:', orderError);
+          } else {
+            console.log('Order stored successfully');
+          }
+        } catch (orderStoreError) {
+          console.error('Error storing order:', orderStoreError);
+        }
+      }
+
       // Generate session ID
       const sessionId = `corbits_${signature}_${publicKey.toString().slice(0, 8)}`;
       
@@ -209,7 +298,7 @@ export const X402PaymentModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Payment Required</DialogTitle>
           <DialogDescription>
@@ -218,6 +307,73 @@ export const X402PaymentModal = ({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Buyer Information Form */}
+          {product?.checkout_fields && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Required Information</h3>
+              {product.checkout_fields.email && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Email Address *</label>
+                  <input
+                    type="email"
+                    value={buyerInfo.email}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    placeholder="your@email.com"
+                  />
+                </div>
+              )}
+              {product.checkout_fields.name && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Full Name *</label>
+                  <input
+                    type="text"
+                    value={buyerInfo.name}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    placeholder="John Doe"
+                  />
+                </div>
+              )}
+              {product.checkout_fields.phone && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Phone Number *</label>
+                  <input
+                    type="tel"
+                    value={buyerInfo.phone}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+              )}
+              {product.checkout_fields.address && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Shipping Address *</label>
+                  <textarea
+                    value={buyerInfo.address}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, address: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    placeholder="123 Main St, City, State, ZIP"
+                    rows={3}
+                  />
+                </div>
+              )}
+              {product.checkout_fields.wallet && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">SOL Wallet Address *</label>
+                  <input
+                    type="text"
+                    value={buyerInfo.wallet}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, wallet: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    placeholder="Your Solana wallet address"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Price:</span>
