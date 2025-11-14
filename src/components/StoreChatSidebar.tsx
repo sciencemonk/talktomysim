@@ -98,6 +98,12 @@ export const StoreChatSidebar = ({
       >
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={store.avatar_url} alt={store.store_name} />
+            <AvatarFallback>
+              <Bot className="h-5 w-5" />
+            </AvatarFallback>
+          </Avatar>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm truncate">{store.store_name}</h3>
             <p className="text-xs text-muted-foreground">AI Shopping Assistant</p>
