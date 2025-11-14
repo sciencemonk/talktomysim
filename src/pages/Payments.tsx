@@ -76,6 +76,7 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
 
   useEffect(() => {
     if (user) {
+      console.log('Current user:', user.id);
       loadEarningsData();
     }
   }, [user]);
@@ -88,6 +89,7 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
 
   useEffect(() => {
     if (store?.id) {
+      console.log('Store loaded:', { id: store.id, user_id: store.user_id, username: store.x_username });
       loadOrders();
     }
   }, [store?.id]);
@@ -108,6 +110,8 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
   const loadOrders = async () => {
     try {
       setOrdersLoading(true);
+      console.log('Loading orders for store:', store.id);
+      
       const { data, error } = await (supabase as any)
         .from('orders')
         .select(`
@@ -122,7 +126,12 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
         .eq('store_id', store.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Orders query result:', { data, error, count: data?.length });
+      
+      if (error) {
+        console.error('Orders query error:', error);
+        throw error;
+      }
       setOrders(data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
