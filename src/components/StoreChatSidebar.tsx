@@ -61,7 +61,9 @@ export const StoreChatSidebar = ({
     <>
       {/* Toggle Button - Only visible when closed */}
       {!isOpen && (
-        <div className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 right-4 group`}>
+        <div className={`${positionClass} ${zIndexClass} transition-all duration-300 group
+          lg:top-4 lg:right-4
+          bottom-4 right-4`}>
           <button
             onClick={onToggle}
             className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary transition-transform duration-200 hover:scale-110`}
@@ -86,11 +88,13 @@ export const StoreChatSidebar = ({
         </div>
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Responsive layout */}
       <div
-        className={`${positionClass} ${zIndexClass} top-0 right-0 h-full bg-background border-l border-border transition-all duration-300 flex flex-col ${
-          isOpen ? 'w-96' : 'w-0'
-        } overflow-hidden`}
+        className={`${positionClass} ${zIndexClass} bg-background border-border transition-all duration-300 flex flex-col overflow-hidden
+          lg:top-0 lg:right-0 lg:h-full lg:border-l lg:w-96
+          bottom-0 left-0 right-0 border-t w-full
+          ${isOpen ? 'lg:w-96 h-96' : 'w-0 h-0'}
+        `}
       >
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border">

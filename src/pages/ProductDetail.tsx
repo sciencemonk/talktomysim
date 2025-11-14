@@ -275,9 +275,9 @@ export default function ProductDetail() {
   const productUrl = `${window.location.origin}/store/${username}/product/${productId}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 relative flex">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 relative flex flex-col lg:flex-row">
       <div className={`flex-1 transition-all duration-300 ${
-        chatOpen ? 'mr-96' : ''
+        chatOpen ? 'lg:mr-96' : ''
       }`}>
         <div className="container mx-auto px-4 md:px-6 py-8">
         {/* Back Button and Share */}
