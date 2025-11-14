@@ -235,7 +235,7 @@ export const X402PaymentModal = ({
           amount: price,
           currency: 'USDC',
           payment_signature: signature,
-          status: 'completed'
+          status: 'pending'
         };
 
         if (product.checkout_fields) {
