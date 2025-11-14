@@ -175,7 +175,7 @@ export const ProductDetailModal = ({
                 {!storeWalletAddress 
                   ? "Store Wallet Not Configured" 
                   : product.is_active 
-                    ? "Purchase with x402" 
+                    ? "Purchase" 
                     : "Currently Unavailable"}
               </Button>
 
