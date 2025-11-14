@@ -60,16 +60,24 @@ export const StoreChatSidebar = ({
   return (
     <>
       {/* Toggle Button - Always visible */}
-      <Button
+      <button
         onClick={onToggle}
-        className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 shadow-lg ${
+        className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-border hover:scale-105 ${
           isOpen ? 'right-[400px]' : 'right-4'
         }`}
-        size="icon"
-        variant="default"
       >
-        {isOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-      </Button>
+        {store.avatar_url ? (
+          <img 
+            src={store.avatar_url} 
+            alt={store.store_name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
+            {store.store_name?.[0]}
+          </div>
+        )}
+      </button>
 
       {/* Sidebar */}
       <div
@@ -79,10 +87,6 @@ export const StoreChatSidebar = ({
       >
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={store.avatar_url} />
-            <AvatarFallback>{store.store_name?.[0]}</AvatarFallback>
-          </Avatar>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm truncate">{store.store_name}</h3>
             <p className="text-xs text-muted-foreground">AI Shopping Assistant</p>
