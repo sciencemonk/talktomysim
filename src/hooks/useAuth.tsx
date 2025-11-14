@@ -61,13 +61,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUser = (userData: any) => {
-    // Check if user explicitly signed out - prevent re-authentication
-    const explicitSignout = localStorage.getItem('explicit_signout');
-    if (explicitSignout === 'true') {
-      console.log('Blocked auto re-authentication after explicit sign out');
-      return;
-    }
-    
     setUser(userData);
     setSession({ user: userData });
     if (userData?.address) {
