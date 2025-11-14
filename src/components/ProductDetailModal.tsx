@@ -63,7 +63,6 @@ export const ProductDetailModal = ({
 
   const handlePaymentSuccess = (sessionId: string) => {
     console.log("Payment successful:", sessionId);
-    toast.success("Purchase successful! Check your email for delivery details.");
     setShowPaymentModal(false);
     onClose();
   };
@@ -192,6 +191,8 @@ export const ProductDetailModal = ({
         product={{
           id: product.id,
           title: product.title,
+          description: product.description,
+          delivery_info: product.delivery_info,
           checkout_fields: product.checkout_fields
         }}
         storeId={product.store_id}
