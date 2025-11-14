@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, ExternalLink, Package, Edit, X, Send } from "lucide-react";
+import { MessageSquare, ExternalLink, Package, Edit, X, Send, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -333,8 +333,8 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                         className="h-10 w-10 rounded-full border-2 border-primary object-cover"
                       />
                     ) : (
-                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <MessageSquare className="h-5 w-5 text-primary" />
+                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
+                        <Bot className="h-5 w-5 text-primary" />
                       </div>
                     )}
                     <div>
@@ -422,7 +422,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                   className="h-full w-full rounded-full object-cover"
                 />
               ) : (
-                <MessageSquare className="h-6 w-6" />
+                <Bot className="h-6 w-6" />
               )}
             </Button>
           )}
