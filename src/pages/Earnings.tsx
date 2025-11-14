@@ -6,26 +6,52 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Wallet, TrendingUp, DollarSign, ExternalLink, Copy, Check } from "lucide-react";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { getAccount, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 export default function Earnings() {
   const { user } = useAuth();
+  const { connection } = useConnection();
   const [store, setStore] = useState<any>(null);
   const [earnings, setEarnings] = useState({
     total: 0,
     thisMonth: 0,
     transactions: 0
   });
+  const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [processingOfframp, setProcessingOfframp] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState(false);
 
   const walletAddress = user?.address;
+  const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
   useEffect(() => {
     if (user) {
       loadEarningsData();
+      loadWalletBalance();
     }
   }, [user]);
+
+  const loadWalletBalance = async () => {
+    if (!walletAddress) return;
+    
+    try {
+      const walletPubkey = new PublicKey(walletAddress);
+      const tokenAccount = await getAssociatedTokenAddress(
+        USDC_MINT,
+        walletPubkey
+      );
+
+      const accountInfo = await getAccount(connection, tokenAccount);
+      const balance = Number(accountInfo.amount) / 1_000_000; // USDC has 6 decimals
+      setWalletBalance(balance);
+    } catch (error) {
+      console.error('Error loading wallet balance:', error);
+      setWalletBalance(0);
+    }
+  };
 
   const loadEarningsData = async () => {
     try {
@@ -251,12 +277,12 @@ export default function Earnings() {
             <div>
               <p className="font-medium">Available to cash out</p>
               <p className="text-2xl font-bold text-primary mt-1">
-                ${earnings.total.toFixed(2)} USDC
+                ${walletBalance.toFixed(2)} USDC
               </p>
             </div>
             <Button
               onClick={handleCashOut}
-              disabled={processingOfframp || !walletAddress || earnings.total === 0}
+              disabled={processingOfframp || !walletAddress || walletBalance === 0}
               className="gap-2"
             >
               {processingOfframp ? (
