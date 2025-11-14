@@ -85,13 +85,15 @@ const Dashboard = () => {
         }
         setStore(existingStore);
       } else {
-        // Create a default store for new users with Coinbase wallet
+        // Create a default store for new users
+        const defaultUsername = user.email?.split('@')[0]?.replace(/[^a-z0-9_-]/gi, '') || `user${Date.now()}`;
+        
         const { data: newStore, error: createError } = await supabase
           .from('stores')
           .insert({
             user_id: user.id,
             store_name: 'My Store',
-            x_username: user.email?.split('@')[0] || 'user',
+            x_username: defaultUsername,
             store_description: 'Welcome to my store',
             interaction_style: 'Friendly and helpful',
             response_tone: 'Professional',
@@ -102,9 +104,14 @@ const Dashboard = () => {
           .select()
           .single();
 
-        if (createError) throw createError;
-        setStore(newStore);
-        toast.success('Store created successfully!');
+        if (createError) {
+          console.error('Error creating store:', createError);
+          // Set store to null so user sees setup prompt
+          setStore(null);
+        } else {
+          setStore(newStore);
+          toast.success('Welcome! Your store has been created.');
+        }
       }
     } catch (error) {
       console.error('Error loading store:', error);

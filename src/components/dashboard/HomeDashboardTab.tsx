@@ -28,25 +28,55 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
   };
 
   const handleUpdateRoute = async () => {
-    if (!newRoute.trim() || newRoute === store?.x_username) {
+    if (!newRoute.trim()) {
+      toast.error('Please enter a store username');
+      return;
+    }
+
+    if (newRoute === store?.x_username) {
       setIsEditingRoute(false);
       return;
     }
 
     try {
       setSaving(true);
+      
+      // If no store exists yet, create one first
+      if (!store) {
+        const { data: newStore, error: createError } = await supabase
+          .from('stores')
+          .insert({
+            user_id: user.id,
+            store_name: 'My Store',
+            x_username: newRoute.trim(),
+            store_description: 'Welcome to my store',
+            interaction_style: 'Friendly and helpful',
+            response_tone: 'Professional',
+            primary_focus: 'Customer satisfaction',
+            greeting_message: 'Hello! How can I help you today?'
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        toast.success('Store created successfully!');
+        window.location.reload();
+        return;
+      }
+
+      // Otherwise update existing store
       const { error } = await supabase
         .from('stores')
         .update({ x_username: newRoute.trim() })
         .eq('id', store.id);
 
       if (error) throw error;
-      toast.success('Store route updated successfully');
+      toast.success('Store username updated successfully');
       setIsEditingRoute(false);
       window.location.reload();
     } catch (error) {
       console.error('Error updating route:', error);
-      toast.error('Failed to update store route');
+      toast.error('Failed to update store username. It may already be taken.');
     } finally {
       setSaving(false);
     }
@@ -168,9 +198,32 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
                 </Button>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                Configure your store username to publish
-              </p>
+              <div className="py-6 space-y-4">
+                <div className="text-center space-y-2">
+                  <h3 className="font-semibold text-foreground">Welcome! Let's set up your store</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Choose a unique username for your store URL
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <Input
+                    placeholder="your-store-name"
+                    value={newRoute}
+                    onChange={(e) => setNewRoute(e.target.value)}
+                    className="text-center"
+                  />
+                  <Button
+                    onClick={handleUpdateRoute}
+                    disabled={!newRoute.trim() || saving}
+                    className="w-full"
+                  >
+                    {saving ? 'Setting up...' : 'Create Store URL'}
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Your store will be at: {window.location.origin}/store/{newRoute || 'username'}
+                  </p>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
