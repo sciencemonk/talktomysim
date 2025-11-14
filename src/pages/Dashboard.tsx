@@ -427,7 +427,7 @@ const Dashboard = () => {
         </nav>
 
         {/* Page Content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-8 w-full max-w-full overflow-x-hidden">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
