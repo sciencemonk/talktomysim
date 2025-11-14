@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { StoreEditModal } from "./StoreEditModal";
+import { AgentEditModal } from "./AgentEditModal";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { ChatProductCard } from "@/components/ChatProductCard";
 import { formatPrice } from "@/lib/utils";
@@ -41,6 +42,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [agentEditModalOpen, setAgentEditModalOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -294,6 +296,14 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                 <Edit className="h-4 w-4" />
                 Edit Store
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => setAgentEditModalOpen(true)}
+                className="gap-2"
+              >
+                <Bot className="h-4 w-4" />
+                Edit Agent
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -514,6 +524,14 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       <StoreEditModal
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
+        store={store}
+        onUpdate={onUpdate}
+      />
+
+      {/* Agent Edit Modal */}
+      <AgentEditModal
+        open={agentEditModalOpen}
+        onOpenChange={setAgentEditModalOpen}
         store={store}
         onUpdate={onUpdate}
       />
