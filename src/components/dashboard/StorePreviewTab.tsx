@@ -274,19 +274,19 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       {/* Preview Header */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <CardTitle>Store Preview</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 This is how customers will see your store
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
               {store?.x_username && (
                 <Button
                   variant="outline"
                   onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   View Live Store <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -294,7 +294,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               <Button
                 variant="outline"
                 onClick={() => setEditModalOpen(true)}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 <Edit className="h-4 w-4" />
                 Edit Store
@@ -302,7 +302,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               <Button
                 variant="outline"
                 onClick={() => setAgentEditModalOpen(true)}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 <Bot className="h-4 w-4" />
                 Edit Agent
