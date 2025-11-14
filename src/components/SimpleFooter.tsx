@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { useState, useEffect } from "react";
+import simLogoAnimated from "@/assets/sim-logo-animated.gif";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 const SimpleFooter = () => {
@@ -23,7 +24,7 @@ const SimpleFooter = () => {
           {/* Left side - Logo and Copyright */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              
+              <img src={simLogoAnimated} alt="SIM" className="h-8 w-auto" />
             </button>
             <p className="text-xs text-muted-foreground text-center md:text-left">
               © 2025 SIM Project. All rights reserved.
