@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Code, DollarSign, TrendingUp, ShoppingBag, ExternalLink, Copy, Edit2, Check, ArrowUpRight } from "lucide-react";
+import { Code, DollarSign, TrendingUp, ShoppingBag, ExternalLink, Copy, Edit2, Check, ArrowUpRight, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,8 +16,66 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
   const [isEditingRoute, setIsEditingRoute] = useState(false);
   const [newRoute, setNewRoute] = useState(store?.x_username || '');
   const [saving, setSaving] = useState(false);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [loadingActivity, setLoadingActivity] = useState(true);
 
   const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
+
+  useEffect(() => {
+    const loadRecentActivity = async () => {
+      if (!store?.id) {
+        setLoadingActivity(false);
+        return;
+      }
+
+      try {
+        setLoadingActivity(true);
+        
+        // Fetch recent orders
+        const { data: orders } = await supabase
+          .from('orders')
+          .select('*, products(title)')
+          .eq('store_id', store.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        // Fetch recent products
+        const { data: products } = await supabase
+          .from('products')
+          .select('*')
+          .eq('store_id', store.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        // Combine and sort by timestamp
+        const activities = [
+          ...(orders || []).map(order => ({
+            type: 'order',
+            id: order.id,
+            title: `New order for ${order.products?.title || 'product'}`,
+            amount: order.amount,
+            status: order.status,
+            timestamp: order.created_at
+          })),
+          ...(products || []).map(product => ({
+            type: 'product',
+            id: product.id,
+            title: `Product added: ${product.title}`,
+            timestamp: product.created_at
+          }))
+        ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+         .slice(0, 5);
+
+        setRecentActivity(activities);
+      } catch (error) {
+        console.error('Error loading recent activity:', error);
+      } finally {
+        setLoadingActivity(false);
+      }
+    };
+
+    loadRecentActivity();
+  }, [store?.id]);
 
   const handleCopyUrl = () => {
     if (storeUrl) {
@@ -347,15 +405,57 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 md:py-12">
-            <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted mb-3 md:mb-4">
-              <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+          {loadingActivity ? (
+            <div className="text-center py-8">
+              <div className="text-sm text-muted-foreground">Loading activity...</div>
             </div>
-            <h3 className="font-semibold mb-1 text-sm md:text-base">No activity yet</h3>
-            <p className="text-xs md:text-sm text-muted-foreground">
-              Your store activity will appear here once customers start interacting with your agent
-            </p>
-          </div>
+          ) : recentActivity.length === 0 ? (
+            <div className="text-center py-8 md:py-12">
+              <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted mb-3 md:mb-4">
+                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-semibold mb-1 text-sm md:text-base">No activity yet</h3>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Your store activity will appear here once customers start interacting with your agent
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentActivity.map((activity) => (
+                <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                  <div className={`p-2 rounded-full ${activity.type === 'order' ? 'bg-primary/10' : 'bg-secondary/10'}`}>
+                    {activity.type === 'order' ? (
+                      <ShoppingBag className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Package className="h-4 w-4 text-secondary" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{activity.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(activity.timestamp).toLocaleDateString()} at {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                      {activity.type === 'order' && (
+                        <>
+                          <span className="text-xs text-muted-foreground">•</span>
+                          <span className={`text-xs font-medium ${activity.status === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>
+                            {activity.status}
+                          </span>
+                          {activity.amount && (
+                            <>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs font-medium">${activity.amount}</span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
