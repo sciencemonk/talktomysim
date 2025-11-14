@@ -294,17 +294,13 @@ export default function PublicStore() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-16">
-      {/* Top Navigation - Only Theme Toggle */}
-      <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 md:px-6 py-3">
-          <div className="flex items-center justify-end">
-            <ThemeToggle />
-          </div>
-        </div>
+      {/* Theme Toggle - Fixed Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
       </div>
 
       {/* Store Content */}
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
         <div className="max-w-6xl mx-auto">
           {/* Store Header */}
           <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
