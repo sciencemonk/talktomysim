@@ -124,22 +124,29 @@ export default function PublicStore() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!chatMessage.trim() || isSending || !store?.id) return;
-
-    const userMessage: ChatMessage = {
+  const handleSendMessage = async (presetMessage?: ChatMessage) => {
+    const messageToSend = presetMessage || (chatMessage.trim() ? {
       id: Date.now().toString(),
-      role: 'user',
+      role: 'user' as const,
       content: chatMessage.trim(),
       timestamp: new Date()
-    };
+    } : null);
+    
+    if (!messageToSend || isSending || !store?.id) return;
 
-    setChatMessages(prev => [...prev, userMessage]);
+    // Only add to messages if not already added (preset messages are pre-added)
+    if (!presetMessage) {
+      setChatMessages(prev => [...prev, messageToSend]);
+    }
     setChatMessage('');
     setIsSending(true);
 
     try {
-      const messagesToSend = [...chatMessages, userMessage].map(msg => ({
+      const allMessages = presetMessage 
+        ? [...chatMessages, messageToSend]
+        : chatMessages;
+      
+      const messagesToSend = allMessages.map(msg => ({
         role: msg.role === 'agent' ? 'assistant' : msg.role,
         content: msg.content
       }));
@@ -385,6 +392,19 @@ export default function PublicStore() {
         }}
         storeWalletAddress={store.crypto_wallet || ''}
         storeName={store.store_name}
+        onPurchaseSuccess={(productTitle) => {
+          // Add a message about the purchase to the chat
+          const purchaseMessage: ChatMessage = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: `I just purchased: ${productTitle}`,
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, purchaseMessage]);
+          
+          // Trigger AI response
+          handleSendMessage(purchaseMessage);
+        }}
       />
 
       {/* Footer Badge */}
