@@ -33,6 +33,7 @@ interface ProductDetailModalProps {
   onClose: () => void;
   storeWalletAddress: string;
   storeName: string;
+  onPurchaseSuccess?: (productTitle: string) => void;
 }
 
 export const ProductDetailModal = ({
@@ -41,6 +42,7 @@ export const ProductDetailModal = ({
   onClose,
   storeWalletAddress,
   storeName,
+  onPurchaseSuccess,
 }: ProductDetailModalProps) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -65,6 +67,10 @@ export const ProductDetailModal = ({
     console.log("Payment successful:", sessionId);
     setShowPaymentModal(false);
     onClose();
+    // Notify the chat about the purchase
+    if (onPurchaseSuccess && product) {
+      onPurchaseSuccess(product.title);
+    }
   };
 
   return (
