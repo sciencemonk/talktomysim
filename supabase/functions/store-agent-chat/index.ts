@@ -64,7 +64,13 @@ serve(async (req) => {
       productContext = '\n\nNote: No products are currently available in the catalog.';
     }
     
-    // Build system prompt
+    // Build system prompt with product ID mapping
+    let productIdMapping = '';
+    if (products && products.length > 0) {
+      productIdMapping = '\n\nPRODUCT IDs (use these exact IDs with show_product tool):\n' + 
+        products.map((p: any) => `- "${p.title}": ${p.id}`).join('\n');
+    }
+    
     const systemPrompt = `You are an AI shopping assistant for ${store.store_name || 'this store'}.
 
 STORE DESCRIPTION:
@@ -77,16 +83,15 @@ INTERACTION STYLE: ${store.interaction_style || 'Friendly and helpful'}
 RESPONSE TONE: ${store.response_tone || 'Professional'}
 PRIMARY FOCUS: ${store.primary_focus || 'Customer satisfaction'}
 
-${productContext}
+${productContext}${productIdMapping}
 
-GUIDELINES:
-- Be helpful and guide customers toward products that match their needs
-- Provide detailed information about products when asked
-- Make personalized recommendations based on customer preferences
-- Be honest if a product isn't available
-- Keep responses conversational and engaging
-- Focus on understanding customer needs first before recommending products
-- When you want to show a product to the customer, use the show_product tool with the product ID`;
+CRITICAL GUIDELINES:
+- ALWAYS use the show_product tool when mentioning any specific product to the customer
+- The tool will display a beautiful product card with image, price, and purchase button
+- After using show_product, you can add brief commentary about the product
+- Never just describe a product in text - ALWAYS call show_product first
+- Use the exact product IDs listed above when calling show_product
+- Be helpful and guide customers toward products that match their needs`;
 
     console.log('System prompt:', systemPrompt);
     console.log('Messages:', messages);
@@ -120,6 +125,7 @@ GUIDELINES:
         ...messages
       ],
       stream: true,
+      tool_choice: "auto", // Encourage tool usage
     };
 
     if (tools) {
