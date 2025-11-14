@@ -276,7 +276,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
               <>
                 <div className="relative">
                   <pre className="px-2 py-1.5 md:px-3 md:py-2 bg-muted rounded-lg text-xs overflow-x-auto max-h-24 md:max-h-32">
-                    <code>{`<script src="${window.location.origin}/embed.js"></script>
+                    <code>{`<script src="https://simproject.org/embed.js"></script>
 <script>
   AgentEmbed.init({
     agentUrl: "${storeUrl}",
@@ -289,7 +289,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
                     variant="outline"
                     className="absolute top-2 right-2"
                     onClick={() => {
-                      const embedCode = `<script src="${window.location.origin}/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}",\n    position: "bottom-right"\n  });\n</script>`;
+                      const embedCode = `<script src="https://simproject.org/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}",\n    position: "bottom-right"\n  });\n</script>`;
                       navigator.clipboard.writeText(embedCode);
                       toast.success('Embed code copied to clipboard');
                     }}
