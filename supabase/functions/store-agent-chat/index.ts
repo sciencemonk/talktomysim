@@ -85,26 +85,54 @@ GUIDELINES:
 - Make personalized recommendations based on customer preferences
 - Be honest if a product isn't available
 - Keep responses conversational and engaging
-- Focus on understanding customer needs first before recommending products`;
+- Focus on understanding customer needs first before recommending products
+- When you want to show a product to the customer, use the show_product tool with the product ID`;
 
     console.log('System prompt:', systemPrompt);
     console.log('Messages:', messages);
 
+    // Define tools for product recommendations
+    const tools = products && products.length > 0 ? [
+      {
+        type: "function",
+        function: {
+          name: "show_product",
+          description: "Display a product card with details, image, and purchase button to the customer",
+          parameters: {
+            type: "object",
+            properties: {
+              product_id: {
+                type: "string",
+                description: "The ID of the product to display"
+              }
+            },
+            required: ["product_id"]
+          }
+        }
+      }
+    ] : undefined;
+
     // Call Lovable AI Gateway with streaming
+    const requestBody: any = {
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
+      stream: true,
+    };
+
+    if (tools) {
+      requestBody.tools = tools;
+    }
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        stream: true,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
