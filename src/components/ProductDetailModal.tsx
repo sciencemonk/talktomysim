@@ -70,14 +70,15 @@ export const ProductDetailModal = ({
 
   return (
     <>
-      <Dialog open={isOpen && !showPaymentModal} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">{product.title}</DialogTitle>
-            <DialogDescription className="sr-only">
-              Product details and purchase information
-            </DialogDescription>
-          </DialogHeader>
+      <div className="product-detail-modal">
+        <Dialog open={isOpen && !showPaymentModal} onOpenChange={onClose}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">{product.title}</DialogTitle>
+              <DialogDescription className="sr-only">
+                Product details and purchase information
+              </DialogDescription>
+            </DialogHeader>
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Product Images */}
@@ -178,6 +179,7 @@ export const ProductDetailModal = ({
           </div>
         </DialogContent>
       </Dialog>
+      </div>
 
       {/* X402 Payment Modal */}
       <X402PaymentModal
