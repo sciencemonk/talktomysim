@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -132,12 +133,41 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
         console.error('Orders query error:', error);
         throw error;
       }
-      setOrders(data || []);
+      
+      // Sort: pending orders first, then completed, both by created_at desc
+      const sorted = (data || []).sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setOrders(sorted);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast.error('Failed to load orders');
     } finally {
       setOrdersLoading(false);
+    }
+  };
+
+  const handleToggleFulfillment = async (order: Order, isCompleted: boolean) => {
+    try {
+      const newStatus = isCompleted ? 'completed' : 'pending';
+      const { error } = await (supabase as any)
+        .from('orders')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      toast.success(`Order marked as ${newStatus}`);
+      loadOrders();
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast.error('Failed to update order');
     }
   };
 
@@ -536,30 +566,32 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-2">
-                    {order.status === "pending" && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpdateStatus(order, "completed")}
-                      >
-                        Mark Complete
-                      </Button>
-                    )}
-                    {order.status === "completed" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUpdateStatus(order, "pending")}
-                      >
-                        Mark Pending
-                      </Button>
-                    )}
+                  <div className="flex items-center justify-between gap-4 pt-2 border-t">
+                    <div className="flex items-center gap-3">
+                      <Label htmlFor={`fulfillment-${order.id}`} className="text-sm text-muted-foreground cursor-pointer">
+                        Fulfillment:
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm ${order.status === 'pending' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          Pending
+                        </span>
+                        <Switch
+                          id={`fulfillment-${order.id}`}
+                          checked={order.status === 'completed'}
+                          onCheckedChange={(checked) => handleToggleFulfillment(order, checked)}
+                        />
+                        <span className={`text-sm ${order.status === 'completed' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          Completed
+                        </span>
+                      </div>
+                    </div>
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => setSelectedOrder(order)}
                     >
                       Details
+                      <ExternalLink className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
                 </CardContent>
