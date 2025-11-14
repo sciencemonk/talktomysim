@@ -12,6 +12,7 @@ import {
 } from "@solana/spl-token";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +54,9 @@ export const X402PaymentModal = ({
     name: '',
     phone: '',
     address: '',
-    wallet: ''
+    wallet: '',
+    sex: '',
+    size: ''
   });
   const { publicKey, sendTransaction, connected } = useWallet();
   const { connection } = useConnection();
@@ -222,8 +225,17 @@ export const X402PaymentModal = ({
           if (product.checkout_fields.address) {
             orderData.buyer_address = { address: buyerInfo.address };
           }
-          if (product.checkout_fields.wallet) {
-            orderData.custom_field_data = { wallet_address: buyerInfo.wallet };
+          
+          // Store custom field data
+          const customData: any = {};
+          if (product.checkout_fields.wallet && buyerInfo.wallet) {
+            customData.wallet_address = buyerInfo.wallet;
+          }
+          if (buyerInfo.sex) customData.sex = buyerInfo.sex;
+          if (buyerInfo.size) customData.size = buyerInfo.size;
+          
+          if (Object.keys(customData).length > 0) {
+            orderData.custom_field_data = customData;
           }
         }
 
@@ -371,6 +383,39 @@ export const X402PaymentModal = ({
                   />
                 </div>
               )}
+              
+              {/* Optional Fields - Always shown for physical products */}
+              <div className="pt-2 border-t border-border">
+                <h4 className="text-xs font-medium text-muted-foreground mb-3">Optional Information</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Sex</label>
+                    <Select value={buyerInfo.sex} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, sex: value }))}>
+                      <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border z-[9999]">
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Size</label>
+                    <Select value={buyerInfo.size} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, size: value }))}>
+                      <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border z-[9999]">
+                        <SelectItem value="small">Small</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="large">Large</SelectItem>
+                        <SelectItem value="xl">XL</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
