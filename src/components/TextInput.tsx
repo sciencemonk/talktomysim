@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TextInputProps {
   onSendMessage: (message: string) => void;
@@ -19,6 +20,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isMobile = useIsMobile();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +30,12 @@ export const TextInput: React.FC<TextInputProps> = ({
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
-        // Keep focus on the textarea after sending
-        setTimeout(() => {
-          textareaRef.current?.focus();
-        }, 0);
+        // Keep focus on the textarea after sending (only on desktop)
+        if (!isMobile) {
+          setTimeout(() => {
+            textareaRef.current?.focus();
+          }, 0);
+        }
       }
     }
   };
@@ -57,12 +61,12 @@ export const TextInput: React.FC<TextInputProps> = ({
     }
   }, [message]);
 
-  // Auto-focus on mount and when enabled
+  // Auto-focus only on desktop (not mobile) when enabled
   useEffect(() => {
-    if (!disabled && textareaRef.current) {
+    if (!disabled && !isMobile && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [disabled]);
+  }, [disabled, isMobile]);
 
   return (
     <div className="w-full p-3">
@@ -92,7 +96,7 @@ export const TextInput: React.FC<TextInputProps> = ({
               type="submit" 
               disabled={!message.trim() || disabled}
               size="sm"
-              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black"
+              className="h-10 w-10 p-0 flex-shrink-0 rounded-lg bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black touch-manipulation"
             >
               <Send className="h-4 w-4" />
             </Button>
