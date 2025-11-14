@@ -349,6 +349,14 @@ const Dashboard = () => {
                 </span>
               )}
             </button>
+            
+            {/* Theme Toggle */}
+            <div className={cn(
+              "px-3 py-2.5",
+              sidebarOpen ? "" : "flex justify-center"
+            )}>
+              <ThemeToggle />
+            </div>
           </nav>
 
           {/* User Section at Bottom */}
@@ -389,11 +397,6 @@ const Dashboard = () => {
       )}>
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
-          {/* Theme Toggle - Top Right */}
-          <div className="flex justify-end mb-4">
-            <ThemeToggle />
-          </div>
-          
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
             {activeView === "home" && <HomeDashboardTab store={store} />}
