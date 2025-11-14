@@ -61,9 +61,7 @@ export const StoreChatSidebar = ({
     <>
       {/* Toggle Button - Only visible when closed */}
       {!isOpen && (
-        <div className={`${positionClass} ${zIndexClass} transition-all duration-300 group
-          lg:top-4 lg:right-4
-          bottom-4 right-4`}>
+        <div className={`${positionClass} ${zIndexClass} top-4 right-4 transition-all duration-300 group`}>
           <button
             onClick={onToggle}
             className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary transition-transform duration-200 hover:scale-110`}
@@ -88,12 +86,12 @@ export const StoreChatSidebar = ({
         </div>
       )}
 
-      {/* Sidebar - Responsive layout */}
+      {/* Sidebar - Desktop: right side column, Mobile: bottom panel */}
       <div
         className={`${positionClass} ${zIndexClass} bg-background border-border transition-all duration-300 flex flex-col overflow-hidden
-          lg:top-0 lg:right-0 lg:h-full lg:border-l lg:w-96
-          bottom-0 left-0 right-0 border-t w-full
-          ${isOpen ? 'lg:w-96 h-96' : 'w-0 h-0'}
+          lg:top-0 lg:right-0 lg:h-full lg:border-l
+          max-lg:bottom-0 max-lg:left-0 max-lg:right-0 max-lg:border-t
+          ${isOpen ? 'lg:w-96 max-lg:h-96' : 'w-0 h-0'}
         `}
       >
         {/* Header */}
