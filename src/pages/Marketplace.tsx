@@ -313,7 +313,7 @@ const Marketplace = () => {
                 More Sales with AI Agents
               </h1>
               <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-4xl mx-auto whitespace-nowrap">
-                A custom built AI Agent right on your store that drives more sales.
+                Delight your customers and make more sales.
               </p>
               
               {/* Sign In Button */}
