@@ -275,10 +275,11 @@ export default function ProductDetail() {
   const productUrl = `${window.location.origin}/store/${username}/product/${productId}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
-      <div className={`container mx-auto px-4 md:px-6 py-8 transition-all duration-300 ${
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 relative flex">
+      <div className={`flex-1 transition-all duration-300 ${
         chatOpen ? 'mr-96' : ''
       }`}>
+        <div className="container mx-auto px-4 md:px-6 py-8">
         {/* Back Button and Share */}
         <div className="flex items-center justify-between mb-6">
           <Button
@@ -385,19 +386,20 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-      <footer className="mt-16 mb-8 flex justify-center">
-        <a
-          href="https://simproject.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
-        >
-          <ExternalLink className="h-4 w-4" />
-          Create your own Agentic Storefront
-        </a>
-      </footer>
+        <footer className="mt-16 mb-8 flex justify-center">
+          <a
+            href="https://simproject.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Create your own Agentic Storefront
+          </a>
+        </footer>
+      </div>
 
       {showPaymentModal && product && store && (
         <X402PaymentModal
@@ -436,7 +438,7 @@ export default function ProductDetail() {
             navigate(`/store/${username}/product/${productId}`);
           }
         }}
-        positioning="fixed"
+        positioning="absolute"
       />
     </div>
   );
