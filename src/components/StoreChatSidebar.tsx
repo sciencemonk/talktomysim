@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, Loader2, Bot } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { formatPrice } from '@/lib/utils';
 
@@ -65,21 +65,11 @@ export const StoreChatSidebar = ({
       } group`}>
         <button
           onClick={onToggle}
-          className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-border transition-transform duration-200 ${
+          className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary bg-primary flex items-center justify-center transition-transform duration-200 ${
             !isOpen ? 'hover:scale-110' : ''
           }`}
         >
-          {store.avatar_url ? (
-            <img 
-              src={store.avatar_url} 
-              alt={store.store_name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-              {store.store_name?.[0]}
-            </div>
-          )}
+          <Bot className="h-6 w-6 text-primary-foreground" />
         </button>
         
         {/* Badge - Only visible when closed */}
