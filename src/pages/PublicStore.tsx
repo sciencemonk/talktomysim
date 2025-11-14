@@ -409,38 +409,48 @@ export default function PublicStore() {
         <Button
           onClick={() => setChatOpen(true)}
           size="lg"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 p-0 overflow-hidden"
         >
-          <MessageSquare className="h-6 w-6" />
+          {store.avatar_url ? (
+            <img
+              src={store.avatar_url}
+              alt="Chat"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Bot className="h-6 w-6" />
+          )}
         </Button>
       )}
 
       {/* Chat Window */}
       {chatOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col border-2">
-          <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
-            <div className="flex items-center gap-2">
+        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b bg-background">
+            <div className="flex items-center gap-3">
               {store.avatar_url ? (
-                <img
-                  src={store.avatar_url}
-                  alt="Agent"
-                  className="h-10 w-10 rounded-full border-2 border-primary-foreground object-cover"
-                />
+                <div className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden flex-shrink-0">
+                  <img
+                    src={store.avatar_url}
+                    alt="Agent"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               ) : (
-                <div className="h-10 w-10 rounded-full bg-primary-foreground/20 flex items-center justify-center border-2 border-primary-foreground">
-                  <Bot className="h-5 w-5 text-primary-foreground" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary flex-shrink-0">
+                  <Bot className="h-6 w-6 text-primary" />
                 </div>
               )}
               <div>
-                <h3 className="font-semibold text-sm">{store.store_name} Assistant</h3>
-                <p className="text-xs opacity-90">Online</p>
+                <h3 className="font-semibold">{store.store_name} AI</h3>
+                <p className="text-xs text-muted-foreground">Online now</p>
               </div>
             </div>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setChatOpen(false)}
-              className="hover:bg-primary-foreground/10"
+              className="h-8 w-8 rounded-full"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -474,10 +484,10 @@ export default function PublicStore() {
                     })()
                   ) : (
                     <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                         msg.role === 'user'
                           ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
+                          : 'bg-muted text-foreground'
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
