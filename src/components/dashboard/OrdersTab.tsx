@@ -71,7 +71,15 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      
+      // Sort: pending orders first, then completed, both by created_at desc
+      const sorted = (data || []).sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setOrders(sorted);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast.error('Failed to load orders');
