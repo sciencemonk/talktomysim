@@ -831,9 +831,7 @@ const Marketplace = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center">
-              <div className="bg-black/90 rounded-lg px-2 py-1">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
-              </div>
+              <img src={simLogoAnimated} alt="SIM" className="h-8 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground">
               © 2025 SIM. All rights reserved.
