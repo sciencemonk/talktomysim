@@ -67,7 +67,10 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
       if (error) {
         console.error('Error fetching products:', error);
       } else {
-        setProducts(data || []);
+        setProducts((data || []).map(p => ({
+          ...p,
+          image_urls: (Array.isArray(p.image_urls) ? p.image_urls : []) as string[]
+        })) as Product[]);
       }
     };
 
