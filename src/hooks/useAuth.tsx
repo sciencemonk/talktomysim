@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useSignOut } from '@coinbase/cdp-hooks';
 import { userProfileService } from '@/services/userProfileService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: any | null;
@@ -71,13 +72,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setSession(null);
       localStorage.removeItem('coinbase_wallet_address');
-      // Sign out from Coinbase CDP (may fail with 401 if already signed out)
-      try {
-        await cdpSignOut();
-      } catch (cdpError) {
-        // Ignore 401 errors from CDP as user is already signed out locally
-        console.log('CDP sign out completed or already signed out');
-      }
+      
+      // Sign out from both Coinbase CDP and Supabase
+      await Promise.all([
+        cdpSignOut().catch(() => console.log('CDP sign out completed or already signed out')),
+        supabase.auth.signOut().catch(() => console.log('Supabase sign out completed or already signed out'))
+      ]);
     } catch (error) {
       console.error('Error signing out:', error);
     }
