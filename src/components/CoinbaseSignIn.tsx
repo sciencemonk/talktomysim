@@ -24,30 +24,44 @@ export const CoinbaseSignIn = () => {
       }
       
       if (isSignedIn && evmAddress && currentUser) {
-        // Clear any previous signout flag when user actively signs in
-        localStorage.removeItem('explicit_signout');
-        
-        // Use userId from currentUser or generate from address
-        const email = currentUser.userId || `${evmAddress.slice(0, 8)}@wallet.local`;
-        
-        // Create or update user profile in database
-        await userProfileService.upsertProfile(evmAddress, email);
-        
-        // Get user data when signed in
-        const userData = { 
-          address: evmAddress,
-          email: email,
-          coinbaseAuth: true,
-          signedInAt: new Date().toISOString()
-        };
-        updateUser(userData);
-        
-        toast.success('Successfully signed in with Coinbase!');
-        
-        // Redirect to dashboard
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        try {
+          // Clear any previous signout flag when user actively signs in
+          localStorage.removeItem('explicit_signout');
+          
+          // Use userId from currentUser or generate from address
+          const email = currentUser.userId || `${evmAddress.slice(0, 8)}@wallet.local`;
+          
+          // Create or update user profile in database with timeout
+          const profilePromise = userProfileService.upsertProfile(evmAddress, email);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Profile update timed out')), 15000)
+          );
+          
+          await Promise.race([profilePromise, timeoutPromise]);
+          
+          // Get user data when signed in
+          const userData = { 
+            address: evmAddress,
+            email: email,
+            coinbaseAuth: true,
+            signedInAt: new Date().toISOString()
+          };
+          updateUser(userData);
+          
+          toast.success('Successfully signed in with Coinbase!');
+          
+          // Redirect to dashboard
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 1000);
+        } catch (error) {
+          console.error('Sign in error:', error);
+          if (error instanceof Error && error.message.includes('timed out')) {
+            toast.error('Sign in timed out. Please check your connection and try again.');
+          } else {
+            toast.error('Sign in failed. Please try again.');
+          }
+        }
       }
     };
     
