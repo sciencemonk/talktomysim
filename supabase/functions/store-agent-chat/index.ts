@@ -18,7 +18,8 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, storeId }: { messages: ChatMessage[], storeId: string } = await req.json();
+    const { conversationHistory, storeId, message, products: clientProducts } = await req.json();
+    const messages: ChatMessage[] = conversationHistory || [];
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
