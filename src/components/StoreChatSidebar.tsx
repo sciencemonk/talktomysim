@@ -65,11 +65,21 @@ export const StoreChatSidebar = ({
       } group`}>
         <button
           onClick={onToggle}
-          className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary bg-primary flex items-center justify-center transition-transform duration-200 ${
+          className={`shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary transition-transform duration-200 ${
             !isOpen ? 'hover:scale-110' : ''
           }`}
         >
-          <Bot className="h-6 w-6 text-primary-foreground" />
+          {store.avatar_url ? (
+            <img 
+              src={store.avatar_url} 
+              alt={store.store_name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
+              <Bot className="h-6 w-6" />
+            </div>
+          )}
         </button>
         
         {/* Badge - Only visible when closed */}

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Package, DollarSign, Info } from "lucide-react";
+import { ArrowLeft, Package, DollarSign, Info, ExternalLink } from "lucide-react";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
 import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { ShareButton } from "@/components/ShareButton";
@@ -387,6 +387,18 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      <footer className="mt-16 mb-8 flex justify-center">
+        <a
+          href="https://simproject.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Create your own Agentic Storefront
+        </a>
+      </footer>
+
       {showPaymentModal && product && store && (
         <X402PaymentModal
           isOpen={showPaymentModal}
@@ -411,7 +423,7 @@ export default function ProductDetail() {
         onToggle={() => setChatOpen(!chatOpen)}
         store={{
           store_name: store.store_name,
-          avatar_url: store.logo_url || store.avatar_url
+          avatar_url: store.avatar_url
         }}
         chatMessages={chatMessages}
         chatMessage={chatMessage}
