@@ -10,6 +10,7 @@ import { useOfferings } from "@/hooks/useOfferings";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQuery } from "@tanstack/react-query";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoAnimated from "@/assets/sim-logo-animated.gif";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
 import shopifyLogo from "@/assets/shopify-logo.png";
@@ -264,9 +265,7 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <div className="bg-black/90 rounded-lg px-2 py-1">
-                  <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
-                </div>
+                <img src={simLogoAnimated} alt="SIM" className="h-8 w-auto" />
               </button>
               
               {/* Right side - User dropdown or Sign In + Theme Toggle */}
