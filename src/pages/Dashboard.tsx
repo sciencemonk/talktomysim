@@ -387,18 +387,13 @@ const Dashboard = () => {
         "md:ml-64 md:sidebarOpen:ml-64 md:sidebarClosed:ml-16",
         sidebarOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        {/* Desktop Top Navigation */}
-        <nav className="hidden md:block border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-end h-16">
-              {/* Right side - Theme Toggle */}
-              <ThemeToggle />
-            </div>
-          </div>
-        </nav>
-
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
+          {/* Theme Toggle - Top Right */}
+          <div className="flex justify-end mb-4">
+            <ThemeToggle />
+          </div>
+          
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
             {activeView === "home" && <HomeDashboardTab store={store} />}
