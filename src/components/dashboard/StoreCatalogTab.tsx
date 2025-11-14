@@ -17,6 +17,16 @@ type Product = {
   image_urls?: string[];
   is_active: boolean;
   delivery_info?: string;
+  checkout_fields?: {
+    email: boolean;
+    name: boolean;
+    phone: boolean;
+    address: boolean;
+    wallet: boolean;
+    sex: boolean;
+    size: boolean;
+    custom_fields: Array<{name: string; label: string; required: boolean}>;
+  };
 };
 
 type StoreCatalogTabProps = {
@@ -58,7 +68,8 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
         currency: p.currency,
         image_urls: (p.image_urls as string[]) || [],
         is_active: p.is_active,
-        delivery_info: p.delivery_info
+        delivery_info: p.delivery_info,
+        checkout_fields: p.checkout_fields
       }));
       setProducts(products);
     } catch (error) {
