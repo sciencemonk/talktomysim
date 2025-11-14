@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 type Product = {
   id: string;
@@ -332,12 +331,17 @@ export default function PublicStore() {
         <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col border-2">
           <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={store.avatar_url} alt={store.store_name} />
-                <AvatarFallback>
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+              {store.avatar_url ? (
+                <img
+                  src={store.avatar_url}
+                  alt="Agent"
+                  className="h-10 w-10 rounded-full border-2 border-primary-foreground object-cover"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-primary-foreground/20 flex items-center justify-center border-2 border-primary-foreground">
+                  <Bot className="h-5 w-5 text-primary-foreground" />
+                </div>
+              )}
               <div>
                 <h3 className="font-semibold text-sm">{store.store_name} Assistant</h3>
                 <p className="text-xs opacity-90">Online</p>
