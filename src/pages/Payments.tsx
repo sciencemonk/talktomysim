@@ -119,6 +119,27 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
     }
   };
 
+  const handleUpdateStatus = async (order: Order, newStatus: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('orders')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      toast.success(`Order marked as ${newStatus}`);
+      loadOrders();
+      loadEarningsData(); // Refresh earnings after status change
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast.error('Failed to update order');
+    }
+  };
+
   const loadWalletBalance = async () => {
     if (!store?.crypto_wallet) return;
     
@@ -407,6 +428,227 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
             </CardContent>
         </Card>
       </div>
+
+      {/* Orders Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Orders</h3>
+          <p className="text-sm text-muted-foreground">
+            Track and manage your store orders
+          </p>
+        </div>
+
+        {ordersLoading ? (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <div className="text-muted-foreground">Loading orders...</div>
+          </div>
+        ) : orders.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Package className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No orders yet</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {orders.map((order) => (
+              <Card key={order.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle className="text-base">
+                        {order.products?.title || "Product"}
+                      </CardTitle>
+                      <CardDescription>
+                        {format(new Date(order.created_at), "MMM d, yyyy 'at' h:mm a")}
+                      </CardDescription>
+                    </div>
+                    <Badge
+                      variant={order.status === "completed" ? "default" : "secondary"}
+                    >
+                      {order.status === "completed" ? (
+                        <CheckCircle className="mr-1 h-3 w-3" />
+                      ) : (
+                        <Clock className="mr-1 h-3 w-3" />
+                      )}
+                      {order.status}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Amount</span>
+                    <span className="font-semibold">
+                      {order.amount} {order.currency}
+                    </span>
+                  </div>
+
+                  {order.buyer_name && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Customer</span>
+                      <span className="text-sm">{order.buyer_name}</span>
+                    </div>
+                  )}
+
+                  {order.buyer_email && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Email</span>
+                      <span className="text-sm">{order.buyer_email}</span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-2">
+                    {order.status === "pending" && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleUpdateStatus(order, "completed")}
+                      >
+                        Mark Complete
+                      </Button>
+                    )}
+                    {order.status === "completed" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleUpdateStatus(order, "pending")}
+                      >
+                        Mark Pending
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedOrder(order)}
+                    >
+                      Details
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+            <DialogDescription>
+              Complete information about this order
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Product Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Product:</span>{" "}
+                      <span>{selectedOrder.products?.title}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Description:</span>{" "}
+                      <p className="mt-1">{selectedOrder.products?.description}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Price:</span>{" "}
+                      <span>${selectedOrder.products?.price}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">Customer Details</h4>
+                  <div className="space-y-2 text-sm">
+                    {selectedOrder.buyer_name && (
+                      <div>
+                        <span className="text-muted-foreground">Name:</span>{" "}
+                        <span>{selectedOrder.buyer_name}</span>
+                      </div>
+                    )}
+                    {selectedOrder.buyer_email && (
+                      <div>
+                        <span className="text-muted-foreground">Email:</span>{" "}
+                        <span>{selectedOrder.buyer_email}</span>
+                      </div>
+                    )}
+                    {selectedOrder.buyer_phone && (
+                      <div>
+                        <span className="text-muted-foreground">Phone:</span>{" "}
+                        <span>{selectedOrder.buyer_phone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {selectedOrder.buyer_address && (
+                <div>
+                  <h4 className="font-semibold mb-2">Shipping Address</h4>
+                  <div className="text-sm space-y-1">
+                    <p>{selectedOrder.buyer_address.street}</p>
+                    <p>
+                      {selectedOrder.buyer_address.city}, {selectedOrder.buyer_address.state}{" "}
+                      {selectedOrder.buyer_address.zip}
+                    </p>
+                    <p>{selectedOrder.buyer_address.country}</p>
+                  </div>
+                </div>
+              )}
+
+              {selectedOrder.custom_field_data && Object.keys(selectedOrder.custom_field_data).length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Additional Information</h4>
+                  <div className="space-y-2 text-sm">
+                    {Object.entries(selectedOrder.custom_field_data).map(([key, value]) => (
+                      <div key={key}>
+                        <span className="text-muted-foreground">{key}:</span>{" "}
+                        <span>{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h4 className="font-semibold mb-2">Payment Information</h4>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Amount:</span>{" "}
+                    <span className="font-semibold">
+                      {selectedOrder.amount} {selectedOrder.currency}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>{" "}
+                    <Badge variant={selectedOrder.status === "completed" ? "default" : "secondary"}>
+                      {selectedOrder.status}
+                    </Badge>
+                  </div>
+                  {selectedOrder.payment_signature && (
+                    <div className="break-all">
+                      <span className="text-muted-foreground">Transaction:</span>{" "}
+                      <a
+                        href={`https://solscan.io/tx/${selectedOrder.payment_signature}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        View on Solscan
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
