@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
-import { Package, ExternalLink } from "lucide-react";
+import { Package, ExternalLink, MessageSquare, X, Send, Bot } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 type Product = {
   id: string;
@@ -31,6 +34,14 @@ type Store = {
   crypto_wallet?: string;
   x_username: string;
   is_active: boolean;
+  greeting_message?: string;
+};
+
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: Date;
 };
 
 export default function PublicStore() {
@@ -41,12 +52,32 @@ export default function PublicStore() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalOpen, setProductModalOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (username) {
       loadStore();
     }
   }, [username]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, isSending]);
+
+  useEffect(() => {
+    if (store?.greeting_message && chatMessages.length === 0 && chatOpen) {
+      setChatMessages([{
+        id: '1',
+        role: 'agent',
+        content: store.greeting_message,
+        timestamp: new Date()
+      }]);
+    }
+  }, [store?.greeting_message, chatOpen]);
 
   const loadStore = async () => {
     try {
@@ -89,6 +120,68 @@ export default function PublicStore() {
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isSending || !store?.id) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: chatMessage.trim(),
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessage('');
+    setIsSending(true);
+
+    try {
+      const messagesToSend = [...chatMessages, userMessage].map(msg => ({
+        role: msg.role === 'agent' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/store-agent-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+          },
+          body: JSON.stringify({
+            storeId: store.id,
+            messages: messagesToSend,
+            products: products.map(p => ({
+              id: p.id,
+              title: p.title,
+              description: p.description,
+              price: p.price,
+              currency: p.currency
+            }))
+          })
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to send message');
+
+      const data = await response.json();
+      
+      const agentMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'agent',
+        content: data.response,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, agentMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -207,7 +300,7 @@ export default function PublicStore() {
       />
 
       {/* Footer Badge */}
-      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
         <a
           href="https://simproject.org"
           target="_blank"
@@ -218,6 +311,95 @@ export default function PublicStore() {
           Create your own Agentic Storefront
         </a>
       </footer>
+
+      {/* Floating Chat Button */}
+      {!chatOpen && (
+        <Button
+          onClick={() => setChatOpen(true)}
+          size="lg"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* Chat Window */}
+      {chatOpen && (
+        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col border-2">
+          <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={store.avatar_url} alt={store.store_name} />
+                <AvatarFallback>
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-semibold text-sm">{store.store_name} Assistant</h3>
+                <p className="text-xs opacity-90">Online</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setChatOpen(false)}
+              className="hover:bg-primary-foreground/10"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {chatMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg p-3 ${
+                      msg.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+              {isSending && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-lg p-3">
+                    <p className="text-sm text-muted-foreground">Typing...</p>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          <div className="p-4 border-t bg-card">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+              }}
+              className="flex gap-2"
+            >
+              <Input
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                placeholder="Type your message..."
+                disabled={isSending}
+                className="flex-1"
+              />
+              <Button type="submit" size="icon" disabled={isSending || !chatMessage.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
