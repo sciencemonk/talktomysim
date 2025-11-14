@@ -17,7 +17,16 @@ export const CoinbaseSignIn = () => {
 
   useEffect(() => {
     const handleSignIn = async () => {
+      // Check if user explicitly signed out - prevent auto re-authentication
+      const explicitSignout = localStorage.getItem('explicit_signout');
+      if (explicitSignout === 'true') {
+        return;
+      }
+      
       if (isSignedIn && evmAddress && currentUser) {
+        // Clear any previous signout flag when user actively signs in
+        localStorage.removeItem('explicit_signout');
+        
         // Use userId from currentUser or generate from address
         const email = currentUser.userId || `${evmAddress.slice(0, 8)}@wallet.local`;
         
@@ -66,7 +75,7 @@ export const CoinbaseSignIn = () => {
           {!isSignedIn && (
             <>
               <div className="flex justify-center">
-                <AuthButton />
+                <AuthButton onClick={() => localStorage.removeItem('explicit_signout')} />
               </div>
 
               <div className="pt-4 border-t">
