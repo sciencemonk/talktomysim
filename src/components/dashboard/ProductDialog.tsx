@@ -215,19 +215,19 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{product ? 'Edit Product' : 'Add Product'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="space-y-1 sm:space-y-2">
+          <DialogTitle className="text-lg sm:text-xl">{product ? 'Edit Product' : 'Add Product'}</DialogTitle>
+          <DialogDescription className="text-sm">
             {product ? 'Update your product details' : 'Add a new product or service to your catalog'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="space-y-3 sm:space-y-4 overflow-y-auto flex-1">
             {/* Product Images */}
             <div className="space-y-2">
-              <Label>Product Images (up to 4)</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <Label className="text-sm sm:text-base">Product Images (up to 4)</Label>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {images.map((url, index) => (
                   <div key={index} className="relative group aspect-square rounded-lg border border-border overflow-hidden">
                     <img 
@@ -273,40 +273,42 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
                 onChange={handleImageUpload}
                 className="hidden"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground leading-tight">
                 Upload up to 4 images. Max 5MB per image. Supported formats: JPG, PNG, WEBP
               </p>
             </div>
 
             {/* Product Name */}
-            <div className="space-y-2">
-              <Label htmlFor="title">Product Name *</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="title" className="text-sm sm:text-base">Product Name *</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Premium Consultation"
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             
             {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="description" className="text-sm sm:text-base">Description *</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe your product or service..."
-                rows={4}
+                rows={3}
                 required
+                className="text-sm sm:text-base resize-none"
               />
             </div>
 
             {/* Price and Currency */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Price *</Label>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="price" className="text-sm sm:text-base">Price *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -316,47 +318,50 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   placeholder="0.00"
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="currency" className="text-sm sm:text-base">Currency</Label>
                 <Input
                   id="currency"
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                   placeholder="USDC"
+                  className="text-sm sm:text-base"
                 />
               </div>
             </div>
 
             {/* Delivery Info */}
-            <div className="space-y-2">
-              <Label htmlFor="delivery_info">Delivery Information</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="delivery_info" className="text-sm sm:text-base">Delivery Information</Label>
               <Textarea
                 id="delivery_info"
                 value={formData.delivery_info}
                 onChange={(e) => setFormData({ ...formData, delivery_info: e.target.value })}
                 placeholder="How will this product be delivered?"
-                rows={3}
+                rows={2}
+                className="text-sm sm:text-base resize-none"
               />
             </div>
 
-            <Separator className="my-6" />
+            <Separator className="my-3 sm:my-6" />
 
             {/* Checkout Fields Configuration */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-medium mb-1.5 sm:mb-2 flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   Buyer Information Required at Checkout
                 </h3>
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-3 sm:mb-4 leading-tight">
                   Select what information you need from buyers to fulfill this order
                 </p>
               </div>
 
-              <div className="space-y-3 pl-1">
+              <div className="space-y-2.5 sm:space-y-3 pl-0.5 sm:pl-1">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="email"
@@ -451,11 +456,11 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
             </div>
           </div>
           
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 pt-4 border-t mt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={saving || uploading}>
+            <Button type="submit" disabled={saving || uploading} className="w-full sm:w-auto">
               {saving ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
             </Button>
           </DialogFooter>
