@@ -18,6 +18,13 @@ interface Product {
   is_active: boolean;
   delivery_info?: string;
   store_id: string;
+  checkout_fields?: {
+    email?: boolean;
+    name?: boolean;
+    phone?: boolean;
+    address?: boolean;
+    wallet?: boolean;
+  };
 }
 
 interface ProductDetailModalProps {
@@ -180,6 +187,12 @@ export const ProductDetailModal = ({
         simName={`${storeName} - ${product.title}`}
         price={product.price}
         walletAddress={storeWalletAddress}
+        product={{
+          id: product.id,
+          title: product.title,
+          checkout_fields: product.checkout_fields
+        }}
+        storeId={product.store_id}
       />
     </>
   );
