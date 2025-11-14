@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
-import { Package, ArrowLeft, ExternalLink } from "lucide-react";
+import { Package, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
@@ -108,21 +108,11 @@ export default function PublicStore() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
-      {/* Top Navigation */}
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-16">
+      {/* Top Navigation - Only Theme Toggle */}
       <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 md:px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-xl font-bold">Solana Internet Market</h1>
-            </div>
+          <div className="flex items-center justify-end">
             <ThemeToggle />
           </div>
         </div>
@@ -224,6 +214,19 @@ export default function PublicStore() {
         storeWalletAddress={store.crypto_wallet || ''}
         storeName={store.store_name}
       />
+
+      {/* Footer Badge */}
+      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+        <a
+          href="https://simproject.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+        >
+          <ExternalLink className="h-3 w-3" />
+          Create your own Agentic Storefront
+        </a>
+      </footer>
     </div>
   );
 }
