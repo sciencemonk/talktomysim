@@ -309,10 +309,10 @@ const Marketplace = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
             <>
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-4 sm:whitespace-nowrap">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-mono tracking-tight text-white mb-4 px-4">
                 More Sales with AI Agents
               </h1>
-              <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-4xl mx-auto whitespace-nowrap">
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 mb-8 max-w-4xl mx-auto px-4">
                 Delight your customers and make more sales.
               </p>
               
