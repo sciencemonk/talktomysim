@@ -80,6 +80,15 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
     }
   };
 
+  const handleAddProduct = () => {
+    if (!store?.crypto_wallet) {
+      toast.error('Please add your Solana wallet address in the Earnings tab before creating products');
+      return;
+    }
+    setEditingProduct(null);
+    setDialogOpen(true);
+  };
+
   const handleDelete = async (productId: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
@@ -99,6 +108,10 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
   };
 
   const handleEdit = (product: Product) => {
+    if (!store?.crypto_wallet) {
+      toast.error('Please add your Solana wallet address in the Earnings tab before editing products');
+      return;
+    }
     setEditingProduct(product);
     setDialogOpen(true);
   };
@@ -139,7 +152,7 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                 <Store className="h-4 w-4" />
                 <span className="sm:inline">Connect Shopify</span>
               </Button>
-              <Button onClick={handleAdd} className="gap-2 w-full sm:w-auto">
+              <Button onClick={handleAddProduct} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 <span className="sm:inline">Add Product</span>
               </Button>

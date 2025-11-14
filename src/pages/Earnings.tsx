@@ -2,13 +2,23 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Wallet, TrendingUp, DollarSign, ExternalLink, Copy, Check } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, ExternalLink, Copy, Check, AlertCircle, Save } from "lucide-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { z } from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+const solanaAddressSchema = z.string()
+  .trim()
+  .min(32, "Solana address must be at least 32 characters")
+  .max(44, "Solana address must be at most 44 characters")
+  .regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "Invalid Solana address format");
 
 export default function Earnings() {
   const { user } = useAuth();
@@ -23,6 +33,9 @@ export default function Earnings() {
   const [loading, setLoading] = useState(true);
   const [processingOfframp, setProcessingOfframp] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState(false);
+  const [editingWallet, setEditingWallet] = useState(false);
+  const [newSolanaWallet, setNewSolanaWallet] = useState("");
+  const [savingWallet, setSavingWallet] = useState(false);
 
   const walletAddress = user?.address;
   const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
@@ -30,15 +43,20 @@ export default function Earnings() {
   useEffect(() => {
     if (user) {
       loadEarningsData();
-      loadWalletBalance();
     }
   }, [user]);
 
+  useEffect(() => {
+    if (store?.crypto_wallet) {
+      loadWalletBalance();
+    }
+  }, [store?.crypto_wallet]);
+
   const loadWalletBalance = async () => {
-    if (!walletAddress) return;
+    if (!store?.crypto_wallet) return;
     
     try {
-      const walletPubkey = new PublicKey(walletAddress);
+      const walletPubkey = new PublicKey(store.crypto_wallet);
       const tokenAccount = await getAssociatedTokenAddress(
         USDC_MINT,
         walletPubkey
@@ -50,6 +68,55 @@ export default function Earnings() {
     } catch (error) {
       console.error('Error loading wallet balance:', error);
       setWalletBalance(0);
+    }
+  };
+
+  const handleSaveSolanaWallet = async () => {
+    try {
+      // Validate the Solana address
+      const validation = solanaAddressSchema.safeParse(newSolanaWallet);
+      if (!validation.success) {
+        toast.error(validation.error.errors[0].message);
+        return;
+      }
+
+      // Verify it's a valid Solana public key
+      try {
+        new PublicKey(newSolanaWallet);
+      } catch {
+        toast.error("Invalid Solana address format");
+        return;
+      }
+
+      setSavingWallet(true);
+
+      const { error } = await supabase
+        .from('stores')
+        .update({ crypto_wallet: newSolanaWallet })
+        .eq('id', store.id);
+
+      if (error) throw error;
+
+      setStore({ ...store, crypto_wallet: newSolanaWallet });
+      setEditingWallet(false);
+      toast.success("Solana wallet address saved successfully");
+      loadWalletBalance();
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      toast.error("Failed to save wallet address");
+    } finally {
+      setSavingWallet(false);
+    }
+  };
+
+  const handleCopySolanaWallet = async () => {
+    if (!store?.crypto_wallet) return;
+    
+    try {
+      await navigator.clipboard.writeText(store.crypto_wallet);
+      toast.success('Solana wallet address copied!');
+    } catch (error) {
+      toast.error('Failed to copy wallet address');
     }
   };
 
@@ -164,50 +231,105 @@ export default function Earnings() {
         </p>
       </div>
 
-      {/* Wallet Info Card */}
+      {/* Solana Payment Wallet Card */}
       <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wallet className="h-5 w-5" />
-              Connected Wallet
-            </CardTitle>
-            <CardDescription>
-              Your store's payment wallet on Base network
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {walletAddress ? (
-              <>
-                <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
-                  <code className="flex-1 text-sm font-mono break-all">
-                    {walletAddress}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyWallet}
-                    className="flex-shrink-0"
-                  >
-                    {copiedWallet ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span>Base Network • Connected</span>
-                </div>
-              </>
-            ) : (
-              <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground text-center">
-                  No wallet connected
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="h-5 w-5" />
+            Solana Payment Wallet
+          </CardTitle>
+          <CardDescription>
+            Your store receives USDC payments on Solana. Connect a Phantom or Solflare wallet address.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!store?.crypto_wallet && !editingWallet && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Required:</strong> Add your Solana wallet address to receive payments. You cannot create products without this.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {editingWallet || !store?.crypto_wallet ? (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="solana-wallet">Solana Wallet Address</Label>
+                <Input
+                  id="solana-wallet"
+                  type="text"
+                  placeholder="Enter your Solana wallet address (32-44 characters)"
+                  value={newSolanaWallet}
+                  onChange={(e) => setNewSolanaWallet(e.target.value.trim())}
+                  className="font-mono"
+                  maxLength={44}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Must be a valid Solana address from Phantom, Solflare, or another Solana wallet
                 </p>
               </div>
-            )}
-          </CardContent>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleSaveSolanaWallet}
+                  disabled={savingWallet || !newSolanaWallet}
+                >
+                  {savingWallet ? (
+                    <>Saving...</>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Wallet
+                    </>
+                  )}
+                </Button>
+                {store?.crypto_wallet && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setEditingWallet(false);
+                      setNewSolanaWallet("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
+                <code className="flex-1 text-sm font-mono break-all">
+                  {store.crypto_wallet}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopySolanaWallet}
+                  className="flex-shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span>Solana Mainnet • Configured</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditingWallet(true);
+                    setNewSolanaWallet(store.crypto_wallet);
+                  }}
+                >
+                  Update Wallet
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
       </Card>
 
       {/* Earnings Overview */}
