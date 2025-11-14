@@ -156,10 +156,89 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+      {/* Mobile Top Navigation */}
+      <div className="md:hidden sticky top-0 z-50 bg-card border-b border-border">
+        <div className="flex items-center justify-between p-3">
+          <button onClick={() => navigate('/')} className="hover:opacity-80 transition-all">
+            <img src={storeLogo} alt="SIM" className="h-8 w-auto object-contain" />
+          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+        
+        {/* Mobile Tab Navigation */}
+        <div className="flex overflow-x-auto hide-scrollbar border-t border-border">
+          <button
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
+              activeView === "home" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+            )}
+            onClick={() => setActiveView("home")}
+          >
+            <Home className="h-4 w-4" />
+            Home
+          </button>
+          <button
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
+              activeView === "store" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+            )}
+            onClick={() => setActiveView("store")}
+          >
+            <Store className="h-4 w-4" />
+            Store
+          </button>
+          <button
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
+              activeView === "catalog" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+            )}
+            onClick={() => setActiveView("catalog")}
+          >
+            <Package className="h-4 w-4" />
+            Catalog
+          </button>
+          <button
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
+              activeView === "orders" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+            )}
+            onClick={() => setActiveView("orders")}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            Orders
+          </button>
+          <button
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
+              activeView === "earnings" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+            )}
+            onClick={() => setActiveView("earnings")}
+          >
+            <DollarSign className="h-4 w-4" />
+            Earnings
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 z-40 h-screen transition-all duration-300 bg-card border-r border-border overflow-hidden",
+        "hidden md:block fixed left-0 top-0 z-40 h-screen transition-all duration-300 bg-card border-r border-border overflow-hidden",
         sidebarOpen ? "w-64" : "w-16"
       )}>
         <div className="h-full flex flex-col">
@@ -330,10 +409,11 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className={cn(
         "flex-1 flex flex-col min-h-screen transition-all duration-300",
-        sidebarOpen ? "ml-64" : "ml-16"
+        "md:ml-64 md:sidebarOpen:ml-64 md:sidebarClosed:ml-16",
+        sidebarOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        {/* Top Navigation */}
-        <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
+        {/* Desktop Top Navigation */}
+        <nav className="hidden md:block border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-end h-16">
               {/* Right side - Theme Toggle */}
@@ -343,7 +423,7 @@ const Dashboard = () => {
         </nav>
 
         {/* Page Content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-8">
           {/* Content Views */}
           <div className="space-y-6">
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
