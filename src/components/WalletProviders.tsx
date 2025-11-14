@@ -17,9 +17,9 @@ interface WalletProvidersProps {
 export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Mainnet;
   
-  // Use Helius RPC endpoint for production reliability
+  // Use Solana's public RPC endpoint
   const endpoint = useMemo(
-    () => 'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9',
+    () => 'https://api.mainnet-beta.solana.com',
     []
   );
 
