@@ -15,6 +15,7 @@ import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
 import { useAuth } from '@/hooks/useAuth';
 import { userProfileService } from '@/services/userProfileService';
+import simModalLogo from '@/assets/sim-modal-logo.gif';
 
 interface SignInModalProps {
   open: boolean;
@@ -179,6 +180,9 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
           ) : (
             <>
               <div className="text-center mb-6">
+                <div className="flex justify-center mb-4">
+                  <img src={simModalLogo} alt="SIM" className="h-16 w-auto" />
+                </div>
                 <DialogTitle className="text-2xl font-semibold text-foreground mb-2">
                   {isSignedIn ? 'Welcome!' : 'Sign in'}
                 </DialogTitle>
