@@ -11,6 +11,7 @@ import { Package, ExternalLink, Store } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
+import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
 
 type Product = {
   id: string;
@@ -53,25 +54,16 @@ export default function PublicStore() {
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
+  
+  // Use persistent chat hook
+  const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
 
   useEffect(() => {
     if (username) {
       loadStore();
     }
   }, [username]);
-
-  useEffect(() => {
-    if (store?.greeting_message && chatMessages.length === 0 && chatOpen) {
-      setChatMessages([{
-        id: '1',
-        role: 'agent',
-        content: store.greeting_message,
-        timestamp: new Date()
-      }]);
-    }
-  }, [store?.greeting_message, chatOpen]);
 
   const loadStore = async () => {
     try {

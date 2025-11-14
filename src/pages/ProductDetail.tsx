@@ -10,6 +10,7 @@ import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { ShareButton } from "@/components/ShareButton";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
+import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
 
 const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
@@ -62,26 +63,17 @@ export default function ProductDetail() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  
+  // Use persistent chat hook
+  const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
 
   useEffect(() => {
     if (username && productId) {
       loadProductAndStore();
     }
   }, [username, productId]);
-
-  useEffect(() => {
-    if (store?.greeting_message && chatMessages.length === 0 && chatOpen) {
-      setChatMessages([{
-        id: '1',
-        role: 'agent',
-        content: store.greeting_message,
-        timestamp: new Date()
-      }]);
-    }
-  }, [store?.greeting_message, chatOpen]);
 
   const loadProductAndStore = async () => {
     try {
