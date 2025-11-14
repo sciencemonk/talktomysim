@@ -301,25 +301,29 @@ export default function PublicStore() {
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
             <div className="flex items-center justify-between gap-4">
               {/* Store Info - Left Side */}
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                {store.logo_url ? (
-                  <img 
-                    src={store.logo_url} 
-                    alt={store.store_name}
-                    className="w-12 h-12 rounded-lg shadow-sm border border-border/40 flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40 flex-shrink-0">
-                    <Store className="w-6 h-6 text-primary" />
-                  </div>
-                )}
+              <div className="flex items-start gap-3 min-w-0 flex-1">
+                <div className="flex-shrink-0">
+                  {store.logo_url ? (
+                    <img 
+                      src={store.logo_url} 
+                      alt={store.store_name}
+                      className="w-12 h-12 rounded-lg shadow-sm border border-border/40"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40">
+                      <Store className="w-6 h-6 text-primary" />
+                    </div>
+                  )}
+                </div>
                 
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-lg md:text-xl font-bold text-foreground truncate">
-                    {store.store_name}
-                  </h1>
+                <div className="min-w-0 flex-1 pt-0.5">
+                  {!store.logo_url && (
+                    <h1 className="text-lg md:text-xl font-bold text-foreground truncate">
+                      {store.store_name}
+                    </h1>
+                  )}
                   {store.store_description && (
-                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">
+                    <p className={`text-xs md:text-sm text-muted-foreground line-clamp-2 ${!store.logo_url ? 'mt-0.5' : ''}`}>
                       {store.store_description}
                     </p>
                   )}
