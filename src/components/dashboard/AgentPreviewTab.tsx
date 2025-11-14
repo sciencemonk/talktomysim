@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Bot, Send, Sparkles, Edit } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AgentEditModal } from "./AgentEditModal";
+import { ChatProductCard } from "@/components/ChatProductCard";
+import { ProductDetailModal } from "@/components/ProductDetailModal";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type AgentPreviewTabProps = {
@@ -12,11 +15,25 @@ type AgentPreviewTabProps = {
   onUpdate: () => void;
 };
 
+type Product = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  image_url?: string;
+  image_urls?: string[];
+  delivery_info?: string;
+  is_active: boolean;
+  store_id: string;
+};
+
 type Message = {
   id: string;
   role: 'user' | 'agent';
   content: string;
   timestamp: Date;
+  productId?: string;
 };
 
 export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
@@ -31,7 +48,31 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productModalOpen, setProductModalOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Fetch products for the store
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!store?.id) return;
+      
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('store_id', store.id)
+        .eq('is_active', true);
+      
+      if (error) {
+        console.error('Error fetching products:', error);
+      } else {
+        setProducts(data || []);
+      }
+    };
+
+    fetchProducts();
+  }, [store?.id]);
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
@@ -103,6 +144,7 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullContent = '';
+      let accumulatedToolCalls: any[] = [];
 
       while (true) {
         const { done, value } = await reader.read();
@@ -128,6 +170,57 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
                     ? { ...msg, content: fullContent }
                     : msg
                 ));
+              }
+
+              // Handle tool calls
+              const toolCalls = parsed.choices?.[0]?.delta?.tool_calls;
+              if (toolCalls) {
+                for (const toolCall of toolCalls) {
+                  const index = toolCall.index;
+                  
+                  if (!accumulatedToolCalls[index]) {
+                    accumulatedToolCalls[index] = {
+                      id: toolCall.id,
+                      type: 'function',
+                      function: {
+                        name: toolCall.function?.name || '',
+                        arguments: toolCall.function?.arguments || ''
+                      }
+                    };
+                  } else {
+                    if (toolCall.function?.name) {
+                      accumulatedToolCalls[index].function.name += toolCall.function.name;
+                    }
+                    if (toolCall.function?.arguments) {
+                      accumulatedToolCalls[index].function.arguments += toolCall.function.arguments;
+                    }
+                  }
+                }
+              }
+
+              // Check for completed tool calls with finish_reason
+              const finishReason = parsed.choices?.[0]?.finish_reason;
+              if (finishReason === 'tool_calls' && accumulatedToolCalls.length > 0) {
+                // Process and display tool calls immediately
+                for (const toolCall of accumulatedToolCalls) {
+                  if (toolCall.function.name === 'show_product' && toolCall.function.arguments) {
+                    try {
+                      const args = JSON.parse(toolCall.function.arguments);
+                      const productId = args.product_id;
+                      
+                      // Add product card message immediately
+                      setMessages(prev => [...prev, {
+                        id: `product-${Date.now()}-${Math.random()}`,
+                        role: 'agent',
+                        content: '',
+                        timestamp: new Date(),
+                        productId: productId
+                      }]);
+                    } catch (e) {
+                      console.error('Error parsing tool call arguments:', e);
+                    }
+                  }
+                }
               }
             } catch (e) {
               // Skip invalid JSON
@@ -233,22 +326,41 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
                   key={message.id}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.role === 'user' 
-                        ? 'text-primary-foreground/70' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
+                  {message.productId ? (
+                    // Product card message
+                    (() => {
+                      const product = products.find(p => p.id === message.productId);
+                      return product ? (
+                        <ChatProductCard
+                          product={product}
+                          onViewProduct={(productId) => {
+                            const product = products.find(p => p.id === productId);
+                            if (product) {
+                              setSelectedProduct(product);
+                              setProductModalOpen(true);
+                            }
+                          }}
+                        />
+                      ) : null;
+                    })()
+                  ) : (
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className={`text-xs mt-1 ${
+                        message.role === 'user' 
+                          ? 'text-primary-foreground/70' 
+                          : 'text-muted-foreground'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
@@ -291,6 +403,20 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          isOpen={productModalOpen}
+          onClose={() => {
+            setProductModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          storeWalletAddress={store?.crypto_wallet || ''}
+          storeName={store?.store_name || 'Store'}
+        />
+      )}
     </div>
   );
 };
