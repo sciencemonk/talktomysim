@@ -315,10 +315,10 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-4 sm:whitespace-nowrap">
-                Agentic Sales Platform
+                Make more sales with your own AI Agent
               </h1>
               <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-                A knowledgeable AI Agent right on your store that drives more sales and happier customers.
+                A custom built AI Agent right on your store that drives more sales.
               </p>
               
               {/* Sign In Button */}
@@ -361,7 +361,7 @@ const Marketplace = () => {
               Step 1: The Foundation
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6">
-              Transform Your Catalog Into Intelligence
+              Transform Your Store Into an Agentic Store
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-8"></div>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -481,7 +481,7 @@ const Marketplace = () => {
               Step 2: Your Brand Voice
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6">
-              Align Your Agent With Your Brand
+              Make More Sales with Agentic AI
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-8"></div>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -694,7 +694,7 @@ const Marketplace = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Bring Agentic Sales to Your Site
+              Next Generation x402 Payments
             </h2>
             <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -806,14 +806,6 @@ const Marketplace = () => {
               <div className="flex justify-center">
                 <AuthButton />
               </div>
-              <Button
-                onClick={() => window.open('https://www.coinbase.com/wallet/downloads', '_blank')}
-                variant="outline"
-                size="lg"
-                className="text-lg px-8 py-6 h-auto font-semibold"
-              >
-                Get Coinbase Wallet
-              </Button>
             </div>
 
             {/* Trust indicators */}
