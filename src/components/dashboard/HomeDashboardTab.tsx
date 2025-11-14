@@ -162,8 +162,8 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-xs sm:text-sm break-all overflow-hidden">
+                  <div className="flex flex-col gap-2">
+                    <div className="px-2 py-2 bg-muted rounded-lg font-mono text-[10px] leading-tight break-all">
                       {storeUrl}
                     </div>
                     <div className="flex gap-2">
@@ -241,8 +241,8 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
             {storeUrl ? (
               <>
                 <div className="relative group">
-                  <pre className="px-2 py-1.5 md:px-3 md:py-2 bg-muted rounded-lg text-[10px] sm:text-xs overflow-x-auto max-h-32 sm:max-h-40">
-                    <code className="whitespace-pre">{`<script src="https://simproject.org/embed.js"></script>
+                  <pre className="px-2 py-2 bg-muted rounded-lg text-[9px] leading-tight overflow-x-auto max-h-40">
+                    <code className="block break-all whitespace-pre-wrap">{`<script src="https://simproject.org/embed.js"></script>
 <script>
   AgentEmbed.init({
     agentUrl: "${storeUrl}",
