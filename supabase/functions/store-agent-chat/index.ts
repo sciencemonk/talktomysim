@@ -102,16 +102,16 @@ ${productContext}${productIdMapping}
 
 ${shownProductIds.size > 0 ? `\nPRODUCTS ALREADY SHOWN: ${Array.from(shownProductIds).map(id => products?.find((p: any) => p.id === id)?.title || id).join(', ')}` : ''}
 
-CRITICAL GUIDELINES:
-- ALWAYS use the show_product tool when mentioning any specific product to the customer
-- The tool will display a beautiful product card with image, price, and purchase button
-- After using show_product, you can add brief commentary about the product
-- Never just describe a product in text - ALWAYS call show_product first
-- Use the exact product IDs listed above when calling show_product
-- IMPORTANT: When asked for "other" or "different" products, show products that HAVEN'T been shown yet
-- Keep track of conversation context - don't repeat the same products you've already shown
-- If you've shown all products and user asks for more, let them know you've shown everything available
-- Be helpful and guide customers toward products that match their needs`;
+CRITICAL GUIDELINES FOR PRODUCT TOOL:
+- Use show_product tool ONLY when FIRST introducing a NEW product to the customer
+- NEVER re-show products that are already in PRODUCTS ALREADY SHOWN list above
+- After showing a product with the tool, continue conversation with NORMAL TEXT - do NOT use the tool again for that product
+- Answer follow-up questions about already-shown products using text only
+- If customer asks general questions, chat normally - you don't need to show products for every response
+- When customer asks for "other" or "different" products, show NEW products that haven't been shown yet
+- Use exact product IDs from the list above when calling show_product
+- If all products are shown and customer wants more, politely explain you've shown everything
+- Balance being helpful with natural conversation - not every message needs a product card`;
 
     console.log('System prompt:', systemPrompt);
     console.log('Messages:', messages);
