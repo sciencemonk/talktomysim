@@ -51,6 +51,8 @@ export const X402PaymentModal = ({
   storeId
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [buyerInfo, setBuyerInfo] = useState({
     email: '',
     name: '',
@@ -65,6 +67,40 @@ export const X402PaymentModal = ({
 
   // USDC mint address on Solana mainnet
   const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
+
+  // Check USDC balance when wallet connects
+  useEffect(() => {
+    const checkBalance = async () => {
+      if (!connected || !publicKey) {
+        setUsdcBalance(null);
+        return;
+      }
+
+      setIsCheckingBalance(true);
+      try {
+        const senderTokenAccount = await getAssociatedTokenAddress(
+          USDC_MINT,
+          publicKey
+        );
+
+        const accountInfo = await getAccount(connection, senderTokenAccount);
+        const balance = Number(accountInfo.amount) / 1_000_000;
+        setUsdcBalance(balance);
+        
+        if (balance < price) {
+          toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+        }
+      } catch (error) {
+        console.error('Failed to check USDC balance:', error);
+        setUsdcBalance(0);
+        toast.error('No USDC detected in your wallet. Please add USDC to continue.');
+      } finally {
+        setIsCheckingBalance(false);
+      }
+    };
+
+    checkBalance();
+  }, [connected, publicKey, connection, price]);
 
   const validateRequiredFields = () => {
     if (product?.checkout_fields) {
@@ -142,24 +178,13 @@ export const X402PaymentModal = ({
       });
 
       // Check if sender has USDC token account and sufficient balance
-      let senderBalance = 0;
-      try {
-        const senderAccountInfo = await getAccount(connection, senderTokenAccount);
-        senderBalance = Number(senderAccountInfo.amount);
-        console.log('Sender USDC balance:', senderBalance / 1_000_000, 'USDC');
-        
-        if (senderBalance < amount) {
-          toast.error(`Insufficient USDC. You have ${(senderBalance / 1_000_000).toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
-          return;
-        }
-      } catch (error) {
-        console.error('Sender USDC account check failed:', error);
-        toast.error('No USDC detected. Please add USDC to your connected Solana wallet first.', {
-          description: 'Make sure the connected wallet has USDC tokens on Solana mainnet.',
-          duration: 6000
-        });
+      if (usdcBalance === null || usdcBalance < price) {
+        toast.error(`Insufficient USDC. You need ${price.toFixed(2)} USDC`);
         return;
       }
+
+      const senderBalance = Math.floor(usdcBalance * 1_000_000);
+      console.log('Sender USDC balance:', usdcBalance, 'USDC');
 
       // Check if recipient token account exists, if not create it
       const transaction = new Transaction();
@@ -454,43 +479,71 @@ export const X402PaymentModal = ({
           </div>
 
           {!connected ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                 <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500 mb-2">
-                  Solana Wallet Required
+                  🔐 Connect Your Wallet
                 </p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  To purchase with USDC on Solana, you need to connect a Solana wallet (Phantom or Solflare) that contains USDC.
+                  Connect your Phantom or Solflare wallet with USDC to complete this purchase.
                 </p>
+                <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>Click "Select Wallet" below</li>
+                  <li>Choose Phantom or Solflare</li>
+                  <li>Approve the connection</li>
+                </ol>
               </div>
               <div className="flex justify-center">
-                <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90 !h-10" />
+                <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90 !h-10 !rounded-md !px-6" />
               </div>
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-xs text-green-600 dark:text-green-500">
-                  ✓ Wallet Connected: {publicKey?.toString().slice(0, 4)}...{publicKey?.toString().slice(-4)}
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg space-y-1">
+                <p className="text-xs font-medium text-green-600 dark:text-green-500">
+                  ✓ Wallet Connected
                 </p>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {publicKey?.toString().slice(0, 8)}...{publicKey?.toString().slice(-8)}
+                </p>
+                {isCheckingBalance ? (
+                  <p className="text-xs text-muted-foreground">Checking balance...</p>
+                ) : usdcBalance !== null ? (
+                  <p className="text-xs font-medium text-foreground">
+                    Balance: {usdcBalance.toFixed(2)} USDC
+                  </p>
+                ) : null}
               </div>
+              
               <Button 
                 onClick={handlePayment} 
                 className="w-full"
-                disabled={isProcessing}
+                disabled={isProcessing || isCheckingBalance || usdcBalance === null || usdcBalance < price}
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing Payment...
                   </>
+                ) : isCheckingBalance ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking Balance...
+                  </>
+                ) : usdcBalance === null ? (
+                  'Loading...'
+                ) : usdcBalance < price ? (
+                  `Insufficient USDC (Need ${price.toFixed(2)})`
                 ) : (
-                  <>Pay ${price.toFixed(2)} USDC</>
+                  `Pay ${price.toFixed(2)} USDC`
                 )}
               </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                Make sure you have USDC in your wallet
-              </p>
+              
+              {usdcBalance !== null && usdcBalance < price && (
+                <p className="text-xs text-destructive text-center">
+                  You need {(price - usdcBalance).toFixed(2)} more USDC
+                </p>
+              )}
             </div>
           )}
         </div>
