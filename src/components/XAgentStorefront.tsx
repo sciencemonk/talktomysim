@@ -209,7 +209,7 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                           <div className="text-sm text-muted-foreground mb-0.5">Price</div>
                           <div className="text-2xl font-bold flex items-baseline gap-1">
                             <DollarSign className="h-5 w-5" />
-                            {Number(offering.price).toFixed(2)}
+                            {offering.price % 1 === 0 ? offering.price : offering.price.toFixed(2)}
                           </div>
                         </div>
                         <div>

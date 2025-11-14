@@ -133,7 +133,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
           <CardHeader className="pb-2 md:pb-3">
             <CardDescription className="text-xs md:text-sm font-medium">Total Earnings</CardDescription>
             <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
-              ${totalEarnings.toFixed(2)}
+              ${totalEarnings % 1 === 0 ? totalEarnings : totalEarnings.toFixed(2)}
             </CardTitle>
           </CardHeader>
           <CardContent>

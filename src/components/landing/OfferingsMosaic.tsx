@@ -101,7 +101,7 @@ const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
             className="text-sm font-bold"
             style={{ backgroundColor: 'rgba(99, 91, 255, 0.15)', color: '#635BFF', borderColor: 'rgba(99, 91, 255, 0.3)' }}
           >
-            ${offering.price.toFixed(2)} USDC
+            ${offering.price % 1 === 0 ? offering.price : offering.price.toFixed(2)} USDC
           </Badge>
         </div>
       </div>

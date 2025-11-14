@@ -249,7 +249,7 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Unit Price:</span>
-                    <span>${selectedOrder.products.price.toFixed(2)}</span>
+                    <span>${selectedOrder.products.price % 1 === 0 ? selectedOrder.products.price : selectedOrder.products.price.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

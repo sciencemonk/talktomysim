@@ -75,7 +75,7 @@ export function OfferingReceiptModal({ isOpen, onClose, purchaseData }: Offering
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Amount Paid</p>
-                <p className="font-medium">${purchaseData.amount.toFixed(2)} USDC</p>
+                <p className="font-medium">${purchaseData.amount % 1 === 0 ? purchaseData.amount : purchaseData.amount.toFixed(2)} USDC</p>
               </div>
             </div>
           </div>
