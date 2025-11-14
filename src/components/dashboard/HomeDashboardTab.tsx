@@ -461,8 +461,7 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                     <code className="block break-all whitespace-pre-wrap">{`<script src="https://simproject.org/embed.js"></script>
 <script>
   AgentEmbed.init({
-    agentUrl: "${storeUrl}",
-    position: "bottom-right"
+    agentUrl: "${storeUrl}"
   });
 </script>`}</code>
                   </pre>
@@ -471,7 +470,7 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                     variant="outline"
                     className="absolute top-1 right-1 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => {
-                      const embedCode = `<script src="https://simproject.org/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}",\n    position: "bottom-right"\n  });\n</script>`;
+                      const embedCode = `<script src="https://simproject.org/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}"\n  });\n</script>`;
                       navigator.clipboard.writeText(embedCode);
                       toast.success('Embed code copied to clipboard');
                     }}
@@ -480,7 +479,7 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Paste this code before the closing &lt;/body&gt; tag on your website
+                  Paste this code before the closing &lt;/body&gt; tag on your website. The agent will appear as a sidebar that slides in from the right (desktop) or bottom (mobile).
                 </p>
               </>
             ) : (
