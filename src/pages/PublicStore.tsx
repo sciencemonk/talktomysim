@@ -283,9 +283,9 @@ export default function PublicStore() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col lg:flex-row">
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-96' : 'mr-0'}`}>
+      <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'lg:mr-96' : 'mr-0'}`}>
         <div className="fixed top-4 left-4 z-50">
           <ThemeToggle />
         </div>
