@@ -299,7 +299,7 @@ export default function PublicStore() {
                     <img 
                       src={store.logo_url} 
                       alt={store.store_name}
-                      className="w-12 h-12 rounded-lg shadow-sm border border-border/40"
+                      className="w-12 h-12 object-contain"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40">
