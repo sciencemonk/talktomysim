@@ -276,7 +276,9 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className={`container mx-auto px-4 md:px-6 py-8 transition-all duration-300 ${
+        chatOpen ? 'mr-96' : ''
+      }`}>
         {/* Back Button and Share */}
         <div className="flex items-center justify-between mb-6">
           <Button
@@ -422,6 +424,7 @@ export default function ProductDetail() {
             navigate(`/store/${username}/product/${productId}`);
           }
         }}
+        positioning="fixed"
       />
     </div>
   );
