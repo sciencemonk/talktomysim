@@ -833,20 +833,18 @@ const Marketplace = () => {
             <div className="flex items-center">
               <img src={simLogoAnimated} alt="SIM" className="h-16 w-auto" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2025 SIM. All rights reserved.
-            </p>
-          </div>
-          <div className="flex justify-center mt-6">
             <button
               onClick={() => {
                 navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
                 toast.success('Contract address copied to clipboard!');
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
             >
               <span className="text-sm font-semibold text-primary">$SIMAI</span>
             </button>
+            <p className="text-sm text-muted-foreground">
+              © 2025 SIM. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
