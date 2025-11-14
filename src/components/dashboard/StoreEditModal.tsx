@@ -20,7 +20,8 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
   const [formData, setFormData] = useState({
     store_name: '',
     store_description: '',
-    logo_url: ''
+    logo_url: '',
+    crypto_wallet: ''
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -30,7 +31,8 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
       setFormData({
         store_name: store.store_name || '',
         store_description: store.store_description || '',
-        logo_url: store.logo_url || ''
+        logo_url: store.logo_url || '',
+        crypto_wallet: store.crypto_wallet || ''
       });
     }
   }, [store]);
@@ -76,6 +78,7 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
           store_name: formData.store_name,
           store_description: formData.store_description,
           logo_url: formData.logo_url,
+          crypto_wallet: formData.crypto_wallet,
           updated_at: new Date().toISOString()
         })
         .eq('id', store.id);
@@ -131,6 +134,20 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
                   placeholder="Describe what your store offers..."
                   rows={4}
                 />
+              </div>
+
+              {/* Crypto Wallet Address */}
+              <div className="space-y-2">
+                <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
+                <Input
+                  id="crypto_wallet"
+                  value={formData.crypto_wallet}
+                  onChange={(e) => setFormData(prev => ({ ...prev, crypto_wallet: e.target.value }))}
+                  placeholder="Your Solana wallet address (e.g., 7xKXtg...)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  This wallet will receive USDC payments from product purchases via x402. Make sure you have access to this wallet.
+                </p>
               </div>
             </TabsContent>
 
