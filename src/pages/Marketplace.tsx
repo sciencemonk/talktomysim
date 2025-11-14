@@ -265,7 +265,7 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={simLogoAnimated} alt="SIM" className="h-10 w-auto object-contain" />
+                <img src={simLogoAnimated} alt="SIM" className="h-20 w-auto object-contain" />
               </button>
               
               {/* Right side - User dropdown or Sign In + Theme Toggle */}
@@ -315,7 +315,7 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-4 sm:whitespace-nowrap">
-                Make more sales with your own AI Agent
+                More Sales with AI Agents
               </h1>
               <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
                 A custom built AI Agent right on your store that drives more sales.
@@ -697,7 +697,7 @@ const Marketplace = () => {
               Next Generation x402 Payments
             </h2>
             <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto">
               Most sites use AI for customer support. The real unlock is using it for sales. Meet SIM, your AI agent that knows what visitors are browsing, guiding them through decisions and completing purchases, all in natural conversation.
             </p>
           </div>
