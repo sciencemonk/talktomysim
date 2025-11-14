@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { StoreEditModal } from "./StoreEditModal";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import { ChatProductCard } from "@/components/ChatProductCard";
 import { formatPrice } from "@/lib/utils";
 
 type Product = {
@@ -33,6 +34,7 @@ type ChatMessage = {
   role: 'user' | 'agent';
   content: string;
   timestamp: Date;
+  productId?: string; // For product card messages
 };
 
 export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
@@ -148,6 +150,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullContent = '';
+      let toolCalls: any[] = [];
 
       while (true) {
         const { done, value } = await reader.read();
@@ -165,6 +168,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
+              const delta_tool_calls = parsed.choices?.[0]?.delta?.tool_calls;
               
               if (content) {
                 fullContent += content;
@@ -174,8 +178,52 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                     : msg
                 ));
               }
+
+              // Handle tool calls
+              if (delta_tool_calls) {
+                for (const toolCall of delta_tool_calls) {
+                  const index = toolCall.index;
+                  if (!toolCalls[index]) {
+                    toolCalls[index] = {
+                      id: toolCall.id,
+                      type: toolCall.type,
+                      function: {
+                        name: toolCall.function?.name || '',
+                        arguments: toolCall.function?.arguments || ''
+                      }
+                    };
+                  } else {
+                    if (toolCall.function?.arguments) {
+                      toolCalls[index].function.arguments += toolCall.function.arguments;
+                    }
+                  }
+                }
+              }
             } catch (e) {
               // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      // Process completed tool calls
+      if (toolCalls.length > 0) {
+        for (const toolCall of toolCalls) {
+          if (toolCall.function.name === 'show_product') {
+            try {
+              const args = JSON.parse(toolCall.function.arguments);
+              const productId = args.product_id;
+              
+              // Add product card message
+              setChatMessages(prev => [...prev, {
+                id: `product-${Date.now()}`,
+                role: 'agent',
+                content: '',
+                productId: productId,
+                timestamp: new Date()
+              }]);
+            } catch (e) {
+              console.error('Error processing tool call:', e);
             }
           }
         }
@@ -359,15 +407,30 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                         key={msg.id}
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div
-                          className={`rounded-lg p-3 max-w-[80%] ${
-                            msg.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
-                        >
-                          <p className="text-sm">{msg.content}</p>
-                        </div>
+                        {msg.productId ? (
+                          // Product card message
+                          <ChatProductCard
+                            product={products.find(p => p.id === msg.productId)!}
+                            onViewProduct={(productId) => {
+                              const product = products.find(p => p.id === productId);
+                              if (product) {
+                                setSelectedProduct(product);
+                                setProductModalOpen(true);
+                              }
+                            }}
+                          />
+                        ) : (
+                          // Regular text message
+                          <div
+                            className={`rounded-lg p-3 max-w-[80%] ${
+                              msg.role === 'user'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                            }`}
+                          >
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          </div>
+                        )}
                       </div>
                     ))}
                     {isSending && (
