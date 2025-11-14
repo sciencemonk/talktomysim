@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ProductReceiptModal } from "@/components/ProductReceiptModal";
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ interface X402PaymentModalProps {
   product?: {
     id: string;
     title: string;
+    description?: string;
+    delivery_info?: string;
     checkout_fields?: {
       email?: boolean;
       name?: boolean;
@@ -52,6 +55,8 @@ export const X402PaymentModal = ({
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<any>(null);
   const [buyerInfo, setBuyerInfo] = useState({
     email: '',
     name: '',
@@ -294,8 +299,28 @@ export const X402PaymentModal = ({
         }));
 
         toast.success('Payment successful!');
-        onPaymentSuccess(sessionId);
-        onClose();
+        
+        // Show receipt modal for product purchases
+        if (product && storeId) {
+          setReceiptData({
+            signature,
+            amount: price,
+            productTitle: product.title,
+            productDescription: product.description || '',
+            deliveryInfo: product.delivery_info,
+            buyerInfo: {
+              email: buyerInfo.email,
+              name: buyerInfo.name,
+              phone: buyerInfo.phone,
+              address: buyerInfo.address,
+            },
+            timestamp: new Date(),
+          });
+          setShowReceipt(true);
+        } else {
+          onPaymentSuccess(sessionId);
+          onClose();
+        }
       } catch (storageError) {
         console.error('Storage error:', storageError);
         toast.error('Payment succeeded but session storage failed. Please contact support.');
@@ -316,8 +341,15 @@ export const X402PaymentModal = ({
     }
   };
 
+  const handleReceiptClose = () => {
+    setShowReceipt(false);
+    setReceiptData(null);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Payment Required</DialogTitle>
@@ -508,5 +540,12 @@ export const X402PaymentModal = ({
         </div>
       </DialogContent>
     </Dialog>
+
+    <ProductReceiptModal 
+      isOpen={showReceipt}
+      onClose={handleReceiptClose}
+      receiptData={receiptData}
+    />
+    </>
   );
 };
