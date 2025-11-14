@@ -13,7 +13,7 @@ import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
 import Earnings from "./Earnings";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
 import storeLogo from "@/assets/store-logo.gif";
 
@@ -22,6 +22,7 @@ const Dashboard = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { evmAddress } = useEvmAddress();
+  const { solanaAddress } = useSolanaAddress();
   const [activeView, setActiveView] = useState("home");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ const Dashboard = () => {
     return () => {
       window.removeEventListener('navigate-dashboard', handleNavigation);
     };
-  }, [user, navigate, location.search]);
+  }, [user, navigate, location.search, solanaAddress]);
 
   const loadStore = async () => {
     try {
@@ -70,9 +71,20 @@ const Dashboard = () => {
       }
 
       if (existingStore) {
+        // Update the wallet address if it's changed or not set
+        if (solanaAddress && existingStore.crypto_wallet !== solanaAddress) {
+          const { error: updateError } = await supabase
+            .from('stores')
+            .update({ crypto_wallet: solanaAddress })
+            .eq('id', existingStore.id);
+          
+          if (!updateError) {
+            existingStore.crypto_wallet = solanaAddress;
+          }
+        }
         setStore(existingStore);
       } else {
-        // Create a default store for new users
+        // Create a default store for new users with Coinbase wallet
         const { data: newStore, error: createError } = await supabase
           .from('stores')
           .insert({
@@ -83,7 +95,8 @@ const Dashboard = () => {
             interaction_style: 'Friendly and helpful',
             response_tone: 'Professional',
             primary_focus: 'Customer satisfaction',
-            greeting_message: 'Hello! How can I help you today?'
+            greeting_message: 'Hello! How can I help you today?',
+            crypto_wallet: solanaAddress || null
           })
           .select()
           .single();
