@@ -4,33 +4,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { Mail } from 'lucide-react';
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
-import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
+import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
 import { useAuth } from '@/hooks/useAuth';
+import { userProfileService } from '@/services/userProfileService';
 
 export const CoinbaseSignIn = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useIsSignedIn();
   const { evmAddress } = useEvmAddress();
+  const { currentUser } = useCurrentUser();
   const { updateUser } = useAuth();
 
   useEffect(() => {
-    if (isSignedIn && evmAddress) {
-      // Get user data when signed in
-      const userData = { 
-        address: evmAddress,
-        coinbaseAuth: true,
-        signedInAt: new Date().toISOString()
-      };
-      updateUser(userData);
-      
-      toast.success('Successfully signed in with Coinbase!');
-      
-      // Redirect to dashboard
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
-    }
-  }, [isSignedIn, evmAddress, navigate, updateUser]);
+    const handleSignIn = async () => {
+      if (isSignedIn && evmAddress && currentUser) {
+        // Use userId from currentUser or generate from address
+        const email = currentUser.userId || `${evmAddress.slice(0, 8)}@wallet.local`;
+        
+        // Create or update user profile in database
+        await userProfileService.upsertProfile(evmAddress, email);
+        
+        // Get user data when signed in
+        const userData = { 
+          address: evmAddress,
+          email: email,
+          coinbaseAuth: true,
+          signedInAt: new Date().toISOString()
+        };
+        updateUser(userData);
+        
+        toast.success('Successfully signed in with Coinbase!');
+        
+        // Redirect to dashboard
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
+      }
+    };
+    
+    handleSignIn();
+  }, [isSignedIn, evmAddress, currentUser, navigate, updateUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
