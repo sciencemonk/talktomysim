@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { Package, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -142,12 +141,6 @@ export default function PublicStore() {
                 {store.store_description}
               </p>
             )}
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <Badge variant="outline" className="gap-1">
-              <ExternalLink className="h-3 w-3" />
-              @{store.x_username}
-            </Badge>
           </div>
         </div>
 
