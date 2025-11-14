@@ -68,6 +68,7 @@ const Dashboard = () => {
         .maybeSingle();
 
       if (error) {
+        console.error('Error fetching store:', error);
         throw error;
       }
 
@@ -79,7 +80,9 @@ const Dashboard = () => {
             .update({ crypto_wallet: solanaAddress })
             .eq('id', existingStore.id);
           
-          if (!updateError) {
+          if (updateError) {
+            console.error('Error updating wallet:', updateError);
+          } else {
             existingStore.crypto_wallet = solanaAddress;
           }
         }
@@ -87,6 +90,8 @@ const Dashboard = () => {
       } else {
         // Create a default store for new users
         const defaultUsername = user.email?.split('@')[0]?.replace(/[^a-z0-9_-]/gi, '') || `user${Date.now()}`;
+        
+        console.log('Creating store with username:', defaultUsername);
         
         const { data: newStore, error: createError } = await supabase
           .from('stores')
@@ -99,13 +104,19 @@ const Dashboard = () => {
             response_tone: 'Professional',
             primary_focus: 'Customer satisfaction',
             greeting_message: 'Hello! How can I help you today?',
-            crypto_wallet: solanaAddress || null
+            crypto_wallet: solanaAddress || null,
+            is_active: true
           })
           .select()
           .single();
 
         if (createError) {
-          console.error('Error creating store:', createError);
+          console.error('Error creating store:', createError, {
+            code: createError.code,
+            message: createError.message,
+            details: createError.details,
+            hint: createError.hint
+          });
           // Set store to null so user sees setup prompt
           setStore(null);
         } else {
@@ -114,8 +125,8 @@ const Dashboard = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading store:', error);
-      toast.error('Failed to load store');
+      console.error('Error loading store:', error, JSON.stringify(error, null, 2));
+      toast.error('Failed to load store. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -43,6 +43,8 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
       
       // If no store exists yet, create one first
       if (!store) {
+        console.log('Creating new store with username:', newRoute.trim());
+        
         const { data: newStore, error: createError } = await supabase
           .from('stores')
           .insert({
@@ -53,30 +55,57 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
             interaction_style: 'Friendly and helpful',
             response_tone: 'Professional',
             primary_focus: 'Customer satisfaction',
-            greeting_message: 'Hello! How can I help you today?'
+            greeting_message: 'Hello! How can I help you today?',
+            is_active: true
           })
           .select()
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          console.error('Store creation error:', createError, {
+            code: createError.code,
+            message: createError.message,
+            details: createError.details,
+            hint: createError.hint
+          });
+          
+          if (createError.code === '23505') {
+            toast.error('This username is already taken. Please choose another.');
+          } else {
+            toast.error(`Failed to create store: ${createError.message}`);
+          }
+          return;
+        }
+        
         toast.success('Store created successfully!');
         window.location.reload();
         return;
       }
 
       // Otherwise update existing store
+      console.log('Updating store username to:', newRoute.trim());
+      
       const { error } = await supabase
         .from('stores')
         .update({ x_username: newRoute.trim() })
         .eq('id', store.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Store update error:', error);
+        if (error.code === '23505') {
+          toast.error('This username is already taken. Please choose another.');
+        } else {
+          toast.error(`Failed to update username: ${error.message}`);
+        }
+        return;
+      }
+      
       toast.success('Store username updated successfully');
       setIsEditingRoute(false);
       window.location.reload();
-    } catch (error) {
-      console.error('Error updating route:', error);
-      toast.error('Failed to update store username. It may already be taken.');
+    } catch (error: any) {
+      console.error('Error in handleUpdateRoute:', error);
+      toast.error(`An error occurred: ${error?.message || 'Please try again'}`);
     } finally {
       setSaving(false);
     }
