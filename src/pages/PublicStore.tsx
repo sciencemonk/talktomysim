@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
-import { ChatProductCard } from "@/components/ChatProductCard";
-import { Package, ExternalLink, MessageSquare, X, Send, Bot } from "lucide-react";
+import { StoreChatSidebar } from "@/components/StoreChatSidebar";
+import { Package, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
@@ -300,14 +300,15 @@ export default function PublicStore() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex">
       {/* Theme Toggle - Fixed Top Right */}
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
 
       {/* Store Content */}
-      <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
+      <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-[400px]' : 'mr-0'}`}>
+        <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
         <div className="max-w-6xl mx-auto">
           {/* Store Header */}
           <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
@@ -380,8 +381,21 @@ export default function PublicStore() {
             </div>
           )}
         </div>
+        
+        {/* Footer Badge */}
+        <footer className="mt-16 mb-8 flex justify-center">
+          <a
+            href="https://simproject.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Create your own Agentic Storefront
+          </a>
+        </footer>
       </div>
-
+      
       {/* Product Detail Modal */}
       <ProductDetailModal
         product={selectedProduct}
