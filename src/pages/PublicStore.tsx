@@ -126,22 +126,18 @@ export default function PublicStore() {
               <img
                 src={store.avatar_url}
                 alt={store.store_name}
-                className="h-24 w-24 rounded-full border-4 border-primary object-cover"
+                className="h-24 object-contain"
               />
             ) : (
-              <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center border-4 border-primary">
-                <Package className="h-12 w-12 text-primary" />
-              </div>
+              <h1 className="text-4xl font-bold">{store.store_name}</h1>
             )}
           </div>
-          <div>
-            <h1 className="text-4xl font-bold mb-2">{store.store_name}</h1>
-            {store.store_description && (
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                {store.store_description}
-              </p>
-            )}
-          </div>
+          {store.avatar_url && <h1 className="text-4xl font-bold mt-2">{store.store_name}</h1>}
+          {store.store_description && (
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              {store.store_description}
+            </p>
+          )}
         </div>
 
         {/* Products Grid */}
