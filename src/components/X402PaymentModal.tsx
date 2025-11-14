@@ -94,32 +94,18 @@ export const X402PaymentModal = ({
           setUsdcBalance(balance);
           
           if (balance < price) {
-            toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+            const priceDisplay = price % 1 === 0 ? price : price.toFixed(2);
+            const balanceDisplay = balance % 1 === 0 ? balance : balance.toFixed(2);
+            toast.error(`Insufficient USDC. You have ${balanceDisplay} USDC but need ${priceDisplay} USDC`);
           }
         } catch (accountError: any) {
-          // Account might not exist - try alternative method
-          console.log('[X402Payment] Token account error:', accountError);
-          
-          // Try using RPC call directly as fallback
-          try {
-            const response = await connection.getTokenAccountBalance(senderTokenAccount);
-            const balance = response.value.uiAmount || 0;
-            console.log('[X402Payment] Balance from RPC:', balance);
-            setUsdcBalance(balance);
-            
-            if (balance < price) {
-              toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
-            }
-          } catch (rpcError) {
-            console.error('[X402Payment] RPC balance check also failed:', rpcError);
-            setUsdcBalance(0);
-            toast.error('Unable to verify USDC balance. Please ensure you have USDC in your wallet.');
-          }
+          console.log('[X402Payment] Balance check unavailable:', accountError.message);
+          // Don't block payment if balance check fails - RPC might be rate-limited
+          setUsdcBalance(null);
         }
       } catch (error) {
         console.error('[X402Payment] Failed to check USDC balance:', error);
-        setUsdcBalance(0);
-        toast.error('Unable to connect to check balance. Please try again.');
+        setUsdcBalance(null);
       } finally {
         setIsCheckingBalance(false);
       }
@@ -203,14 +189,13 @@ export const X402PaymentModal = ({
         amount
       });
 
-      // Check if sender has USDC token account and sufficient balance
-      if (usdcBalance === null || usdcBalance < price) {
-        toast.error(`Insufficient USDC. You need ${price.toFixed(2)} USDC`);
+      // Check if sender has sufficient balance (if balance check worked)
+      if (usdcBalance !== null && usdcBalance < price) {
+        const priceDisplay = price % 1 === 0 ? price : price.toFixed(2);
+        const balanceDisplay = usdcBalance % 1 === 0 ? usdcBalance : usdcBalance.toFixed(2);
+        toast.error(`Insufficient USDC. You need ${priceDisplay} USDC but have ${balanceDisplay} USDC`);
         return;
       }
-
-      const senderBalance = Math.floor(usdcBalance * 1_000_000);
-      console.log('Sender USDC balance:', usdcBalance, 'USDC');
 
       // Check if recipient token account exists, if not create it
       const transaction = new Transaction();
