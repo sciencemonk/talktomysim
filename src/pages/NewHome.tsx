@@ -372,25 +372,21 @@ export default function NewHome() {
           
           <footer className={`fixed bottom-6 left-0 right-0 flex justify-center z-50 pointer-events-none ${chatOpen ? 'lg:mr-96' : 'mr-0'}`}>
             <div className="max-w-7xl w-full px-4 md:px-8 flex justify-center">
-              <div className="pointer-events-auto shadow-lg rounded-lg [&_button]:!px-6 [&_button]:!py-2.5 [&_button]:!text-sm [&_button]:!font-medium [&_button]:!bg-white [&_button]:!text-black [&_button]:hover:!bg-gray-100 [&_button]:!rounded-lg">
-                <style>{`
-                  footer button {
-                    font-size: 0 !important;
-                    display: flex !important;
-                    align-items: center;
-                    justify-content: center;
-                  }
-                  footer button * {
-                    font-size: 0 !important;
-                    display: none !important;
-                  }
-                  footer button::after {
-                    content: 'Create your own Agentic Store';
-                    font-size: 0.875rem !important;
-                    display: block !important;
-                  }
-                `}</style>
-                <AuthButton />
+              <div className="pointer-events-auto shadow-lg rounded-lg">
+                <AuthButton>
+                  {({ SignInModal, isSignedIn, SignOutButton }) => (
+                    <>
+                      {isSignedIn ? (
+                        SignOutButton
+                      ) : (
+                        <button className="px-6 py-2.5 text-sm font-medium bg-white text-black hover:bg-gray-100 rounded-lg transition-colors">
+                          Create your own Agentic Store
+                        </button>
+                      )}
+                      {SignInModal}
+                    </>
+                  )}
+                </AuthButton>
               </div>
             </div>
           </footer>
