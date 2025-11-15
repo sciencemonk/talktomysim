@@ -336,8 +336,8 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                 onClick={() => setShopifyModalOpen(true)} 
                 className="gap-2"
               >
+                Connect
                 <img src={shopifyLogo} alt="Shopify" className="h-4 w-auto" />
-                Connect Shopify
               </Button>
               <Button onClick={handleAddProduct} className="gap-2">
                 <Plus className="h-4 w-4" />
