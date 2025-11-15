@@ -62,6 +62,21 @@ export default function NewHome() {
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
 
+  // Monitor Coinbase auth state and redirect to dashboard if signed in
+  // But don't redirect if user just logged out
+  useEffect(() => {
+    const explicitSignout = localStorage.getItem('explicit_signout');
+    
+    if (isSignedIn && explicitSignout !== 'true') {
+      navigate('/dashboard');
+    }
+    
+    // Clear the signout flag when user is signed in (meaning they signed back in)
+    if (isSignedIn) {
+      localStorage.removeItem('explicit_signout');
+    }
+  }, [isSignedIn, navigate]);
+
   useEffect(() => {
     loadStore();
   }, []);
