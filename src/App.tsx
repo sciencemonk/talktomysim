@@ -138,14 +138,14 @@ const App = () => (
               <Route path="/store/:username" element={<PublicStore />} />
               <Route path="/store/:username/product/:productId" element={<ProductDetail />} />
               
-              {/* New Home - SIM Store duplicate */}
-              <Route path="/newhome" element={<NewHome />} />
-              
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
               
-              {/* Root route - Shows marketplace or redirects to chat if authenticated */}
-              <Route path="/" element={<RootRedirect />} />
+              {/* Root route - Now shows SIM store homepage */}
+              <Route path="/" element={<NewHome />} />
+              
+              {/* Old root redirect for backwards compatibility */}
+              <Route path="/marketplace" element={<RootRedirect />} />
               
               {/* Previous landing page moved to /home */}
               <Route path="/home-old" element={<NewLanding />} />
