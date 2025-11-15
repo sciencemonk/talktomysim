@@ -95,11 +95,26 @@ export const ShopifyConnectModal = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end">
           <button
             onClick={handleConnect}
             disabled={syncing}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              height: '2.5rem',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))',
+              border: 'none',
+              cursor: syncing ? 'not-allowed' : 'pointer',
+              opacity: syncing ? 0.5 : 1,
+            }}
           >
             {syncing ? (
               <>
