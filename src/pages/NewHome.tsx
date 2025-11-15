@@ -371,7 +371,7 @@ export default function NewHome() {
           </div>
           
           <footer className="mt-16 mb-8 flex justify-center">
-            <div className="[&_button]:!px-8 [&_button]:!py-6 [&_button]:!text-base [&_button]:!font-semibold [&_button]:!bg-primary [&_button]:!hover:bg-primary/90">
+            <div className="[&_button]:!px-6 [&_button]:!py-2.5 [&_button]:!text-sm [&_button]:!font-medium [&_button]:!bg-white [&_button]:!text-black [&_button]:hover:!bg-gray-100">
               <style>{`
                 footer button span {
                   display: none;
