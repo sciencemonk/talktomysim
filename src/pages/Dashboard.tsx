@@ -20,7 +20,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { evmAddress } = useEvmAddress();
   const { solanaAddress } = useSolanaAddress();
-  const [activeView, setActiveView] = useState("agent");
+  const [activeView, setActiveView] = useState("store");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
