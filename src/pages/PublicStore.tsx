@@ -72,15 +72,16 @@ export default function PublicStore() {
     const handleSignIn = async () => {
       if (isSignedIn && evmAddress) {
         try {
-          const existingProfile = await userProfileService.getProfileByWallet(evmAddress);
-          const email = existingProfile?.email || `${evmAddress.slice(0, 8)}@wallet.local`;
+          // Generate proper email format
+          const email = `${evmAddress.slice(0, 8).toLowerCase()}@wallet.sim`;
           
+          // Get or create profile
           const profile = await userProfileService.upsertProfile(evmAddress, email);
           
           if (profile) {
             updateUser({
               id: profile.id,
-              email: profile.email,
+              email: profile.email || email,
               address: evmAddress,
               coinbaseAuth: true,
               signedInAt: new Date().toISOString()
