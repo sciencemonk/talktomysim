@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Package, Edit, Trash2, Store } from "lucide-react";
+import { Plus, Package, Edit, Trash2, Store, Upload, X, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProductDialog } from "./ProductDialog";
 import { ShopifyConnectModal } from "./ShopifyConnectModal";
 import { formatPrice } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type Product = {
   id: string;
@@ -34,11 +37,31 @@ type StoreCatalogTabProps = {
 };
 
 export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [shopifyModalOpen, setShopifyModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  
+  // Store form data
+  const [storeFormData, setStoreFormData] = useState({
+    store_name: '',
+    store_description: '',
+    logo_url: ''
+  });
+
+  useEffect(() => {
+    if (store) {
+      setStoreFormData({
+        store_name: store.store_name || '',
+        store_description: store.store_description || '',
+        logo_url: store.logo_url || ''
+      });
+    }
+  }, [store]);
 
   useEffect(() => {
     if (store?.id) {
@@ -121,6 +144,74 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
     setDialogOpen(true);
   };
 
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('File size must be less than 2MB');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File must be an image');
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${store.user_id}/logo-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('store-logos')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-logos')
+        .getPublicUrl(filePath);
+
+      setStoreFormData(prev => ({ ...prev, logo_url: publicUrl }));
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleSaveStore = async () => {
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('stores')
+        .update({
+          store_name: storeFormData.store_name,
+          store_description: storeFormData.store_description,
+          logo_url: storeFormData.logo_url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', store.id);
+
+      if (error) throw error;
+      toast.success('Store settings updated successfully');
+      window.dispatchEvent(new Event('store-updated'));
+    } catch (error) {
+      console.error('Error updating store settings:', error);
+      toast.error('Failed to update store settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -136,9 +227,9 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Catalog</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Store</h2>
           <p className="text-muted-foreground">
-            Add and manage products and services for your AI agent to sell
+            Configure your store and manage products
           </p>
         </div>
         <div className="flex gap-2">
@@ -156,6 +247,82 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
           </Button>
         </div>
       </div>
+
+      {/* Store Settings */}
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <div className="space-y-2">
+            <Label htmlFor="store_name">Store Name</Label>
+            <Input
+              id="store_name"
+              value={storeFormData.store_name}
+              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_name: e.target.value }))}
+              placeholder="Enter store name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="store_description">Store Description</Label>
+            <Textarea
+              id="store_description"
+              value={storeFormData.store_description}
+              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_description: e.target.value }))}
+              placeholder="Describe your store"
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Store Logo</Label>
+            <div className="flex items-center gap-4">
+              {storeFormData.logo_url && (
+                <img
+                  src={storeFormData.logo_url}
+                  alt="Store logo"
+                  className="w-16 h-16 object-contain rounded border border-border"
+                />
+              )}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingLogo || !store?.id}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                </Button>
+                {storeFormData.logo_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setStoreFormData(prev => ({ ...prev, logo_url: '' }))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoUpload}
+              />
+            </div>
+          </div>
+
+          <Button
+            onClick={handleSaveStore}
+            disabled={saving || !store?.id}
+            className="w-full"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? 'Saving...' : 'Save Store Settings'}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
