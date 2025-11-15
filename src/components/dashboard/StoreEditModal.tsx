@@ -42,8 +42,8 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
     try {
       setUploading(true);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${store.id}-${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `${store.user_id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('store-avatars')
@@ -59,7 +59,7 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
       toast.success('Logo uploaded successfully');
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error('Failed to upload logo');
+      toast.error('Failed to upload logo. Please ensure you have the necessary permissions.');
     } finally {
       setUploading(false);
     }
