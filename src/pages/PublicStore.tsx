@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,10 +12,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
 import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
-import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
-import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
-import { useAuth } from '@/hooks/useAuth';
-import { userProfileService } from '@/services/userProfileService';
 
 type Product = {
   id: string;
@@ -59,58 +55,9 @@ export default function PublicStore() {
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const authButtonRef = useRef<HTMLDivElement>(null);
-  const { isSignedIn } = useIsSignedIn();
-  const { evmAddress } = useEvmAddress();
-  const { updateUser } = useAuth();
   
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
-
-  // Handle Coinbase sign-in
-  useEffect(() => {
-    const handleSignIn = async () => {
-      if (isSignedIn && evmAddress) {
-        try {
-          // Generate proper email format
-          const email = `${evmAddress.slice(0, 8).toLowerCase()}@wallet.sim`;
-          
-          // Get or create profile
-          const profile = await userProfileService.upsertProfile(evmAddress, email);
-          
-          if (profile) {
-            updateUser({
-              id: profile.id,
-              email: profile.email || email,
-              address: evmAddress,
-              coinbaseAuth: true,
-              signedInAt: new Date().toISOString()
-            });
-            
-            toast.success('Successfully signed in!');
-            
-            // Redirect to dashboard
-            setTimeout(() => {
-              navigate('/dashboard');
-            }, 1000);
-          }
-        } catch (error) {
-          console.error('Error during sign-in:', error);
-          toast.error('An error occurred during sign-in');
-        }
-      }
-    };
-    
-    handleSignIn();
-  }, [isSignedIn, evmAddress, navigate, updateUser]);
-
-  const handleCreateStore = () => {
-    // Trigger the AuthButton click
-    const button = authButtonRef.current?.querySelector('button');
-    if (button) {
-      button.click();
-    }
-  };
 
   useEffect(() => {
     if (username) {
@@ -347,15 +294,19 @@ export default function PublicStore() {
             <div className="flex items-center justify-between gap-4">
               {/* Store Info - Left Side */}
               <div className="flex flex-col gap-2 min-w-0 flex-1">
-                {store.logo_url && (
-                  <div className="flex-shrink-0">
+                <div className="flex-shrink-0">
+                  {store.logo_url ? (
                     <img 
                       src={store.logo_url} 
                       alt={store.store_name}
                       className="w-12 h-12 object-contain"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40">
+                      <Store className="w-6 h-6 text-primary" />
+                    </div>
+                  )}
+                </div>
                 
                 <div className="min-w-0">
                   {!store.logo_url && (
@@ -422,19 +373,20 @@ export default function PublicStore() {
             )}
           </div>
           
-          {/* Floating Create Store Button - Centered on Store Column */}
-          <div className="fixed bottom-6 left-0 right-0 lg:right-96 flex justify-center z-40 pointer-events-none">
-            <button
-              onClick={handleCreateStore}
-              className="pointer-events-auto inline-flex items-center gap-2 px-6 py-3 text-sm font-medium bg-white text-black rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
+          <footer className="mt-16 mb-8 flex justify-center">
+            <a
+              href="https://simproject.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
             >
+              <ExternalLink className="h-3 w-3" />
               Create your own Agentic Storefront
-            </button>
-          </div>
+            </a>
+          </footer>
         </div>
       </div>
-
-      {/* Chat Sidebar */}
+      
       <StoreChatSidebar
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
@@ -449,12 +401,12 @@ export default function PublicStore() {
         isSending={isSending}
         products={products}
         positioning="fixed"
+        onViewProduct={(productId) => {
+          if (username) {
+            navigate(`/store/${username}/product/${productId}`);
+          }
+        }}
       />
-
-      {/* Hidden AuthButton for programmatic triggering */}
-      <div ref={authButtonRef} className="hidden">
-        <AuthButton onClick={() => localStorage.removeItem('explicit_signout')} />
-      </div>
     </div>
   );
 }

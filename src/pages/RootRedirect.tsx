@@ -1,8 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import Marketplace from "./Marketplace";
 
 const RootRedirect = () => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -12,12 +12,7 @@ const RootRedirect = () => {
     );
   }
 
-  // Redirect based on auth state
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return <Navigate to="/store/sim" replace />;
+  return <Marketplace />;
 };
 
 export default RootRedirect;

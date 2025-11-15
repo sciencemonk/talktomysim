@@ -12,7 +12,7 @@ import { AgentConfigTab } from "@/components/dashboard/AgentConfigTab";
 import Payments from "./Payments";
 import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
-import storeLogo from "@/assets/sim-agentic-commerce-logo.png";
+import storeLogo from "@/assets/store-logo.gif";
 
 const Dashboard = () => {
   const navigate = useNavigate();
