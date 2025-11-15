@@ -48,9 +48,9 @@ export const AgentConfigTab = ({ store, onUpdate }: AgentConfigTabProps) => {
         interaction_style: store.interaction_style || 'balanced',
         response_tone: store.response_tone || 'professional',
         primary_focus: store.primary_focus || 'customer_satisfaction',
-        response_length: 50,
-        personality: 50,
-        expertise_level: 50,
+        response_length: store.response_length ?? 50,
+        personality: store.personality_warmth ?? 50,
+        expertise_level: store.expertise_level ?? 50,
       });
     }
   }, [store]);
@@ -106,6 +106,51 @@ export const AgentConfigTab = ({ store, onUpdate }: AgentConfigTabProps) => {
     }
   };
 
+  const generateAgentPrompt = () => {
+    // Generate a comprehensive system prompt based on all settings
+    const lengthMap = {
+      short: 'Keep responses brief and concise, typically 1-2 sentences.',
+      medium: 'Provide balanced responses with key details, typically 2-4 sentences.',
+      long: 'Give comprehensive, detailed responses with examples and context.'
+    };
+    
+    const warmthMap = {
+      formal: 'Maintain a professional, business-like tone.',
+      friendly: 'Be warm and approachable while remaining professional.',
+      enthusiastic: 'Show genuine enthusiasm and energy in your interactions.'
+    };
+    
+    const expertiseMap = {
+      basic: 'Provide helpful general information about products.',
+      intermediate: 'Share knowledgeable insights and product comparisons.',
+      expert: 'Demonstrate deep expertise with technical details and nuanced recommendations.'
+    };
+    
+    const responseLength = agentFormData.response_length < 33 ? 'short' : 
+                          agentFormData.response_length < 66 ? 'medium' : 'long';
+    const warmth = agentFormData.personality < 33 ? 'formal' : 
+                  agentFormData.personality < 66 ? 'friendly' : 'enthusiastic';
+    const expertise = agentFormData.expertise_level < 33 ? 'basic' : 
+                     agentFormData.expertise_level < 66 ? 'intermediate' : 'expert';
+
+    return `You are ${agentFormData.store_name}, an AI shopping assistant for this e-commerce store.
+
+PERSONALITY & STYLE:
+- Interaction Style: ${agentFormData.interaction_style}
+- Response Tone: ${agentFormData.response_tone}
+- ${warmthMap[warmth]}
+- ${lengthMap[responseLength]}
+
+EXPERTISE & FOCUS:
+- Primary Focus: ${agentFormData.primary_focus.replace(/_/g, ' ')}
+- Product Knowledge Level: ${expertiseMap[expertise]}
+
+YOUR ROLE:
+Help customers find the perfect products, answer questions about our offerings, provide recommendations, and ensure an excellent shopping experience. ${agentFormData.greeting_message ? `Always greet new customers with: "${agentFormData.greeting_message}"` : ''}
+
+Remember to be helpful, accurate, and focused on customer satisfaction while maintaining the personality and expertise level configured above.`;
+  };
+
   const handleSaveAgent = async () => {
     if (!agentFormData.store_name.trim()) {
       toast.error('Agent name is required');
@@ -114,6 +159,10 @@ export const AgentConfigTab = ({ store, onUpdate }: AgentConfigTabProps) => {
 
     try {
       setSaving(true);
+      
+      // Generate the agent prompt based on current settings
+      const generatedPrompt = generateAgentPrompt();
+      
       const { error } = await supabase
         .from('stores')
         .update({
@@ -123,6 +172,10 @@ export const AgentConfigTab = ({ store, onUpdate }: AgentConfigTabProps) => {
           response_tone: agentFormData.response_tone,
           primary_focus: agentFormData.primary_focus,
           greeting_message: agentFormData.greeting_message,
+          response_length: agentFormData.response_length,
+          personality_warmth: agentFormData.personality,
+          expertise_level: agentFormData.expertise_level,
+          agent_prompt: generatedPrompt,
           updated_at: new Date().toISOString()
         })
         .eq('id', store.id);
