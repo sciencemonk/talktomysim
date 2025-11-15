@@ -216,7 +216,7 @@ const Dashboard = () => {
                 className={cn("cursor-pointer py-3 text-foreground", activeView === "catalog" && "bg-accent")}
               >
                 <Package className="mr-2 h-4 w-4" />
-                Catalog
+                Store
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("payments")}
@@ -326,7 +326,7 @@ const Dashboard = () => {
               <Package className={cn("h-5 w-5 flex-shrink-0", activeView === "catalog" && "text-primary")} />
               {sidebarOpen && (
                 <span className={cn("text-sm font-medium", activeView === "catalog" && "text-primary")}>
-                  Catalog
+                  Store
                 </span>
               )}
             </button>
