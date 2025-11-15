@@ -68,7 +68,6 @@ import RootRedirect from "./pages/RootRedirect";
 import Onboarding from "./pages/Onboarding";
 import PublicStore from "./pages/PublicStore";
 import ProductDetail from "./pages/ProductDetail";
-import NewHome from "./pages/NewHome";
 
 const queryClient = new QueryClient();
 
@@ -141,11 +140,8 @@ const App = () => (
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
               
-              {/* Root route - Now shows SIM store homepage */}
-              <Route path="/" element={<NewHome />} />
-              
-              {/* Old root redirect for backwards compatibility */}
-              <Route path="/marketplace" element={<RootRedirect />} />
+              {/* Root route - Shows marketplace or redirects to chat if authenticated */}
+              <Route path="/" element={<RootRedirect />} />
               
               {/* Previous landing page moved to /home */}
               <Route path="/home-old" element={<NewLanding />} />
