@@ -267,14 +267,6 @@ const Marketplace = () => {
               
               {/* Right side - User dropdown or Sign In + Theme Toggle */}
               <div className="flex items-center gap-2 sm:gap-4">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open('/store/sim', '_blank')}
-                  className="border-gray-300 text-black hover:bg-gray-100"
-                >
-                  View Demo
-                </Button>
                 {user ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="border-gray-300 text-black hover:bg-gray-100 gap-2">
@@ -311,9 +303,17 @@ const Marketplace = () => {
             Make more sales with an AI Agent trained on your product catalog
           </p>
           
-          {/* Sign In Button */}
-          <div className="flex justify-center">
+          {/* Sign In and View Demo Buttons */}
+          <div className="flex items-center justify-center gap-4">
             <AuthButton />
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => window.open('/store/sim', '_blank')}
+              className="border-gray-300 text-black hover:bg-gray-100"
+            >
+              View Demo
+            </Button>
           </div>
         </div>
       </div>
