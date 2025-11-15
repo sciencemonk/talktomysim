@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import AuthModal from "@/components/AuthModal";
 
 const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
@@ -55,6 +56,7 @@ export default function NewHome() {
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
@@ -370,15 +372,14 @@ export default function NewHome() {
           </div>
           
           <footer className="mt-16 mb-8 flex justify-center">
-            <a
-              href="https://simproject.org"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              onClick={() => setAuthModalOpen(true)}
+              variant="outline"
               className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
             >
               <ExternalLink className="h-3 w-3" />
               Create your own Agentic Storefront
-            </a>
+            </Button>
           </footer>
         </div>
       </div>
@@ -400,6 +401,11 @@ export default function NewHome() {
         onViewProduct={(productId) => {
           navigate(`/store/${username}/product/${productId}`);
         }}
+      />
+      
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
       />
     </div>
   );
