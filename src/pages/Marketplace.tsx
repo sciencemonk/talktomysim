@@ -355,7 +355,7 @@ const Marketplace = () => {
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               Step 1: The Foundation
             </div>
-            <h2 className="font-system text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 px-2">
+            <h2 className="font-mono text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 px-2">
               Transform Your Store Into an Agentic Store
             </h2>
             <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-6 sm:mb-8"></div>
