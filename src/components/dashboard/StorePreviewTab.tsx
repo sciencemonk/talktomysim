@@ -135,13 +135,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       {/* Agent Configuration */}
       {/* Agent Settings Form */}
       <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-primary" />
-              <CardTitle>Agent Settings</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
               <Label htmlFor="greeting_message">Greeting Message</Label>
               <Textarea
