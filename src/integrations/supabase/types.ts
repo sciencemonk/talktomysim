@@ -1518,15 +1518,19 @@ export type Database = {
       }
       stores: {
         Row: {
+          agent_prompt: string | null
           avatar_url: string | null
           created_at: string
           crypto_wallet: string | null
+          expertise_level: number | null
           greeting_message: string | null
           id: string
           interaction_style: string | null
           is_active: boolean
           logo_url: string | null
+          personality_warmth: number | null
           primary_focus: string | null
+          response_length: number | null
           response_tone: string | null
           shopify_access_token: string | null
           shopify_store_url: string | null
@@ -1539,15 +1543,19 @@ export type Database = {
           x_username: string
         }
         Insert: {
+          agent_prompt?: string | null
           avatar_url?: string | null
           created_at?: string
           crypto_wallet?: string | null
+          expertise_level?: number | null
           greeting_message?: string | null
           id?: string
           interaction_style?: string | null
           is_active?: boolean
           logo_url?: string | null
+          personality_warmth?: number | null
           primary_focus?: string | null
+          response_length?: number | null
           response_tone?: string | null
           shopify_access_token?: string | null
           shopify_store_url?: string | null
@@ -1560,15 +1568,19 @@ export type Database = {
           x_username: string
         }
         Update: {
+          agent_prompt?: string | null
           avatar_url?: string | null
           created_at?: string
           crypto_wallet?: string | null
+          expertise_level?: number | null
           greeting_message?: string | null
           id?: string
           interaction_style?: string | null
           is_active?: boolean
           logo_url?: string | null
+          personality_warmth?: number | null
           primary_focus?: string | null
+          response_length?: number | null
           response_tone?: string | null
           shopify_access_token?: string | null
           shopify_store_url?: string | null
