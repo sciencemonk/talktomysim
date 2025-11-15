@@ -424,20 +424,17 @@ export default function PublicStore() {
             )}
           </div>
           
-          <footer className="mt-16 mb-8 flex justify-center">
-            {/* Removed - now floating fixed button below */}
-          </footer>
+          {/* Floating Create Store Button - Centered on Store Column */}
+          <div className="fixed bottom-6 left-0 right-0 lg:right-96 flex justify-center z-40 pointer-events-none">
+            <button
+              onClick={handleCreateStore}
+              className="pointer-events-auto inline-flex items-center gap-2 px-6 py-3 text-sm font-medium bg-white text-black rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
+            >
+              Create your own Agentic Storefront
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Floating Create Store Button */}
-      <button
-        onClick={handleCreateStore}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 px-6 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
-      >
-        <ExternalLink className="h-4 w-4" />
-        Create your own Agentic Storefront
-      </button>
 
       {/* Chat Sidebar */}
       <StoreChatSidebar
