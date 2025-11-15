@@ -385,7 +385,7 @@ export default function NewHome() {
                     display: none !important;
                   }
                   footer button::after {
-                    content: 'Create your own Agentic Store';
+                    content: '| Create your own Agentic Store';
                     font-size: 0.875rem !important;
                     display: block !important;
                   }
