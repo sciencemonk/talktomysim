@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { User, Package, Bot, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
-import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
+import { AgentConfigTab } from "@/components/dashboard/AgentConfigTab";
 import Payments from "./Payments";
 import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
@@ -371,7 +371,7 @@ const Dashboard = () => {
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
-            {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
+            {activeView === "store" && <AgentConfigTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "payments" && <Payments store={store} />}
           </div>
