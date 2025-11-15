@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { ExternalLink, Save, Upload, X, Bot } from "lucide-react";
+import { ExternalLink, Save, Upload, X, Bot, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 type StorePreviewTabProps = {
@@ -122,13 +122,26 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
           </p>
         </div>
         {store?.x_username && (
-          <Button
-            variant="outline"
-            onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
-            className="gap-2 flex-shrink-0"
-          >
-            View Live Store <ExternalLink className="h-4 w-4" />
-          </Button>
+          <div className="text-right">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const storeUrl = `https://simproject.org/store/${store.x_username}`;
+                const embedCode = `<script data-agent-url="${storeUrl}">
+(function(){window.AgentEmbed={init:function(e){if(!e||!e.agentUrl)return console.error("AgentEmbed: agentUrl is required");const t=document.createElement("button");t.id="agent-embed-button",t.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',t.style.cssText="position:fixed;top:20px;right:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:2px solid rgba(102,126,234,.3);cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;color:white;transition:transform .2s,box-shadow .2s;z-index:9998",t.addEventListener("mouseenter",function(){t.style.transform="scale(1.1)",t.style.boxShadow="0 6px 20px rgba(0,0,0,.2)"}),t.addEventListener("mouseleave",function(){t.style.transform="scale(1)",t.style.boxShadow="0 4px 12px rgba(0,0,0,.15)"});const n=document.createElement("div");n.id="agent-embed-sidebar",n.style.cssText="position:fixed;top:0;right:0;width:0;height:100vh;background:white;border-left:1px solid #e5e7eb;box-shadow:-4px 0 24px rgba(0,0,0,.1);overflow:hidden;transition:width .3s ease;z-index:9999;display:flex;flex-direction:column";const i=document.createElement("iframe");i.src=e.agentUrl,i.style.cssText="width:100%;height:100%;border:none",i.setAttribute("allow","microphone; camera"),n.appendChild(i);let o=!1;function s(){o=!0,t.style.display="none",window.innerWidth>1024?(n.style.width="384px",n.style.height="100vh",n.style.top="0",n.style.bottom="auto",n.style.left="auto",n.style.right="0",n.style.borderLeft="1px solid #e5e7eb",n.style.borderTop="none",n.style.transition="width .3s ease"):window.innerWidth>768?(n.style.width="320px",n.style.height="100vh",n.style.top="0",n.style.bottom="auto",n.style.left="auto",n.style.right="0",n.style.borderLeft="1px solid #e5e7eb",n.style.borderTop="none",n.style.transition="width .3s ease"):(n.style.width="100%",n.style.height="384px",n.style.top="auto",n.style.bottom="0",n.style.left="0",n.style.right="0",n.style.borderLeft="none",n.style.borderTop="1px solid #e5e7eb",n.style.transition="height .3s ease")}function d(){o=!1,t.style.display="flex",window.innerWidth<=768?n.style.height="0":n.style.width="0"}t.addEventListener("click",s),window.addEventListener("message",function(e){"closeAgentEmbed"===e.data&&d()}),window.addEventListener("resize",function(){o&&(window.innerWidth<=768?(n.style.width="100%",n.style.height="384px",n.style.top="auto",n.style.bottom="0",n.style.left="0",n.style.right="0",n.style.borderLeft="none",n.style.borderTop="1px solid #e5e7eb",n.style.transition="height .3s ease"):(n.style.width=window.innerWidth>1024?"384px":"320px",n.style.height="100vh",n.style.top="0",n.style.bottom="auto",n.style.left="auto",n.style.right="0",n.style.borderLeft="1px solid #e5e7eb",n.style.borderTop="none",n.style.transition="width .3s ease"))}),document.body.appendChild(t),document.body.appendChild(n),console.log("AgentEmbed: Initialized successfully")}},document.addEventListener("DOMContentLoaded",function(){const e=document.querySelector("script[data-agent-url]");if(e){const t=e.getAttribute("data-agent-url");window.AgentEmbed.init({agentUrl:t})}})})();
+</script>`;
+                navigator.clipboard.writeText(embedCode);
+                toast.success('Embed code copied to clipboard');
+              }}
+              className="gap-2 flex-shrink-0"
+            >
+              <Copy className="h-4 w-4" />
+              Embed on Your Site
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1">
+              Paste before the closing &lt;/body&gt; tag
+            </p>
+          </div>
         )}
       </div>
 
