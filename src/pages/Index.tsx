@@ -9,7 +9,7 @@ import { LandingPageChat } from "@/components/LandingPageChat";
 const Index = () => {
   const { user, loading } = useAuth();
   const [cyclingWord, setCyclingWord] = useState("money");
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const words = ["money", "smarter", "healthier", "happier"];
 
   useEffect(() => {
