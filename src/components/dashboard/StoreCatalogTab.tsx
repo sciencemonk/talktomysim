@@ -249,37 +249,23 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label htmlFor="store_name">Store Name</Label>
-            <Input
-              id="store_name"
-              value={storeFormData.store_name}
-              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_name: e.target.value }))}
-              placeholder="Enter store name"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="store_description">Store Description</Label>
-            <Textarea
-              id="store_description"
-              value={storeFormData.store_description}
-              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_description: e.target.value }))}
-              placeholder="Describe your store"
-              rows={4}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Store Logo</Label>
+            <Label>Store Logo & Name</Label>
             <div className="flex items-center gap-4">
               {storeFormData.logo_url && (
                 <img
                   src={storeFormData.logo_url}
                   alt="Store logo"
-                  className="w-16 h-16 object-contain rounded border border-border"
+                  className="w-16 h-16 object-contain rounded border border-border flex-shrink-0"
                 />
               )}
-              <div className="flex gap-2">
+              <Input
+                id="store_name"
+                value={storeFormData.store_name}
+                onChange={(e) => setStoreFormData(prev => ({ ...prev, store_name: e.target.value }))}
+                placeholder="Enter store name"
+                className="flex-1"
+              />
+              <div className="flex gap-2 flex-shrink-0">
                 <Button
                   type="button"
                   variant="outline"
