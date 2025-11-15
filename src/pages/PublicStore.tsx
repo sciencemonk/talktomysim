@@ -12,7 +12,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
 import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
-import { SignInModal } from "@/components/SignInModal";
+import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
+import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
+import { useAuth } from '@/hooks/useAuth';
+import { userProfileService } from '@/services/userProfileService';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type Product = {
   id: string;
@@ -57,9 +61,50 @@ export default function PublicStore() {
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [signInModalOpen, setSignInModalOpen] = useState(false);
+  const { isSignedIn } = useIsSignedIn();
+  const { evmAddress } = useEvmAddress();
+  const { updateUser } = useAuth();
   
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
+
+  // Handle Coinbase sign-in
+  useEffect(() => {
+    const handleSignIn = async () => {
+      if (isSignedIn && evmAddress) {
+        try {
+          const existingProfile = await userProfileService.getProfileByWallet(evmAddress);
+          const email = existingProfile?.email || `${evmAddress.slice(0, 8)}@wallet.local`;
+          
+          const profile = await userProfileService.upsertProfile(evmAddress, email);
+          
+          if (profile) {
+            updateUser({
+              id: profile.id,
+              email: profile.email,
+              address: evmAddress,
+              coinbaseAuth: true,
+              signedInAt: new Date().toISOString()
+            });
+            
+            toast.success('Successfully signed in!');
+            setSignInModalOpen(false);
+            
+            setTimeout(() => {
+              navigate('/dashboard');
+            }, 500);
+          }
+        } catch (error) {
+          console.error('Error during sign-in:', error);
+          toast.error('An error occurred during sign-in');
+        }
+      }
+    };
+    
+    if (signInModalOpen) {
+      handleSignIn();
+    }
+  }, [isSignedIn, evmAddress, signInModalOpen, navigate, updateUser]);
 
   useEffect(() => {
     if (username) {
@@ -404,11 +449,20 @@ export default function PublicStore() {
         positioning="fixed"
       />
 
-      {/* Sign In Modal */}
-      <SignInModal 
-        open={signInModalOpen}
-        onOpenChange={setSignInModalOpen}
-      />
+      {/* Coinbase Sign In Dialog */}
+      <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
+        <DialogContent className="sm:max-w-md p-8 gap-6">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-semibold">Sign in</h2>
+            <p className="text-sm text-muted-foreground">
+              Continue with Google or sign in with your email
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <AuthButton onClick={() => localStorage.removeItem('explicit_signout')} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
