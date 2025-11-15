@@ -170,7 +170,7 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('store-logos')
+        .from('store-avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true
@@ -179,7 +179,7 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('store-logos')
+        .from('store-avatars')
         .getPublicUrl(filePath);
 
       setStoreFormData(prev => ({ ...prev, logo_url: publicUrl }));
