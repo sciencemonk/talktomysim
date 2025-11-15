@@ -12,18 +12,12 @@ const RootRedirect = () => {
     );
   }
 
-  // No automatic redirects - let users choose where to go
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">Welcome to SIM</h1>
-        <p className="text-muted-foreground">Choose where you'd like to go:</p>
-        <div className="flex gap-4 justify-center">
-          <Navigate to="/store/sim" replace />
-        </div>
-      </div>
-    </div>
-  );
+  // Redirect based on auth state
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <Navigate to="/store/sim" replace />;
 };
 
 export default RootRedirect;
