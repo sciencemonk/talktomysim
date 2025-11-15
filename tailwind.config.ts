@@ -75,6 +75,7 @@ export default {
 			},
 			fontFamily: {
 				system: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'sans-serif'],
+				montserrat: ['Montserrat', 'sans-serif'],
 			},
 			animation: {
 				'fade-in': 'fadeIn 0.5s ease-out',
