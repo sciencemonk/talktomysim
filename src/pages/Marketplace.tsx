@@ -310,10 +310,10 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 px-2 leading-tight">
-                More Sales with AI Agents
+                Agentic Commerce Starts Here
               </h1>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/90 mb-6 sm:mb-8 max-w-4xl mx-auto px-4 leading-relaxed">
-                Delight your customers and make more sales.
+                Make more sales with an AI Agent trained on your product catalog
               </p>
               
               {/* Sign In Button */}
