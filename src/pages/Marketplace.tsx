@@ -22,11 +22,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
 import { userProfileService } from "@/services/userProfileService";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
-
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -41,18 +39,30 @@ type MarketplaceItem = {
 };
 const Marketplace = () => {
   const navigate = useNavigate();
-  const { user, signOut, updateUser } = useAuth();
+  const {
+    user,
+    signOut,
+    updateUser
+  } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const { theme } = useTheme();
+  const {
+    theme
+  } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
-  const { isSignedIn } = useIsSignedIn();
-  const { evmAddress } = useEvmAddress();
-  const { currentUser: cdpUser } = useCurrentUser();
-  
+  const {
+    isSignedIn
+  } = useIsSignedIn();
+  const {
+    evmAddress
+  } = useEvmAddress();
+  const {
+    currentUser: cdpUser
+  } = useCurrentUser();
+
   // Handle Coinbase sign-in
   useEffect(() => {
     if (isSignedIn && evmAddress && cdpUser) {
@@ -60,11 +70,12 @@ const Marketplace = () => {
         try {
           // Extract email from cdpUser - nested in authenticationMethods
           const userEmail = (cdpUser as any)?.authenticationMethods?.email?.email || null;
-          
-          console.log('Coinbase user data:', { evmAddress, email: userEmail, cdpUser });
-          
+          console.log('Coinbase user data:', {
+            evmAddress,
+            email: userEmail,
+            cdpUser
+          });
           const profile = await userProfileService.upsertProfile(evmAddress, userEmail);
-          
           if (profile) {
             updateUser({
               id: profile.id,
@@ -73,9 +84,7 @@ const Marketplace = () => {
               coinbaseAuth: true,
               signedInAt: new Date().toISOString()
             });
-            
             toast.success('Successfully signed in!');
-            
             setTimeout(() => {
               navigate('/dashboard');
             }, 500);
@@ -85,11 +94,9 @@ const Marketplace = () => {
           toast.error('An error occurred during sign-in');
         }
       };
-      
       handleSignIn();
     }
   }, [isSignedIn, evmAddress, cdpUser, navigate, updateUser]);
-  
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -213,7 +220,6 @@ const Marketplace = () => {
   const scrollToWaitlist = () => {
     navigate('/signin');
   };
-
   const handleItemClick = (item: MarketplaceItem) => {
     // Check if it's an NFT
     if (item.type === 'agent') {
@@ -241,13 +247,11 @@ const Marketplace = () => {
     }
     return result;
   };
-
   const handlePostToX = () => {
     const tweetText = '$SIMAI';
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
   };
-
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden min-h-screen">
@@ -265,19 +269,14 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-12 sm:h-16 md:h-20 w-auto object-contain" />
+                <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-10 sm:h-16 md:h-20 w-auto object-contain" />
               </button>
               
               {/* Right side - User dropdown or Sign In + Theme Toggle */}
               <div className="flex items-center gap-2 sm:gap-4">
-                {user ? (
-                  <DropdownMenu>
+                {user ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white gap-2"
-                      >
+                      <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white gap-2">
                         <User className="h-4 w-4" />
                         Account
                       </Button>
@@ -287,18 +286,15 @@ const Marketplace = () => {
                         Dashboard
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={async () => {
-                        await signOut();
-                        toast.success('Signed out successfully');
-                      }}>
+                    await signOut();
+                    toast.success('Signed out successfully');
+                  }}>
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <div className="scale-90">
+                  </DropdownMenu> : <div className="scale-90">
                     <AuthButton />
-                  </div>
-                )}
+                  </div>}
                 <ThemeToggle />
               </div>
             </div>
@@ -307,8 +303,7 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
-          {!showBetaRequest ? (
-            <>
+          {!showBetaRequest ? <>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 px-2 leading-tight">
                 Agentic Commerce Starts Here
               </h1>
@@ -320,9 +315,7 @@ const Marketplace = () => {
               <div className="flex justify-center">
                 <AuthButton />
               </div>
-            </>
-          ) : (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4">
+            </> : <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4">
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 text-center">Your X account isn&apos;t on the early access list</h2>
               <p className="text-sm sm:text-base text-white/80 mb-4 sm:mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-3 sm:p-4 bg-black/30 rounded-lg font-mono text-sm text-white mb-4 sm:mb-6 text-center">
@@ -336,8 +329,7 @@ const Marketplace = () => {
                   Back
                 </Button>
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
@@ -398,13 +390,9 @@ const Marketplace = () => {
                         <p className="font-semibold text-foreground text-sm sm:text-base">Semantic Vector</p>
                       </div>
                       <div className="grid grid-cols-8 gap-1 sm:gap-2">
-                        {[...Array(64)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-2 bg-primary/30 rounded-full animate-pulse"
-                            style={{ animationDelay: `${i * 30}ms` }}
-                          />
-                        ))}
+                        {[...Array(64)].map((_, i) => <div key={i} className="h-2 bg-primary/30 rounded-full animate-pulse" style={{
+                        animationDelay: `${i * 30}ms`
+                      }} />)}
                       </div>
                       <p className="text-xs text-muted-foreground mt-4">
                         768-dimensional embedding capturing semantic meaning
@@ -495,9 +483,7 @@ const Marketplace = () => {
                 Upload your brand mascot, use AI-generated characters, or pick from our library. Make your agent instantly recognizable.
               </p>
               <div className="flex justify-center gap-2">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full border-2 border-primary/30"></div>
-                ))}
+                {[...Array(3)].map((_, i) => <div key={i} className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full border-2 border-primary/30"></div>)}
               </div>
             </div>
 
@@ -613,7 +599,7 @@ const Marketplace = () => {
                 </div>
                 <pre className="bg-muted/50 p-3 sm:p-4 rounded-lg overflow-x-auto">
                   <code className="text-xs sm:text-sm font-mono text-foreground">
-{`<script src="https://sim.ai/embed.js"></script>
+                  {`<script src="https://sim.ai/embed.js"></script>
 <script>
   SIM.init({
     storeId: 'your-store-id',
@@ -833,13 +819,10 @@ const Marketplace = () => {
             <div className="flex items-center">
               <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-12 sm:h-16 w-auto" />
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
-                toast.success('Contract address copied to clipboard!');
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
-            >
+            <button onClick={() => {
+            navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
+            toast.success('Contract address copied to clipboard!');
+          }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer">
               <span className="text-sm font-semibold text-primary">$SIMAI</span>
             </button>
             <p className="text-sm text-muted-foreground">
