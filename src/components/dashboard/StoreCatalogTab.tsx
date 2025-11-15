@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import shopifyLogo from "@/assets/shopify-logo-button.png";
 
 type Product = {
@@ -283,46 +284,52 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label>Store Logo</Label>
-            <div className="flex items-start gap-4">
-              <div className="flex flex-col items-center gap-2">
-                {storeFormData.logo_url && (
-                  <img
-                    src={storeFormData.logo_url}
-                    alt="Store logo"
-                    className="w-16 h-16 object-contain rounded border border-border"
-                  />
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
+                {storeFormData.logo_url ? (
+                  <AvatarImage src={storeFormData.logo_url} alt="Store logo" />
+                ) : (
+                  <AvatarFallback className="text-2xl">
+                    {storeFormData.store_name?.[0]?.toUpperCase() || 'S'}
+                  </AvatarFallback>
                 )}
-                <div className="flex gap-1">
+              </Avatar>
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingLogo || !store?.id}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {uploadingLogo ? 'Uploading...' : 'Upload'}
+                </Button>
+                {storeFormData.logo_url && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingLogo || !store?.id}
+                    onClick={() => setStoreFormData(prev => ({ ...prev, logo_url: '' }))}
+                    className="gap-2"
                   >
-                    <Upload className="h-3 w-3 mr-1" />
-                    {uploadingLogo ? 'Uploading...' : 'Upload'}
+                    <X className="h-4 w-4" />
+                    Remove
                   </Button>
-                  {storeFormData.logo_url && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setStoreFormData(prev => ({ ...prev, logo_url: '' }))}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
+                )}
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleLogoUpload}
-              />
             </div>
+            <p className="text-sm text-muted-foreground">
+              Upload a custom logo for your store (max 2MB)
+            </p>
           </div>
 
           <div className="space-y-2">
