@@ -309,7 +309,7 @@ const Marketplace = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
           {!showBetaRequest ? (
             <>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-mono tracking-tight text-white mb-4 px-2 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 px-2 leading-tight">
                 More Sales with AI Agents
               </h1>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/90 mb-6 sm:mb-8 max-w-4xl mx-auto px-4 leading-relaxed">
@@ -355,7 +355,7 @@ const Marketplace = () => {
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               Step 1: The Foundation
             </div>
-            <h2 className="font-mono text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 px-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 px-2">
               Transform Your Store Into an Agentic Store
             </h2>
             <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-6 sm:mb-8"></div>
