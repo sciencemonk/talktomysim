@@ -140,8 +140,8 @@ const App = () => (
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
               
-              {/* Root route - Redirects to SIM store */}
-              <Route path="/" element={<Navigate to="/store/sim" replace />} />
+              {/* Root route - Conditionally redirects based on auth status */}
+              <Route path="/" element={<RootRedirect />} />
               
               {/* Previous landing page moved to /home */}
               <Route path="/home-old" element={<NewLanding />} />
