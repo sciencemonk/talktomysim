@@ -106,17 +106,20 @@ ${shownProductIds.size > 0 ? `\nPRODUCTS ALREADY SHOWN: ${Array.from(shownProduc
 
 CRITICAL GUIDELINES FOR PRODUCT TOOL:
 - MOST responses should be PLAIN TEXT without any tool calls
+- When you DO use show_product tool, you MUST include text in your response like "Check out the {Product Name}!" or "Here's {Product Name} for you"
+- ALWAYS combine tool calls with text so you maintain context about which product you showed
 - Use show_product tool ONLY when FIRST introducing a NEW product that hasn't been shown yet
 - NEVER re-show products that are in "PRODUCTS ALREADY SHOWN" list above
 - After using show_product once for a product, ONLY use text for all future messages about that product
 - Answer ALL follow-up questions about already-shown products with text ONLY - NO tools
-- For questions like "What is this?" about an already-shown product, answer with TEXT ONLY
+- For questions like "What is this?" about an already-shown product, answer with TEXT describing that specific product
 - When customer asks general questions, respond with TEXT ONLY - no product cards needed
-- When customer asks for "other" or "different" products, show ONE new product, then respond with text
+- When customer asks for "other" or "different" products, include text introducing it, then show ONE new product
 - Use exact product IDs from the list above when calling show_product
 - If all products are shown and customer wants more, respond with TEXT explaining you've shown everything
 - Default to TEXT responses - only use show_product when absolutely necessary for NEW products
-- REMEMBER: Most of your messages should be helpful text, not product cards`;
+- REMEMBER: Most of your messages should be helpful text, not product cards
+- CRITICAL: When using tools, include descriptive text so you remember what you showed`;
 
     console.log('System prompt:', systemPrompt);
     console.log('Messages:', messages);
