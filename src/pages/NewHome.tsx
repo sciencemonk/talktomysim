@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 import { Card, CardContent } from "@/components/ui/card";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 
@@ -56,9 +57,31 @@ export default function NewHome() {
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
   
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
+
+  // Monitor auth state and redirect to dashboard if signed in
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        if (session?.user) {
+          navigate('/dashboard');
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        navigate('/dashboard');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
     loadStore();
