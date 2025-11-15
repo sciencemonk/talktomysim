@@ -51,7 +51,8 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
   const [storeFormData, setStoreFormData] = useState({
     store_name: '',
     store_description: '',
-    logo_url: ''
+    logo_url: '',
+    x_username: ''
   });
 
   useEffect(() => {
@@ -59,7 +60,8 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
       setStoreFormData({
         store_name: store.store_name || '',
         store_description: store.store_description || '',
-        logo_url: store.logo_url || ''
+        logo_url: store.logo_url || '',
+        x_username: store.x_username || ''
       });
     }
   }, [store]);
@@ -190,14 +192,45 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
   };
 
   const handleSaveStore = async () => {
+    // Validate username
+    if (!storeFormData.x_username.trim()) {
+      toast.error('Store URL is required');
+      return;
+    }
+
+    // Validate username format (alphanumeric, hyphens, underscores only)
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(storeFormData.x_username)) {
+      toast.error('Store URL can only contain letters, numbers, hyphens, and underscores');
+      return;
+    }
+
     try {
       setSaving(true);
+
+      // Check if username is already taken by another store
+      if (storeFormData.x_username !== store.x_username) {
+        const { data: existingStore } = await supabase
+          .from('stores')
+          .select('id')
+          .eq('x_username', storeFormData.x_username)
+          .neq('id', store.id)
+          .maybeSingle();
+
+        if (existingStore) {
+          toast.error('This store URL is already taken');
+          setSaving(false);
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from('stores')
         .update({
           store_name: storeFormData.store_name,
           store_description: storeFormData.store_description,
           logo_url: storeFormData.logo_url,
+          x_username: storeFormData.x_username,
           updated_at: new Date().toISOString()
         })
         .eq('id', store.id);
@@ -294,6 +327,36 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                 onChange={handleLogoUpload}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="x_username">Store URL</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                simproject.org/store/
+              </span>
+              <Input
+                id="x_username"
+                value={storeFormData.x_username}
+                onChange={(e) => setStoreFormData(prev => ({ ...prev, x_username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') }))}
+                placeholder="your-store-name"
+                className="flex-1"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Your store will be available at: https://simproject.org/store/{storeFormData.x_username || 'your-store-name'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="store_description">Store Description</Label>
+            <Textarea
+              id="store_description"
+              value={storeFormData.store_description}
+              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_description: e.target.value }))}
+              placeholder="Describe your store"
+              rows={4}
+            />
           </div>
 
           <Button
