@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Bot, Wallet, Users } from "lucide-react";
 import { useState, useEffect } from "react";
+import { LandingPageChat } from "@/components/LandingPageChat";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [cyclingWord, setCyclingWord] = useState("money");
+  const [chatOpen, setChatOpen] = useState(false);
   const words = ["money", "smarter", "healthier", "happier"];
 
   useEffect(() => {
@@ -37,6 +39,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Landing Page Chat */}
+      <LandingPageChat isOpen={chatOpen} onToggle={() => setChatOpen(!chatOpen)} />
+      
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
