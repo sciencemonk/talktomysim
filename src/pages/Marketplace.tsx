@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQuery } from "@tanstack/react-query";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import agenticCommerceLogo from "@/assets/agentic-commerce-logo.png";
@@ -19,7 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { userProfileService } from "@/services/userProfileService";
@@ -47,10 +45,6 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const {
-    theme
-  } = useTheme();
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const {
@@ -97,14 +91,6 @@ const Marketplace = () => {
       handleSignIn();
     }
   }, [isSignedIn, evmAddress, cdpUser, navigate, updateUser]);
-  useEffect(() => {
-    if (theme === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setResolvedTheme(isDark ? 'dark' : 'light');
-    } else {
-      setResolvedTheme(theme as 'light' | 'dark');
-    }
-  }, [theme]);
   const {
     offerings,
     isLoading: offeringsLoading
@@ -288,7 +274,6 @@ const Marketplace = () => {
                   </DropdownMenu> : <div className="scale-90">
                     <AuthButton />
                   </div>}
-                <ThemeToggle />
               </div>
             </div>
           </div>
