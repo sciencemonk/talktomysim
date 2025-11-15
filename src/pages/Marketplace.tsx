@@ -295,9 +295,16 @@ const Marketplace = () => {
             Make more sales with an AI Agent trained on your product catalog
           </p>
           
-          {/* Sign In and View Demo Buttons */}
+          {/* Buy SIMAI and View Demo Buttons */}
           <div className="flex items-center justify-center gap-4">
-            <AuthButton />
+            <Button 
+              variant="default"
+              size="lg"
+              onClick={() => window.open('https://dexscreener.com/solana/dm9nxs5e1kzhszksm8bw1r4xf3wvvbee6hptysfjszx8', '_blank')}
+              className="bg-black text-white hover:bg-gray-800"
+            >
+              Buy SIMAI
+            </Button>
             <Button 
               variant="outline" 
               size="lg"
