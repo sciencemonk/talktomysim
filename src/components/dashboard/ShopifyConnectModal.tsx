@@ -6,46 +6,48 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
 type ShopifyConnectModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   storeId: string;
   onSuccess: () => void;
 };
-
-export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: ShopifyConnectModalProps) => {
+export const ShopifyConnectModal = ({
+  open,
+  onOpenChange,
+  storeId,
+  onSuccess
+}: ShopifyConnectModalProps) => {
   const [shopDomain, setShopDomain] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [syncing, setSyncing] = useState(false);
-
   const handleConnect = async () => {
     if (!shopDomain || !accessToken) {
       toast.error("Please enter both shop domain and access token");
       return;
     }
-
     try {
       setSyncing(true);
 
       // Update store with Shopify credentials
-      const { error: updateError } = await supabase
-        .from('stores')
-        .update({
-          shopify_store_url: shopDomain,
-          shopify_access_token: accessToken
-        } as any)
-        .eq('id', storeId);
-
+      const {
+        error: updateError
+      } = await supabase.from('stores').update({
+        shopify_store_url: shopDomain,
+        shopify_access_token: accessToken
+      } as any).eq('id', storeId);
       if (updateError) throw updateError;
 
       // Call edge function to sync products
-      const { data, error: syncError } = await supabase.functions.invoke('sync-shopify-products', {
-        body: { storeId }
+      const {
+        data,
+        error: syncError
+      } = await supabase.functions.invoke('sync-shopify-products', {
+        body: {
+          storeId
+        }
       });
-
       if (syncError) throw syncError;
-
       toast.success(`Successfully synced ${data.synced} products from Shopify`);
       onSuccess();
       onOpenChange(false);
@@ -56,9 +58,7 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
       setSyncing(false);
     }
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
@@ -72,12 +72,7 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="shop-domain">Shop Domain</Label>
-            <Input
-              id="shop-domain"
-              placeholder="mystore.myshopify.com"
-              value={shopDomain}
-              onChange={(e) => setShopDomain(e.target.value)}
-            />
+            <Input id="shop-domain" placeholder="mystore.myshopify.com" value={shopDomain} onChange={e => setShopDomain(e.target.value)} />
             <p className="text-xs text-muted-foreground">
               Your Shopify store domain (e.g., mystore.myshopify.com)
             </p>
@@ -85,13 +80,7 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
 
           <div className="space-y-2">
             <Label htmlFor="access-token">Admin API Access Token</Label>
-            <Input
-              id="access-token"
-              type="password"
-              placeholder="shpat_..."
-              value={accessToken}
-              onChange={(e) => setAccessToken(e.target.value)}
-            />
+            <Input id="access-token" type="password" placeholder="shpat_..." value={accessToken} onChange={e => setAccessToken(e.target.value)} />
             <p className="text-xs text-muted-foreground">
               Create an access token in your Shopify admin under Settings → Apps and sales channels → Develop apps
             </p>
@@ -107,26 +96,14 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
         </div>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            disabled={syncing}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-          >
-            Cancel
-          </button>
+          
           <Button onClick={handleConnect} disabled={syncing}>
-            {syncing ? (
-              <>
+            {syncing ? <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Syncing Products...
-              </>
-            ) : (
-              'Connect & Sync'
-            )}
+              </> : 'Connect & Sync'}
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
