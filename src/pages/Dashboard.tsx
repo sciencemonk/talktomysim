@@ -345,7 +345,11 @@ const Dashboard = () => {
                   <User className="h-5 w-5 flex-shrink-0" />
                   {sidebarOpen && (
                     <span className="text-sm font-medium truncate">
-                      {user?.email || 'Account'}
+                      {user?.email?.endsWith('@wallet.local') 
+                        ? evmAddress 
+                          ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}`
+                          : 'Wallet User'
+                        : user?.email || 'Account'}
                     </span>
                   )}
                 </button>
