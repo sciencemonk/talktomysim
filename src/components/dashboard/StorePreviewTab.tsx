@@ -114,36 +114,25 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Agent Settings</h2>
-        <p className="text-muted-foreground">
-          Configure your AI agent's behavior and personality
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Agent Settings</h2>
+          <p className="text-muted-foreground">
+            Configure your AI agent's behavior and personality
+          </p>
+        </div>
+        {store?.x_username && (
+          <Button
+            variant="outline"
+            onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
+            className="gap-2 flex-shrink-0"
+          >
+            View Live Store <ExternalLink className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       {/* Agent Configuration */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle>Agent Behavior</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Configure how your AI agent interacts with customers
-              </p>
-            </div>
-            {store?.x_username && (
-              <Button
-                variant="outline"
-                onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
-                className="gap-2 w-full md:w-auto"
-              >
-                View Live Store <ExternalLink className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Agent Settings Form */}
       <Card>
           <CardHeader>
