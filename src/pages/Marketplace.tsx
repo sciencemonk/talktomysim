@@ -309,7 +309,7 @@ const Marketplace = () => {
               variant="outline" 
               size="lg"
               onClick={() => window.open('/store/sim', '_blank')}
-              className="border-gray-300 text-black hover:bg-gray-100"
+              className="bg-white text-black border-gray-300 hover:bg-gray-100 dark:bg-white dark:text-black dark:hover:bg-gray-100"
             >
               View Demo
             </Button>
