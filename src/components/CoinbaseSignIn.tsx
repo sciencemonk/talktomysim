@@ -24,30 +24,26 @@ export const CoinbaseSignIn = () => {
           // Clear any previous signout flag when user actively signs in
           localStorage.removeItem('explicit_signout');
           
-          // Use userId from currentUser or generate from address
-          const email = currentUser.userId || `${evmAddress.slice(0, 8)}@wallet.local`;
+          // Generate proper email format - don't use userId as email
+          const email = `${evmAddress.slice(0, 8).toLowerCase()}@wallet.sim`;
           
-          // Get user data immediately for sign in
+          // Get or create profile first to get the proper user ID
+          const profile = await userProfileService.upsertProfile(evmAddress, email);
+          
+          if (!profile) {
+            toast.error('Failed to create user profile');
+            return;
+          }
+          
+          // Set user data with proper ID and email from profile
           const userData = { 
+            id: profile.id,
             address: evmAddress,
-            email: email,
+            email: profile.email || email,
             coinbaseAuth: true,
             signedInAt: new Date().toISOString()
           };
           updateUser(userData);
-          
-          // Update profile in background with longer timeout and fallback
-          const profilePromise = userProfileService.upsertProfile(evmAddress, email);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile update timed out')), 30000)
-          );
-          
-          // Don't block sign-in on profile update
-          Promise.race([profilePromise, timeoutPromise])
-            .then(() => console.log('Profile updated successfully'))
-            .catch((error) => {
-              console.warn('Profile update failed, but user is signed in:', error);
-            });
           
           toast.success('Successfully signed in with Coinbase!');
           
