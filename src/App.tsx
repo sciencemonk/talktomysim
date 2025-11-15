@@ -68,6 +68,7 @@ import RootRedirect from "./pages/RootRedirect";
 import Onboarding from "./pages/Onboarding";
 import PublicStore from "./pages/PublicStore";
 import ProductDetail from "./pages/ProductDetail";
+import NewHome from "./pages/NewHome";
 
 const queryClient = new QueryClient();
 
@@ -136,6 +137,9 @@ const App = () => (
               {/* Public Store - Must come before catch-all */}
               <Route path="/store/:username" element={<PublicStore />} />
               <Route path="/store/:username/product/:productId" element={<ProductDetail />} />
+              
+              {/* New Home - SIM Store duplicate */}
+              <Route path="/newhome" element={<NewHome />} />
               
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
