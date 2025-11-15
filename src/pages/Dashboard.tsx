@@ -5,9 +5,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Home, Package, Bot, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
+import { User, Package, Bot, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
 import Payments from "./Payments";
@@ -21,7 +20,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { evmAddress } = useEvmAddress();
   const { solanaAddress } = useSolanaAddress();
-  const [activeView, setActiveView] = useState("home");
+  const [activeView, setActiveView] = useState("agent");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -188,7 +187,6 @@ const Dashboard = () => {
                 className="w-full justify-between h-12 rounded-none px-4 text-base font-medium"
               >
                 <span className="flex items-center gap-2 truncate">
-                  {activeView === "home" && <><Home className="h-4 w-4 flex-shrink-0" /> Home</>}
                   {activeView === "store" && <><Bot className="h-4 w-4 flex-shrink-0" /> Agent</>}
                   {activeView === "catalog" && <><Package className="h-4 w-4 flex-shrink-0" /> Catalog</>}
                   {activeView === "payments" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Payments</>}
@@ -197,13 +195,6 @@ const Dashboard = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-popover border-border z-[100]" align="start">
-              <DropdownMenuItem 
-                onClick={() => setActiveView("home")}
-                className={cn("cursor-pointer py-3 text-foreground", activeView === "home" && "bg-accent")}
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Home
-              </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("store")}
                 className={cn("cursor-pointer py-3 text-foreground", activeView === "store" && "bg-accent")}
@@ -273,25 +264,6 @@ const Dashboard = () => {
 
           {/* Navigation Items */}
           <nav className="flex-1 p-2 space-y-1">
-            <button
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
-                "hover:bg-accent",
-                activeView === "home" && "bg-accent",
-                sidebarOpen ? "justify-start" : "justify-center"
-              )}
-              onClick={() => setActiveView("home")}
-            >
-              {activeView === "home" && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-              )}
-              <Home className={cn("h-5 w-5 flex-shrink-0", activeView === "home" && "text-primary")} />
-              {sidebarOpen && (
-                <span className={cn("text-sm font-medium", activeView === "home" && "text-primary")}>
-                  Home
-                </span>
-              )}
-            </button>
             <button
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
@@ -399,7 +371,6 @@ const Dashboard = () => {
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
-            {activeView === "home" && <HomeDashboardTab store={store} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "payments" && <Payments store={store} />}
