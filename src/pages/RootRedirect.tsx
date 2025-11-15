@@ -12,13 +12,18 @@ const RootRedirect = () => {
     );
   }
 
-  // If signed in, redirect to dashboard
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // If not signed in, redirect to store page
-  return <Navigate to="/store/sim" replace />;
+  // No automatic redirects - let users choose where to go
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold">Welcome to SIM</h1>
+        <p className="text-muted-foreground">Choose where you'd like to go:</p>
+        <div className="flex gap-4 justify-center">
+          <Navigate to="/store/sim" replace />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default RootRedirect;

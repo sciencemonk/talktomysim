@@ -87,10 +87,6 @@ export default function PublicStore() {
             });
             
             toast.success('Successfully signed in!');
-            
-            setTimeout(() => {
-              navigate('/dashboard');
-            }, 500);
           }
         } catch (error) {
           console.error('Error during sign-in:', error);
