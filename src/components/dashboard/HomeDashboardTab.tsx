@@ -262,13 +262,7 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
 
       {/* Store Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle>Store Settings</CardTitle>
-          <CardDescription>
-            Configure your store's basic information
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label htmlFor="store_name">Store Name</Label>
             <Input
