@@ -32,9 +32,10 @@ export const LandingPageChat = ({ isOpen, onToggle }: LandingPageChatProps) => {
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isSending]);
 
   const handleSendMessage = async () => {
     if (!input.trim() || isSending) return;

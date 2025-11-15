@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
@@ -56,6 +56,12 @@ export const StoreChatSidebar = ({
 }: StoreChatSidebarProps) => {
   const positionClass = positioning === 'fixed' ? 'fixed' : 'absolute';
   const zIndexClass = positioning === 'fixed' ? 'z-50' : '';
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, isSending]);
   
   return (
     <>
@@ -170,6 +176,7 @@ export const StoreChatSidebar = ({
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
