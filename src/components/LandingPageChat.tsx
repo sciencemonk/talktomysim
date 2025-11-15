@@ -120,18 +120,18 @@ Keep responses friendly, concise, and helpful. Always encourage sign-up when app
     <>
       {/* Toggle Button - Only visible when closed */}
       {!isOpen && (
-        <div className="fixed top-4 right-4 z-50 transition-all duration-300 group">
+        <div className="fixed bottom-6 right-6 z-50 transition-all duration-300 group">
           <button
             onClick={onToggle}
-            className="shadow-lg rounded-full h-12 w-12 p-0 overflow-hidden border-2 border-primary transition-transform duration-200 hover:scale-110 bg-primary"
+            className="shadow-lg rounded-full h-14 w-14 p-0 overflow-hidden border-2 border-primary transition-transform duration-200 hover:scale-110 bg-primary"
           >
             <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
-              <Bot className="h-6 w-6" />
+              <Bot className="h-7 w-7" />
             </div>
           </button>
           
           {/* Badge - Only visible when closed */}
-          <div className="absolute -bottom-8 right-0 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+          <div className="absolute -top-10 right-0 bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
             Chat with SIM AI
           </div>
         </div>
