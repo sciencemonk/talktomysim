@@ -247,7 +247,7 @@ const Marketplace = () => {
         </video>
         
         {/* White overlay for readability */}
-        <div className="absolute inset-0 bg-white/40"></div>
+        <div className="absolute inset-0 bg-white/20"></div>
         
         {/* Top Navigation */}
         <nav className="relative z-20 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
