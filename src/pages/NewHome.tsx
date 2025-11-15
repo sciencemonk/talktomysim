@@ -372,7 +372,7 @@ export default function NewHome() {
           
           <footer className="mt-16 mb-8 flex justify-center">
             <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-muted-foreground">Create your own Agentic Storefront</p>
+              <p className="text-sm text-muted-foreground">Create your own Agentic Store</p>
               <AuthButton />
             </div>
           </footer>
