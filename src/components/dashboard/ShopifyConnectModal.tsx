@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Store } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 type ShopifyConnectModalProps = {
   open: boolean;
@@ -61,8 +61,7 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Store className="h-5 w-5" />
+          <DialogTitle>
             Connect to Shopify
           </DialogTitle>
           <DialogDescription>
