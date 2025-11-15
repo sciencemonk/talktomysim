@@ -241,9 +241,16 @@ const Marketplace = () => {
   return <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <div className="relative border-b border-gray-200 overflow-hidden min-h-screen bg-white">
+        {/* Video Background */}
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+          <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+        </video>
+        
+        {/* White overlay for readability */}
+        <div className="absolute inset-0 bg-white/70"></div>
         
         {/* Top Navigation */}
-        <nav className="relative z-20 border-b border-gray-200 bg-white">
+        <nav className="relative z-20 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
@@ -281,13 +288,6 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
-          {/* Video Bubble */}
-          <div className="mb-8 rounded-full overflow-hidden border-4 border-gray-200 shadow-2xl w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-              <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
-            </video>
-          </div>
-          
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black mb-4 px-2 leading-tight">
             Add AI to Your Online Store
           </h1>
