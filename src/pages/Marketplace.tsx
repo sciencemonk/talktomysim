@@ -243,7 +243,7 @@ const Marketplace = () => {
       <div className="relative border-b border-gray-200 overflow-hidden min-h-screen bg-white">
         {/* Video Background */}
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
-          <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NTAxMzMsImV4cCI6MTc5NDI4NjEzM30.w9_NdZPmTON1SjBgNdfjjQrVReUfm1mTyECJwkR-Plk" type="video/mp4" />
         </video>
         
         {/* White overlay for readability */}
