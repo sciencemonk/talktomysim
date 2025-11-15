@@ -451,16 +451,8 @@ export default function PublicStore() {
 
       {/* Coinbase Sign In Dialog */}
       <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-        <DialogContent className="sm:max-w-md p-8 gap-6">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-semibold">Sign in</h2>
-            <p className="text-sm text-muted-foreground">
-              Continue with Google or sign in with your email
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <AuthButton onClick={() => localStorage.removeItem('explicit_signout')} />
-          </div>
+        <DialogContent className="sm:max-w-md p-0 border-0 bg-transparent shadow-none">
+          <AuthButton onClick={() => localStorage.removeItem('explicit_signout')} />
         </DialogContent>
       </Dialog>
     </div>
