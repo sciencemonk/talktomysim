@@ -401,6 +401,7 @@ export default function PublicStore() {
         handleSendMessage={() => handleSendMessage()}
         isSending={isSending}
         products={products}
+        positioning="fixed"
       />
 
       {/* Sign In Modal */}
