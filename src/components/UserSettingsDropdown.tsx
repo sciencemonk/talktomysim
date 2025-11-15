@@ -50,9 +50,7 @@ const UserSettingsDropdown = ({ onShowBilling, trigger }: UserSettingsDropdownPr
               {user?.user_metadata?.full_name || "User"}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email?.endsWith('@wallet.local') 
-                ? 'Wallet User'
-                : user?.email}
+              {user?.email}
             </p>
             {onShowBilling && (
               <button
