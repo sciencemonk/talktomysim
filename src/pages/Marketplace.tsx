@@ -289,7 +289,7 @@ const Marketplace = () => {
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black mb-4 px-2 leading-tight font-montserrat">
-            Add AI to Your Online Store
+            AI Your Online Store
           </h1>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-black/90 mb-6 sm:mb-8 max-w-4xl mx-auto px-4 leading-relaxed">
             Make more sales with an AI Agent trained on your product catalog
