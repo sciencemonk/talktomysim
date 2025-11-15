@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Package, Edit, Trash2, Store, Upload, X, Save } from "lucide-react";
+import { Plus, Package, Edit, Trash2, Store, Upload, X, Save, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProductDialog } from "./ProductDialog";
@@ -233,6 +233,16 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
           </p>
         </div>
         <div className="flex gap-2">
+          {store?.x_username && (
+            <Button
+              variant="outline"
+              onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
+              className="gap-2"
+            >
+              View Live Store
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          )}
           <Button 
             variant="outline" 
             onClick={() => setShopifyModalOpen(true)} 
@@ -240,10 +250,6 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
           >
             <Store className="h-4 w-4" />
             Connect Shopify
-          </Button>
-          <Button onClick={handleAddProduct} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Product
           </Button>
         </div>
       </div>
@@ -326,10 +332,18 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Products</CardTitle>
-          <CardDescription>
-            Manage your product inventory
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Products</CardTitle>
+              <CardDescription>
+                Manage your product inventory
+              </CardDescription>
+            </div>
+            <Button onClick={handleAddProduct} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Product
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {products.length === 0 ? (
