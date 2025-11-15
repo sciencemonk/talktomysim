@@ -371,8 +371,15 @@ export default function NewHome() {
           </div>
           
           <footer className="mt-16 mb-8 flex justify-center">
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-muted-foreground">Create your own Agentic Store</p>
+            <div className="[&_button]:!px-8 [&_button]:!py-6 [&_button]:!text-base [&_button]:!font-semibold [&_button]:!bg-primary [&_button]:!hover:bg-primary/90">
+              <style>{`
+                footer button span {
+                  display: none;
+                }
+                footer button::after {
+                  content: 'Create your own Agentic Store';
+                }
+              `}</style>
               <AuthButton />
             </div>
           </footer>
