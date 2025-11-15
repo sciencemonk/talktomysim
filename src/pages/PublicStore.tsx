@@ -345,19 +345,15 @@ export default function PublicStore() {
             <div className="flex items-center justify-between gap-4">
               {/* Store Info - Left Side */}
               <div className="flex flex-col gap-2 min-w-0 flex-1">
-                <div className="flex-shrink-0">
-                  {store.logo_url ? (
+                {store.logo_url && (
+                  <div className="flex-shrink-0">
                     <img 
                       src={store.logo_url} 
                       alt={store.store_name}
                       className="w-12 h-12 object-contain"
                     />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40">
-                      <Store className="w-6 h-6 text-primary" />
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
                 
                 <div className="min-w-0">
                   {!store.logo_url && (
