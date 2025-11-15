@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
 import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
+import { CreateXAgentModal } from "@/components/CreateXAgentModal";
 
 type Product = {
   id: string;
@@ -55,6 +56,7 @@ export default function PublicStore() {
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [createXAgentModalOpen, setCreateXAgentModalOpen] = useState(false);
   
   // Use persistent chat hook
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
@@ -374,19 +376,18 @@ export default function PublicStore() {
           </div>
           
           <footer className="mt-16 mb-8 flex justify-center">
-            <a
-              href="https://simproject.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground"
+            <button
+              onClick={() => setCreateXAgentModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm border border-border rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <ExternalLink className="h-3 w-3" />
               Create your own Agentic Storefront
-            </a>
+            </button>
           </footer>
         </div>
       </div>
-      
+
+      {/* Chat Sidebar */}
       <StoreChatSidebar
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
@@ -400,12 +401,12 @@ export default function PublicStore() {
         handleSendMessage={() => handleSendMessage()}
         isSending={isSending}
         products={products}
-        positioning="fixed"
-        onViewProduct={(productId) => {
-          if (username) {
-            navigate(`/store/${username}/product/${productId}`);
-          }
-        }}
+      />
+
+      {/* Sign In Modal */}
+      <CreateXAgentModal 
+        open={createXAgentModalOpen}
+        onOpenChange={setCreateXAgentModalOpen}
       />
     </div>
   );
