@@ -105,15 +105,18 @@ ${productContext}${productIdMapping}
 ${shownProductIds.size > 0 ? `\nPRODUCTS ALREADY SHOWN: ${Array.from(shownProductIds).map(id => products?.find((p: any) => p.id === id)?.title || id).join(', ')}` : ''}
 
 CRITICAL GUIDELINES FOR PRODUCT TOOL:
-- Use show_product tool ONLY when FIRST introducing a NEW product to the customer
-- NEVER re-show products that are already in PRODUCTS ALREADY SHOWN list above
-- After showing a product with the tool, continue conversation with NORMAL TEXT - do NOT use the tool again for that product
-- Answer follow-up questions about already-shown products using text only
-- If customer asks general questions, chat normally - you don't need to show products for every response
-- When customer asks for "other" or "different" products, show NEW products that haven't been shown yet
+- MOST responses should be PLAIN TEXT without any tool calls
+- Use show_product tool ONLY when FIRST introducing a NEW product that hasn't been shown yet
+- NEVER re-show products that are in "PRODUCTS ALREADY SHOWN" list above
+- After using show_product once for a product, ONLY use text for all future messages about that product
+- Answer ALL follow-up questions about already-shown products with text ONLY - NO tools
+- For questions like "What is this?" about an already-shown product, answer with TEXT ONLY
+- When customer asks general questions, respond with TEXT ONLY - no product cards needed
+- When customer asks for "other" or "different" products, show ONE new product, then respond with text
 - Use exact product IDs from the list above when calling show_product
-- If all products are shown and customer wants more, politely explain you've shown everything
-- Balance being helpful with natural conversation - not every message needs a product card`;
+- If all products are shown and customer wants more, respond with TEXT explaining you've shown everything
+- Default to TEXT responses - only use show_product when absolutely necessary for NEW products
+- REMEMBER: Most of your messages should be helpful text, not product cards`;
 
     console.log('System prompt:', systemPrompt);
     console.log('Messages:', messages);
@@ -147,7 +150,7 @@ CRITICAL GUIDELINES FOR PRODUCT TOOL:
         ...messages
       ],
       stream: true,
-      tool_choice: "auto", // Encourage tool usage
+      // Don't force tool choice - let AI decide naturally when to use tools vs text
     };
 
     if (tools) {
