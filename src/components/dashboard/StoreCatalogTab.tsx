@@ -282,42 +282,38 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label>Store Logo & Name</Label>
-            <div className="flex items-center gap-4">
-              {storeFormData.logo_url && (
-                <img
-                  src={storeFormData.logo_url}
-                  alt="Store logo"
-                  className="w-16 h-16 object-contain rounded border border-border flex-shrink-0"
-                />
-              )}
-              <Input
-                id="store_name"
-                value={storeFormData.store_name}
-                onChange={(e) => setStoreFormData(prev => ({ ...prev, store_name: e.target.value }))}
-                placeholder="Enter store name"
-                className="flex-1"
-              />
-              <div className="flex gap-2 flex-shrink-0">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingLogo || !store?.id}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                </Button>
+            <Label>Store Logo</Label>
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col items-center gap-2">
                 {storeFormData.logo_url && (
+                  <img
+                    src={storeFormData.logo_url}
+                    alt="Store logo"
+                    className="w-16 h-16 object-contain rounded border border-border"
+                  />
+                )}
+                <div className="flex gap-1">
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setStoreFormData(prev => ({ ...prev, logo_url: '' }))}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingLogo || !store?.id}
                   >
-                    <X className="h-4 w-4" />
+                    <Upload className="h-3 w-3 mr-1" />
+                    {uploadingLogo ? 'Uploading...' : 'Upload'}
                   </Button>
-                )}
+                  {storeFormData.logo_url && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStoreFormData(prev => ({ ...prev, logo_url: '' }))}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </div>
               <input
                 ref={fileInputRef}
@@ -327,6 +323,16 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                 onChange={handleLogoUpload}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="store_name">Store Name</Label>
+            <Input
+              id="store_name"
+              value={storeFormData.store_name}
+              onChange={(e) => setStoreFormData(prev => ({ ...prev, store_name: e.target.value }))}
+              placeholder="Enter store name"
+            />
           </div>
 
           <div className="space-y-2">
