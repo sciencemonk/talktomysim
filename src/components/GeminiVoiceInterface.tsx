@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface GeminiVoiceInterfaceProps {
   systemInstruction: string;
+  greetingMessage?: string;
   onTranscript?: (text: string, isUser: boolean) => void;
   onConnectionChange?: (connected: boolean) => void;
   autoStart?: boolean;
@@ -12,6 +13,7 @@ interface GeminiVoiceInterfaceProps {
 
 const GeminiVoiceInterface: React.FC<GeminiVoiceInterfaceProps> = ({
   systemInstruction,
+  greetingMessage,
   onTranscript,
   onConnectionChange,
   autoStart = false
@@ -72,9 +74,22 @@ const GeminiVoiceInterface: React.FC<GeminiVoiceInterfaceProps> = ({
             // Start sending audio after connection is ready
             startAudioCapture();
             
+            // Send greeting message automatically if provided
+            if (greetingMessage) {
+              ws.send(JSON.stringify({
+                client_content: {
+                  turns: [{
+                    role: 'user',
+                    parts: [{ text: greetingMessage }]
+                  }],
+                  turn_complete: true
+                }
+              }));
+            }
+            
             toast({
               title: "Voice connected",
-              description: "You can now speak to the AI agent",
+              description: "AI agent is ready to help you",
             });
           } else if (data.serverContent?.modelTurn) {
             // Handle Gemini response
@@ -249,13 +264,13 @@ const GeminiVoiceInterface: React.FC<GeminiVoiceInterfaceProps> = ({
     };
   }, []);
 
-  if (!isConnected && !autoStart) {
+  if (!isConnected) {
     return (
-      <div className="flex justify-center p-4">
-        <Button onClick={connectToGemini} size="lg" className="gap-2">
-          <Mic className="h-5 w-5" />
-          Start Voice Chat
-        </Button>
+      <div className="flex flex-col items-center justify-center gap-4 p-8">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Connecting voice agent...</span>
+        </div>
       </div>
     );
   }

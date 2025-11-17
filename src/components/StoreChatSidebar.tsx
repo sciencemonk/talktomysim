@@ -148,9 +148,10 @@ export const StoreChatSidebar = ({
             <div className="h-full flex flex-col items-center justify-center">
               <GeminiVoiceInterface
                 systemInstruction={store.agent_prompt || `You are ${store.store_name}, a helpful AI sales agent. Help customers find products and make purchases.`}
+                greetingMessage={`Hello! I'm the AI assistant for ${store.store_name}. How can I help you today?`}
                 onTranscript={handleVoiceTranscript}
                 onConnectionChange={setIsVoiceConnected}
-                autoStart={false}
+                autoStart={true}
               />
             </div>
           ) : (
