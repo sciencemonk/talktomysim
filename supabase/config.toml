@@ -1,5 +1,8 @@
 project_id = "uovhemqkztmkoozlmqxq"
 
+[functions.gemini-live]
+verify_jwt = false
+
 [functions.store-payment-session]
 verify_jwt = false
 

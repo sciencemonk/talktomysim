@@ -36,6 +36,7 @@ type Store = {
   x_username: string;
   is_active: boolean;
   greeting_message?: string;
+  agent_prompt?: string;
 };
 
 type ChatMessage = {
