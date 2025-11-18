@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Send, ChevronRight, ChevronLeft, Loader2, Bot, X, Mic, MessageSquare } from 'lucide-react';
+import { Send, Loader2, Bot, X, Mic, MicOff } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { formatPrice } from '@/lib/utils';
 import OpenAIVoiceInterface from './OpenAIVoiceInterface';
@@ -60,19 +60,24 @@ export const StoreChatSidebar = ({
   const positionClass = positioning === 'fixed' ? 'fixed' : 'absolute';
   const zIndexClass = positioning === 'fixed' ? 'z-50' : '';
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [isVoiceConnected, setIsVoiceConnected] = useState(false);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isSending]);
 
-  const handleVoiceTranscript = (text: string, isUser: boolean) => {
-    // Add transcript to chat messages for visibility
-    if (isUser) {
-      setChatMessage(text);
-    }
+  const handleAddMessage = (role: 'user' | 'agent', content: string, productId?: string) => {
+    // This will be called by voice interface to add messages to the chat
+    const newMessage = {
+      id: `${role}-${Date.now()}`,
+      role,
+      content,
+      timestamp: new Date(),
+      ...(productId && { productId })
+    };
+    // Note: Parent component should handle adding messages
+    console.log('Voice message:', newMessage);
   };
   
   return (
@@ -125,15 +130,6 @@ export const StoreChatSidebar = ({
             <p className="text-xs text-muted-foreground">AI Shopping Assistant</p>
           </div>
           <Button
-            variant={isVoiceMode ? "default" : "outline"}
-            size="icon"
-            onClick={() => setIsVoiceMode(!isVoiceMode)}
-            className="h-8 w-8 shrink-0"
-            title={isVoiceMode ? "Switch to text chat" : "Switch to voice chat"}
-          >
-            {isVoiceMode ? <MessageSquare className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
-          <Button
             variant="ghost"
             size="icon"
             onClick={onToggle}
@@ -145,112 +141,116 @@ export const StoreChatSidebar = ({
 
         {/* Messages */}
         <ScrollArea className="flex-1 p-4">
-          {isVoiceMode ? (
-            <div className="h-full flex flex-col items-center justify-center">
+          <div className="space-y-4">
+            {chatMessages.map((message) => {
+              if (message.productId) {
+                const product = products.find(p => p.id === message.productId);
+                if (product) {
+                  return (
+                    <Card key={message.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onViewProduct?.(product.id)}>
+                      <CardContent className="p-3">
+                        {product.image_urls && product.image_urls.length > 0 && (
+                          <img
+                            src={product.image_urls[0]}
+                            alt={product.title}
+                            className="w-full h-32 object-cover rounded mb-2"
+                          />
+                        )}
+                        <h4 className="font-semibold text-sm mb-1">{product.title}</h4>
+                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold">${formatPrice(product.price)} {product.currency}</span>
+                          <Button size="sm" variant="outline">View</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+              }
+
+              return (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                </div>
+              );
+            })}
+            {isSending && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <p className="text-sm text-muted-foreground">Thinking...</p>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+
+        {/* Input with voice button */}
+        <div className="p-4 border-t border-border">
+          <div className="flex gap-2">
+            <Input
+              value={chatMessage}
+              onChange={(e) => setChatMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              placeholder="Ask about products..."
+              disabled={isSending || isVoiceActive}
+              className="flex-1"
+            />
+            <Button
+              variant={isVoiceActive ? "default" : "outline"}
+              size="icon"
+              onClick={() => setIsVoiceActive(!isVoiceActive)}
+              disabled={isSending}
+              title={isVoiceActive ? "Stop voice" : "Start voice"}
+            >
+              {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!chatMessage.trim() || isSending || isVoiceActive}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {/* Hidden voice interface that integrates with text chat */}
+          {isVoiceActive && (
+            <div className="mt-2">
               <OpenAIVoiceInterface
                 storeId={store.id}
-                onTranscript={handleVoiceTranscript}
-                onConnectionChange={setIsVoiceConnected}
+                onTranscript={handleAddMessage}
+                onConnectionChange={(connected) => {
+                  if (!connected && isVoiceActive) {
+                    setIsVoiceActive(false);
+                  }
+                }}
                 onShowProduct={(productId) => {
-                  // Add product card to chat messages
-                  const newMessage = {
-                    id: `product-${Date.now()}`,
-                    role: 'agent' as const,
-                    content: '',
-                    timestamp: new Date(),
-                    productId: productId
-                  };
-                  // This would need to be passed up to parent component
-                  console.log('Show product:', productId);
+                  handleAddMessage('agent', '', productId);
+                  onViewProduct?.(productId);
                 }}
                 autoStart={true}
               />
             </div>
-          ) : (
-            <div className="space-y-4">
-              {chatMessages.map((message) => {
-                if (message.productId) {
-                  const product = products.find(p => p.id === message.productId);
-                  if (product) {
-                    return (
-                      <Card key={message.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onViewProduct?.(product.id)}>
-                        <CardContent className="p-3">
-                          {product.image_urls && product.image_urls.length > 0 && (
-                            <img
-                              src={product.image_urls[0]}
-                              alt={product.title}
-                              className="w-full h-32 object-cover rounded mb-2"
-                            />
-                          )}
-                          <h4 className="font-semibold text-sm mb-1">{product.title}</h4>
-                          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold">${formatPrice(product.price)} {product.currency}</span>
-                            <Button size="sm" variant="outline">View</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  }
-                }
-
-                return (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                        message.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  </div>
-                );
-              })}
-              {isSending && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <p className="text-sm text-muted-foreground">Thinking...</p>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
           )}
-        </ScrollArea>
-
-        {/* Input - Only show in text mode */}
-        {!isVoiceMode && (
-          <div className="p-4 border-t border-border">
-            <div className="flex gap-2">
-              <Input
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                placeholder="Ask about products..."
-                disabled={isSending}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!chatMessage.trim() || isSending}
-                size="icon"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </>
   );
