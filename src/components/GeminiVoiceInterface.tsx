@@ -54,12 +54,13 @@ const GeminiVoiceInterface: React.FC<GeminiVoiceInterfaceProps> = ({
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Connected to Gemini Live');
+        console.log('Connected to Gemini Live relay');
         
-        // Send initialization with system prompt
+        // Send initialization with system prompt and greeting
         ws.send(JSON.stringify({
           type: 'init',
-          systemInstruction: systemInstruction
+          systemInstruction: systemInstruction,
+          greetingMessage: greetingMessage
         }));
       };
 
@@ -67,25 +68,14 @@ const GeminiVoiceInterface: React.FC<GeminiVoiceInterfaceProps> = ({
         try {
           const data = JSON.parse(event.data);
           
-          if (data.type === 'ready') {
+          if (data.setupComplete) {
+            console.log('Gemini setup complete');
+          } else if (data.type === 'ready') {
             setIsConnected(true);
             onConnectionChange?.(true);
             
             // Start sending audio after connection is ready
             startAudioCapture();
-            
-            // Send greeting message automatically if provided
-            if (greetingMessage) {
-              ws.send(JSON.stringify({
-                client_content: {
-                  turns: [{
-                    role: 'user',
-                    parts: [{ text: greetingMessage }]
-                  }],
-                  turn_complete: true
-                }
-              }));
-            }
             
             toast({
               title: "Voice connected",
