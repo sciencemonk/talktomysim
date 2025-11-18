@@ -9,9 +9,11 @@ import { FloatingChat } from "@/components/FloatingChat";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { WalletProviders } from "@/components/WalletProviders";
 import { CoinbaseProvider } from "@/components/CoinbaseProvider";
+import { StoreChatProvider } from "@/contexts/StoreChatContext";
 
 // Layouts
 import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
+import { StoreLayout } from "./layouts/StoreLayout";
 
 // Pages
 import Index from "./pages/Index";
@@ -78,9 +80,10 @@ const App = () => (
         <WalletProviders>
           <TooltipProvider>
             <AuthProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+              <StoreChatProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
             <Routes>
               {/* Public routes */}
               <Route path="/landing" element={<NewLanding />} />
@@ -134,8 +137,10 @@ const App = () => (
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
               
               {/* Public Store - Must come before catch-all */}
-              <Route path="/store/:username" element={<PublicStore />} />
-              <Route path="/store/:username/product/:productId" element={<ProductDetail />} />
+              <Route path="/store/:username" element={<StoreLayout />}>
+                <Route index element={<PublicStore />} />
+                <Route path=":productId" element={<ProductDetail />} />
+              </Route>
               
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
@@ -161,13 +166,14 @@ const App = () => (
               {/* Catch all 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-            </BrowserRouter>
-          </AuthProvider>
-        </TooltipProvider>
-      </WalletProviders>
-      </CoinbaseProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+          </BrowserRouter>
+        </StoreChatProvider>
+      </AuthProvider>
+    </TooltipProvider>
+  </WalletProviders>
+</CoinbaseProvider>
+</ThemeProvider>
+</QueryClientProvider>
 );
 
 export default App;
