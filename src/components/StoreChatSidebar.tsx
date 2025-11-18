@@ -29,6 +29,7 @@ type StoreChatSidebarProps = {
   isOpen: boolean;
   onToggle: () => void;
   store: {
+    id: string;
     store_name: string;
     avatar_url?: string;
     agent_prompt?: string;
@@ -147,9 +148,21 @@ export const StoreChatSidebar = ({
           {isVoiceMode ? (
             <div className="h-full flex flex-col items-center justify-center">
               <OpenAIVoiceInterface
-                systemInstruction={store.agent_prompt || `You are ${store.store_name}, a helpful AI sales agent. Help customers find products and make purchases.`}
+                storeId={store.id}
                 onTranscript={handleVoiceTranscript}
                 onConnectionChange={setIsVoiceConnected}
+                onShowProduct={(productId) => {
+                  // Add product card to chat messages
+                  const newMessage = {
+                    id: `product-${Date.now()}`,
+                    role: 'agent' as const,
+                    content: '',
+                    timestamp: new Date(),
+                    productId: productId
+                  };
+                  // This would need to be passed up to parent component
+                  console.log('Show product:', productId);
+                }}
                 autoStart={true}
               />
             </div>

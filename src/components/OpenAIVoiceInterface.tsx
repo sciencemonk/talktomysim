@@ -4,9 +4,10 @@ import { Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface OpenAIVoiceInterfaceProps {
-  systemInstruction: string;
+  storeId: string;
   onTranscript?: (text: string, isUser: boolean) => void;
   onConnectionChange?: (connected: boolean) => void;
+  onShowProduct?: (productId: string) => void;
   autoStart?: boolean;
 }
 
@@ -98,9 +99,10 @@ class AudioQueue {
 }
 
 const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
-  systemInstruction,
+  storeId,
   onTranscript,
   onConnectionChange,
+  onShowProduct,
   autoStart = false
 }) => {
   const { toast } = useToast();
@@ -141,7 +143,7 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
         console.log('Connected to OpenAI relay');
         ws.send(JSON.stringify({
           type: 'init',
-          systemInstruction: systemInstruction
+          storeId: storeId
         }));
       };
 
@@ -159,6 +161,8 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
               title: "Voice connected",
               description: "AI agent is ready",
             });
+          } else if (data.type === 'show_product') {
+            onShowProduct?.(data.product.id);
           } else if (data.type === 'response.audio.delta') {
             setIsSpeaking(true);
             const binaryString = atob(data.delta);

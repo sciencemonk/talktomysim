@@ -392,8 +392,10 @@ export default function PublicStore() {
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
         store={{
+          id: store.id,
           store_name: store.store_name,
-          avatar_url: store.avatar_url
+          avatar_url: store.avatar_url,
+          agent_prompt: store.agent_prompt
         }}
         chatMessages={chatMessages}
         chatMessage={chatMessage}
