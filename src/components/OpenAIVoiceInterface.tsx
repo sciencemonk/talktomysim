@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 
 interface OpenAIVoiceInterfaceProps {
   storeId: string;
-  onTranscript?: (text: string, isUser: boolean) => void;
+  onTranscript?: (role: 'user' | 'agent', content: string) => void;
   onConnectionChange?: (connected: boolean) => void;
   onShowProduct?: (productId: string) => void;
   autoStart?: boolean;
@@ -174,9 +174,9 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
           } else if (data.type === 'response.audio.done') {
             setIsSpeaking(false);
           } else if (data.type === 'response.audio_transcript.delta') {
-            onTranscript?.(data.delta, false);
+            onTranscript?.('agent', data.delta);
           } else if (data.type === 'conversation.item.input_audio_transcription.completed') {
-            onTranscript?.(data.transcript, true);
+            onTranscript?.('user', data.transcript);
           }
         } catch (error) {
           console.error('Error parsing message:', error);
@@ -278,32 +278,28 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-center gap-4 p-4">
-      <div className={`flex items-center gap-2 text-sm ${isSpeaking ? 'text-primary' : 'text-muted-foreground'}`}>
-        {isSpeaking ? (
-          <>
-            <Volume2 className="h-4 w-4 animate-pulse" />
-            AI is speaking...
-          </>
-        ) : (
-          <>
-            <VolumeX className="h-4 w-4" />
-            Listening...
-          </>
-        )}
-      </div>
-      
-      <Button
-        onClick={toggleMute}
-        variant={isMuted ? "destructive" : "secondary"}
-        size="icon"
-      >
-        {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-      </Button>
-
-      <Button onClick={handleDisconnect} variant="outline" size="sm">
-        End Voice Chat
-      </Button>
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      {!isConnected ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Connecting voice...</span>
+        </>
+      ) : (
+        <>
+          {isSpeaking && (
+            <div className="flex items-center gap-2">
+              <Volume2 className="h-4 w-4 animate-pulse text-primary" />
+              <span>Agent speaking</span>
+            </div>
+          )}
+          {!isSpeaking && (
+            <div className="flex items-center gap-2">
+              <Mic className="h-4 w-4 text-primary" />
+              <span>Voice active</span>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
