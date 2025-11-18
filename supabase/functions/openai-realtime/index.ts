@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,8 +26,14 @@ serve(async (req) => {
     return response;
   }
 
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
   let openAISocket: WebSocket | null = null;
   let systemInstruction = "You are a helpful AI sales agent.";
+  let products: any[] = [];
+  let store: any = null;
 
   socket.onopen = () => {
     console.log("Client connected to OpenAI Realtime relay");
@@ -38,9 +45,73 @@ serve(async (req) => {
       
       // Handle initialization message
       if (message.type === 'init') {
-        systemInstruction = message.systemInstruction || systemInstruction;
+        const { storeId } = message;
         
-        // Connect to OpenAI Realtime API with authentication in URL
+        // Fetch store and products
+        const { data: storeData, error: storeError } = await supabase
+          .from('stores')
+          .select('*')
+          .eq('id', storeId)
+          .single();
+        
+        if (storeError || !storeData) {
+          console.error('Error fetching store:', storeError);
+          socket.send(JSON.stringify({ type: 'error', message: 'Store not found' }));
+          return;
+        }
+        
+        store = storeData;
+        
+        const { data: productsData } = await supabase
+          .from('products')
+          .select('*')
+          .eq('store_id', storeId)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+        
+        products = productsData || [];
+        
+        // Build system instruction like text agent
+        let productContext = '';
+        if (products.length > 0) {
+          productContext = '\n\nAVAILABLE PRODUCTS:\n' + products.map((p: any) => 
+            `- ${p.title} ($${p.price} ${p.currency || 'USD'}): ${p.description}${p.delivery_info ? ` | Delivery: ${p.delivery_info}` : ''}`
+          ).join('\n');
+        } else {
+          productContext = '\n\nNote: No products are currently available in the catalog.';
+        }
+        
+        let productIdMapping = '';
+        if (products.length > 0) {
+          productIdMapping = '\n\nPRODUCT IDs (use these exact IDs with show_product tool):\n' + 
+            products.map((p: any) => `- "${p.title}": ${p.id}`).join('\n');
+        }
+        
+        systemInstruction = `You are an AI shopping assistant for ${store.store_name || 'this store'}.
+
+STORE DESCRIPTION:
+${store.store_description || 'An online store'}
+
+YOUR ROLE:
+You help customers discover products, answer questions about items, make personalized recommendations, and guide them through their shopping journey.
+
+INTERACTION STYLE: ${store.interaction_style || 'Friendly and helpful'}
+RESPONSE TONE: ${store.response_tone || 'Professional'}
+PRIMARY FOCUS: ${store.primary_focus || 'Customer satisfaction'}
+
+${productContext}${productIdMapping}
+
+CRITICAL GUIDELINES FOR PRODUCT TOOL:
+- ALWAYS combine tool calls with text so you maintain context about which product you showed
+- Use show_product tool ONLY when FIRST introducing a NEW product
+- Answer ALL follow-up questions about already-shown products with text ONLY - NO tools
+- When customer asks general questions, respond with TEXT ONLY
+- Use exact product IDs from the list above when calling show_product
+- REMEMBER: Most of your messages should be helpful text, not product cards`;
+        
+        console.log('System instruction built for store:', store.store_name);
+        
+        // Connect to OpenAI Realtime API
         const model = "gpt-4o-realtime-preview-2024-10-01";
         const openAIUrl = `wss://api.openai.com/v1/realtime?model=${model}`;
         
@@ -63,7 +134,26 @@ serve(async (req) => {
             // When session is created, send configuration
             if (data.type === 'session.created') {
               console.log("Session created, sending configuration");
-              openAISocket?.send(JSON.stringify({
+              
+              const tools = products.length > 0 ? [
+                {
+                  type: "function",
+                  name: "show_product",
+                  description: "Display a product card with details, image, and purchase button to the customer",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      product_id: {
+                        type: "string",
+                        description: "The ID of the product to display"
+                      }
+                    },
+                    required: ["product_id"]
+                  }
+                }
+              ] : [];
+              
+              const sessionConfig: any = {
                 type: 'session.update',
                 session: {
                   modalities: ["text", "audio"],
@@ -82,12 +172,65 @@ serve(async (req) => {
                   },
                   temperature: 0.8
                 }
-              }));
+              };
+              
+              if (tools.length > 0) {
+                sessionConfig.session.tools = tools;
+                sessionConfig.session.tool_choice = "auto";
+              }
+              
+              openAISocket?.send(JSON.stringify(sessionConfig));
             }
             
-            // When session is updated, notify client ready
+            // Handle function calls
+            if (data.type === 'response.function_call_arguments.done') {
+              console.log("Function call received:", data);
+              const args = JSON.parse(data.arguments);
+              
+              if (data.name === 'show_product') {
+                const product = products.find((p: any) => p.id === args.product_id);
+                if (product) {
+                  socket.send(JSON.stringify({
+                    type: 'show_product',
+                    product: product
+                  }));
+                }
+                
+                // Send function result back to OpenAI
+                openAISocket?.send(JSON.stringify({
+                  type: 'conversation.item.create',
+                  item: {
+                    type: 'function_call_output',
+                    call_id: data.call_id,
+                    output: JSON.stringify({ success: true, message: `Displayed ${product?.title}` })
+                  }
+                }));
+                
+                openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              }
+            }
+            
+            // When session is updated, send greeting and notify client
             if (data.type === 'session.updated') {
-              console.log("Session updated, client ready");
+              console.log("Session updated, sending greeting");
+              
+              // Send greeting as text message
+              const greetingText = store.greeting_message || `Hello! Welcome to ${store.store_name}. How can I help you today?`;
+              
+              openAISocket?.send(JSON.stringify({
+                type: 'conversation.item.create',
+                item: {
+                  type: 'message',
+                  role: 'user',
+                  content: [{
+                    type: 'input_text',
+                    text: greetingText
+                  }]
+                }
+              }));
+              
+              openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              
               socket.send(JSON.stringify({ type: 'ready' }));
             }
             
