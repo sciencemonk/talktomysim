@@ -121,7 +121,7 @@ export default function PublicStore() {
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{product.description}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-primary">
-                          {formatPrice(product.price, product.currency)}
+                          ${formatPrice(product.price)}
                         </span>
                       </div>
                     </div>
