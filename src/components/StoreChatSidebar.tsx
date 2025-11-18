@@ -1,12 +1,11 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Send, Loader2, Bot, X, Mic, MicOff } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, Loader2, Bot, X } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { formatPrice } from '@/lib/utils';
-import OpenAIVoiceInterface from './OpenAIVoiceInterface';
 
 type ChatMessage = {
   id: string;
@@ -29,10 +28,8 @@ type StoreChatSidebarProps = {
   isOpen: boolean;
   onToggle: () => void;
   store: {
-    id: string;
     store_name: string;
     avatar_url?: string;
-    agent_prompt?: string;
   };
   chatMessages: ChatMessage[];
   chatMessage: string;
@@ -60,25 +57,11 @@ export const StoreChatSidebar = ({
   const positionClass = positioning === 'fixed' ? 'fixed' : 'absolute';
   const zIndexClass = positioning === 'fixed' ? 'z-50' : '';
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isSending]);
-
-  const handleAddMessage = (role: 'user' | 'agent', content: string, productId?: string) => {
-    // This will be called by voice interface to add messages to the chat
-    const newMessage = {
-      id: `${role}-${Date.now()}`,
-      role,
-      content,
-      timestamp: new Date(),
-      ...(productId && { productId })
-    };
-    // Note: Parent component should handle adding messages
-    console.log('Voice message:', newMessage);
-  };
   
   return (
     <>
@@ -197,7 +180,7 @@ export const StoreChatSidebar = ({
           </div>
         </ScrollArea>
 
-        {/* Input with voice button */}
+        {/* Input */}
         <div className="p-4 border-t border-border">
           <div className="flex gap-2">
             <Input
@@ -210,47 +193,18 @@ export const StoreChatSidebar = ({
                 }
               }}
               placeholder="Ask about products..."
-              disabled={isSending || isVoiceActive}
+              disabled={isSending}
               className="flex-1"
             />
             <Button
-              variant={isVoiceActive ? "default" : "outline"}
-              size="icon"
-              onClick={() => setIsVoiceActive(!isVoiceActive)}
-              disabled={isSending}
-              title={isVoiceActive ? "Stop voice" : "Start voice"}
-            >
-              {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
-            <Button
               onClick={handleSendMessage}
-              disabled={!chatMessage.trim() || isSending || isVoiceActive}
+              disabled={!chatMessage.trim() || isSending}
               size="icon"
             >
               <Send className="h-4 w-4" />
             </Button>
-          </div>
-          
-          {/* Hidden voice interface that integrates with text chat */}
-          {isVoiceActive && (
-            <div className="mt-2">
-              <OpenAIVoiceInterface
-                storeId={store.id}
-                onTranscript={handleAddMessage}
-                onConnectionChange={(connected) => {
-                  if (!connected && isVoiceActive) {
-                    setIsVoiceActive(false);
-                  }
-                }}
-                onShowProduct={(productId) => {
-                  handleAddMessage('agent', '', productId);
-                  onViewProduct?.(productId);
-                }}
-                autoStart={true}
-              />
-            </div>
-          )}
         </div>
+      </div>
       </div>
     </>
   );
