@@ -43,6 +43,7 @@ type Store = {
   logo_url?: string;
   avatar_url?: string;
   greeting_message?: string;
+  agent_prompt?: string;
 };
 
 type ChatMessage = {
@@ -416,8 +417,10 @@ export default function ProductDetail() {
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
         store={{
+          id: store.id,
           store_name: store.store_name,
-          avatar_url: store.avatar_url
+          avatar_url: store.avatar_url,
+          agent_prompt: store.agent_prompt
         }}
         chatMessages={chatMessages}
         chatMessage={chatMessage}
