@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Send, ChevronRight, ChevronLeft, Loader2, Bot, X, Mic, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { formatPrice } from '@/lib/utils';
-import GeminiVoiceInterface from './GeminiVoiceInterface';
+import OpenAIVoiceInterface from './OpenAIVoiceInterface';
 
 type ChatMessage = {
   id: string;
@@ -146,9 +146,8 @@ export const StoreChatSidebar = ({
         <ScrollArea className="flex-1 p-4">
           {isVoiceMode ? (
             <div className="h-full flex flex-col items-center justify-center">
-              <GeminiVoiceInterface
+              <OpenAIVoiceInterface
                 systemInstruction={store.agent_prompt || `You are ${store.store_name}, a helpful AI sales agent. Help customers find products and make purchases.`}
-                greetingMessage={`Hello! I'm the AI assistant for ${store.store_name}. How can I help you today?`}
                 onTranscript={handleVoiceTranscript}
                 onConnectionChange={setIsVoiceConnected}
                 autoStart={true}

@@ -1,6 +1,6 @@
 project_id = "uovhemqkztmkoozlmqxq"
 
-[functions.gemini-live]
+[functions.openai-realtime]
 verify_jwt = false
 
 [functions.store-payment-session]
