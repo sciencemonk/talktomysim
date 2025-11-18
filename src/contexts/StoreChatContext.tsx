@@ -20,8 +20,8 @@ type StoreChatContextType = {
 const StoreChatContext = createContext<StoreChatContextType | undefined>(undefined);
 
 export const StoreChatProvider = ({ children }: { children: ReactNode }) => {
-  const [chatOpen, setChatOpen] = useState(true);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false); // Start collapsed
+  const [isVoiceActive, setIsVoiceActive] = useState(true); // Voice on by default
   const [currentStoreId, setCurrentStoreId] = useState<string | null>(null);
 
   return (

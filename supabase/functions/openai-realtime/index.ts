@@ -166,9 +166,9 @@ CRITICAL GUIDELINES FOR PRODUCT TOOL:
                   },
                   turn_detection: {
                     type: "server_vad",
-                    threshold: 0.5,
-                    prefix_padding_ms: 300,
-                    silence_duration_ms: 1000
+                    threshold: 0.6, // Higher threshold = more deliberate, less accidental interruption
+                    prefix_padding_ms: 200, // Reduced padding for faster interruption
+                    silence_duration_ms: 700 // Shorter silence needed to stop talking
                   },
                   temperature: 0.8
                 }

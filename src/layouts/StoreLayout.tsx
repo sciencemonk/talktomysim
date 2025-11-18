@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { StoreChatSidebar } from "@/components/StoreChatSidebar";
+import { StoreFloatingChat } from "@/components/StoreFloatingChat";
 import { useStoreChat } from "@/contexts/StoreChatContext";
 import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
 import { toast } from "sonner";
@@ -49,7 +49,7 @@ export const StoreLayout = () => {
   const [loading, setLoading] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const { chatOpen, setChatOpen, setCurrentStoreId } = useStoreChat();
+  const { setCurrentStoreId } = useStoreChat();
   const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
 
   useEffect(() => {
@@ -211,9 +211,7 @@ export const StoreLayout = () => {
       <div className="flex-1 overflow-auto">
         <Outlet context={{ store, products }} />
       </div>
-      <StoreChatSidebar
-        isOpen={chatOpen}
-        onToggle={() => setChatOpen(!chatOpen)}
+      <StoreFloatingChat
         store={store}
         chatMessages={chatMessages}
         chatMessage={chatMessage}
@@ -222,7 +220,6 @@ export const StoreLayout = () => {
         isSending={isSending}
         products={products}
         onViewProduct={handleViewProduct}
-        positioning="fixed"
       />
     </div>
   );
