@@ -81,10 +81,12 @@ serve(async (req) => {
         geminiSocket.onmessage = (geminiEvent) => {
           try {
             const data = JSON.parse(geminiEvent.data);
-            console.log("Received from Gemini:", data.setupComplete ? "Setup complete" : JSON.stringify(data).substring(0, 100));
+            console.log("Received from Gemini (full):", JSON.stringify(data));
             
-            // Check if setup is complete
+            // Check if setup is complete - Gemini sends setupComplete as a top-level field
             if (data.setupComplete) {
+              console.log("Setup confirmed by Gemini");
+              
               // Send greeting message if provided
               if (greetingMessage) {
                 console.log("Sending greeting message:", greetingMessage);
@@ -100,13 +102,15 @@ serve(async (req) => {
               }
               
               // Notify client that connection is ready
+              console.log("Sending ready notification to client");
               socket.send(JSON.stringify({ type: 'ready' }));
             }
             
             // Forward all Gemini responses to client
             socket.send(geminiEvent.data);
           } catch (e) {
-            console.error("Error parsing Gemini message:", e);
+            console.error("Error parsing Gemini message:", e, geminiEvent.data);
+            // Still forward unparseable messages
             socket.send(geminiEvent.data);
           }
         };
