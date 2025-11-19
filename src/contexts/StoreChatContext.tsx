@@ -1,16 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type ChatMessage = {
-  id: string;
-  role: 'user' | 'agent';
-  content: string;
-  timestamp: Date;
-  productId?: string;
-};
-
 type StoreChatContextType = {
-  chatOpen: boolean;
-  setChatOpen: (open: boolean) => void;
   isVoiceActive: boolean;
   setIsVoiceActive: (active: boolean) => void;
   currentStoreId: string | null;
@@ -20,15 +10,12 @@ type StoreChatContextType = {
 const StoreChatContext = createContext<StoreChatContextType | undefined>(undefined);
 
 export const StoreChatProvider = ({ children }: { children: ReactNode }) => {
-  const [chatOpen, setChatOpen] = useState(false); // Start collapsed
   const [isVoiceActive, setIsVoiceActive] = useState(true); // Voice on by default
   const [currentStoreId, setCurrentStoreId] = useState<string | null>(null);
 
   return (
     <StoreChatContext.Provider
       value={{
-        chatOpen,
-        setChatOpen,
         isVoiceActive,
         setIsVoiceActive,
         currentStoreId,
