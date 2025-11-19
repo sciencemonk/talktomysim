@@ -51,7 +51,7 @@ export default function PublicStore() {
           <div className="flex items-center gap-3">
             {store.logo_url && (
               <img 
-                src={store.logo_url} 
+                src={`/${store.logo_url}`}
                 alt={store.store_name}
                 className="h-12 w-auto object-contain"
               />
@@ -84,13 +84,13 @@ export default function PublicStore() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => {
-              const displayImage = product.image_urls && product.image_urls.length > 0
-                ? product.image_urls[0]
-                : product.image_url;
+        {products.map((product) => {
+          const displayImage = product.image_urls && product.image_urls.length > 0
+            ? `/products/${product.image_urls[0]}`
+            : product.image_url;
 
-              return (
-                <Card 
+          return (
+            <Card
                   key={product.id} 
                   className="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
                   onClick={() => handleViewProduct(product.id)}
