@@ -96,13 +96,17 @@ Help customers discover products and guide them through shopping. Keep responses
 
 ${productContext}${productIdMapping}
 
-CRITICAL GUIDELINES:
-- Keep responses SHORT - 1-2 sentences max unless answering detailed questions
-- When mentioning ANY specific product, IMMEDIATELY use navigate_to_product tool with that product's ID
-- ALWAYS navigate to products you're talking about - this is MANDATORY for all product mentions
-- Use navigate_to_store when switching topics or when customer asks to see all products
-- Use exact product IDs from the list above when calling navigate_to_product
-- Combine navigation with conversational text (e.g., "Let me show you {Product Name}!" while navigating)`;
+🚨 CRITICAL NAVIGATION RULES - YOU MUST FOLLOW THESE:
+1. WHENEVER you mention a specific product by name, you MUST immediately call navigate_to_product with that product's ID
+2. This is NOT optional - you MUST navigate every single time you discuss a product
+3. Example: If you say "Our leather boots are amazing", you MUST call navigate_to_product with the leather boots ID
+4. If you're recommending multiple products, navigate to the first one you mention
+5. When the customer wants to see everything, call navigate_to_store
+
+RESPONSE GUIDELINES:
+- Keep responses SHORT - 1-2 sentences max
+- Always provide helpful, friendly text alongside your navigation
+- Use exact product IDs from the mapping above`;
         
         console.log('System instruction built for store:', store.store_name);
         
@@ -164,13 +168,13 @@ CRITICAL GUIDELINES:
                 {
                   type: "function",
                   name: "navigate_to_product",
-                  description: "REQUIRED: Navigate to a specific product's detail page. You MUST call this immediately whenever you mention or discuss any specific product.",
+                  description: "Navigate to show a product page. Call this function IMMEDIATELY whenever you mention any product in your response. This is required every time you discuss a specific product.",
                   parameters: {
                     type: "object",
                     properties: {
                       product_id: {
                         type: "string",
-                        description: "The ID of the product to navigate to"
+                        description: "The exact product ID from the product list"
                       }
                     },
                     required: ["product_id"]
