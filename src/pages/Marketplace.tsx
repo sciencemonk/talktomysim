@@ -24,7 +24,6 @@ import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hook
 import { HowItWorksLanding } from "@/components/landing/HowItWorksLanding";
 import { FeaturesShowcase } from "@/components/landing/FeaturesShowcase";
 import { SocialProof } from "@/components/landing/SocialProof";
-import { PricingLanding } from "@/components/landing/PricingLanding";
 import { ContactFormLanding } from "@/components/landing/ContactFormLanding";
 type MarketplaceItem = {
   id: string;
@@ -347,9 +346,6 @@ const Marketplace = () => {
 
       {/* Social Proof */}
       <SocialProof />
-
-      {/* Pricing Section */}
-      <PricingLanding />
 
       {/* Contact Form */}
       <div id="contact-form">
