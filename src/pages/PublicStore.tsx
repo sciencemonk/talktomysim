@@ -48,13 +48,16 @@ export default function PublicStore() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {store.logo_url && (
               <img 
                 src={store.logo_url} 
                 alt={store.store_name}
                 className="h-12 w-auto object-contain"
               />
+            )}
+            {store.x_username === 'sim' && (
+              <span className="text-sm text-muted-foreground">Demo Store</span>
             )}
           </div>
           <div className="flex items-center gap-2">
