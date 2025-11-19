@@ -33,6 +33,7 @@ type StoreFloatingChatProps = {
   isSending: boolean;
   products: Product[];
   onViewProduct?: (productId: string) => void;
+  onNavigateToStore?: () => void;
 };
 
 export const StoreFloatingChat = ({
@@ -44,6 +45,7 @@ export const StoreFloatingChat = ({
   isSending,
   products,
   onViewProduct,
+  onNavigateToStore,
 }: StoreFloatingChatProps) => {
   const { isVoiceActive, setIsVoiceActive } = useStoreChat();
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -97,6 +99,8 @@ export const StoreFloatingChat = ({
           onTranscript={handleAddMessage}
           onShowProduct={onViewProduct}
           onInitiatePurchase={onViewProduct}
+          onNavigateToProduct={onViewProduct}
+          onNavigateToStore={onNavigateToStore}
           autoStart={true}
           onSpeakingChange={setIsSpeaking}
         />

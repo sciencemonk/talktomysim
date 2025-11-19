@@ -198,6 +198,10 @@ export const StoreLayout = () => {
     navigate(`/store/${username}/${productId}`);
   };
 
+  const handleNavigateToStore = () => {
+    navigate(`/store/${username}`);
+  };
+
   if (loading || !store) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -220,6 +224,7 @@ export const StoreLayout = () => {
         isSending={isSending}
         products={products}
         onViewProduct={handleViewProduct}
+        onNavigateToStore={handleNavigateToStore}
       />
     </div>
   );
