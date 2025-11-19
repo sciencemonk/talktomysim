@@ -53,15 +53,9 @@ export default function PublicStore() {
               <img 
                 src={store.logo_url} 
                 alt={store.store_name}
-                className="h-12 w-12 object-cover rounded-full"
+                className="h-12 w-auto object-contain"
               />
             )}
-            <div>
-              <h1 className="text-2xl font-bold">{store.store_name}</h1>
-              {store.store_description && (
-                <p className="text-sm text-muted-foreground">{store.store_description}</p>
-              )}
-            </div>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
