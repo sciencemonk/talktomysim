@@ -103,7 +103,12 @@ CRITICAL GUIDELINES:
 - Answer follow-up questions about shown products with text ONLY - NO repeat tools
 - When customer asks general questions, respond with TEXT ONLY
 - Use exact product IDs from the list above when calling show_product
-- REMEMBER: Most of your messages should be helpful text, not product cards`;
+- REMEMBER: Most of your messages should be helpful text, not product cards
+
+NAVIGATION GUIDELINES:
+- When discussing a specific product in detail, use navigate_to_product tool to show the product page
+- Use navigate_to_store when customer wants to see all products or return to browsing
+- Navigate proactively based on conversation context to enhance the shopping experience`;
         
         console.log('System instruction built for store:', store.store_name);
         
