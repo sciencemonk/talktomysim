@@ -102,9 +102,9 @@ export const HowItWorksLanding = () => {
         <div className="space-y-32 mb-32">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              <div className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+              <div className="max-w-4xl mx-auto">
                 {/* Content Side */}
-                <div className={`${index % 2 === 1 ? 'lg:order-2' : ''} space-y-6`}>
+                <div className="space-y-6">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl shadow-xl mb-4">
                     <step.icon className="w-8 h-8 text-white" />
                   </div>
@@ -136,47 +136,6 @@ export const HowItWorksLanding = () => {
                   </ul>
                 </div>
 
-                {/* Visual Side */}
-                <div className={`${index % 2 === 1 ? 'lg:order-1' : ''} relative`}>
-                  <div className={`relative bg-gradient-to-br ${step.gradient} backdrop-blur-sm border border-primary/20 rounded-3xl p-12 aspect-square flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl`}>
-                    {/* Decorative elements */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent rounded-3xl"></div>
-                    
-                    {/* Visual representation */}
-                    <div className="relative z-10 text-center">
-                      <div className="flex items-center justify-center gap-4 mb-8">
-                        {step.visualElements.map((emoji, idx) => (
-                          <div 
-                            key={idx} 
-                            className="text-6xl animate-fade-in"
-                            style={{ animationDelay: `${idx * 0.2}s` }}
-                          >
-                            {emoji}
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Flow visualization */}
-                      <div className="space-y-4">
-                        <div className="h-2 bg-primary/20 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full animate-slide-up" style={{ width: '100%' }}></div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[...Array(3)].map((_, idx) => (
-                            <div 
-                              key={idx} 
-                              className="h-16 bg-white/50 rounded-lg backdrop-blur-sm border border-primary/20"
-                              style={{ animationDelay: `${idx * 0.1}s` }}
-                            ></div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Corner accent */}
-                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-primary to-primary/80 rounded-2xl opacity-20 blur-2xl"></div>
-                  </div>
-                </div>
               </div>
 
               {/* Connector line */}
@@ -227,21 +186,6 @@ export const HowItWorksLanding = () => {
           </div>
         </div>
 
-        {/* Stats/Trust Section */}
-        <div className="mt-32 grid sm:grid-cols-3 gap-8 text-center">
-          <div className="p-8 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl border border-primary/20">
-            <div className="text-5xl font-bold text-primary mb-2 font-montserrat">98%</div>
-            <div className="text-muted-foreground font-medium">Customer Satisfaction</div>
-          </div>
-          <div className="p-8 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl border border-primary/20">
-            <div className="text-5xl font-bold text-primary mb-2 font-montserrat">3.5x</div>
-            <div className="text-muted-foreground font-medium">Average Conversion Increase</div>
-          </div>
-          <div className="p-8 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl border border-primary/20">
-            <div className="text-5xl font-bold text-primary mb-2 font-montserrat">&lt;5min</div>
-            <div className="text-muted-foreground font-medium">Setup Time</div>
-          </div>
-        </div>
       </div>
     </section>
   );
