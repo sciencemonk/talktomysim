@@ -81,39 +81,18 @@ export const StoreFloatingChat = ({
       {/* Floating Avatar Button */}
       <div className="fixed bottom-6 right-6 z-50">
         {isVoiceActive && !chatOpen ? (
-          <div className="relative">
-            <button
-              onClick={handleToggleMode}
-              className="relative shadow-2xl rounded-full h-16 w-16 p-0 overflow-hidden border-2 border-primary transition-all duration-200 hover:scale-110 hover:shadow-primary/50"
-            >
-              {store.avatar_url ? (
-                <img 
-                  src={store.avatar_url} 
-                  alt={store.store_name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
-                  <Bot className="h-8 w-8" />
-                </div>
-              )}
-              {isSpeaking && (
-                <div className="absolute inset-0 bg-primary/20 animate-pulse rounded-full" />
-              )}
-            </button>
-            {/* Audio wave animation indicator */}
-            {isSpeaking && (
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-end h-6">
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '100%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
-                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
-              </div>
-            )}
-          </div>
+          <button
+            onClick={handleToggleMode}
+            className="flex gap-1 items-end h-12 bg-background/80 backdrop-blur-sm px-3 rounded-full border border-border shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '100%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
+            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
+          </button>
         ) : chatOpen ? (
           <div className="bg-background border border-border rounded-2xl shadow-2xl w-[380px] h-[600px] flex flex-col overflow-hidden">
             {/* Header */}
@@ -130,19 +109,9 @@ export const StoreFloatingChat = ({
                 </Avatar>
                 <div>
                   <h3 className="font-semibold text-sm">{store.store_name}</h3>
-                  <p className="text-xs text-muted-foreground">Chat Mode</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleToggleMode}
-                  className="h-8 w-8"
-                  title="Switch to voice"
-                >
-                  <Mic className="h-4 w-4" />
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
