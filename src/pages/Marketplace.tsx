@@ -248,22 +248,22 @@ const Marketplace = () => {
         </video>
         
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/50"></div>
         
         {/* Top Navigation */}
-        <nav className="relative z-20 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+        <nav className="relative z-20 border-b border-primary/10 bg-white/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center justify-between h-16 sm:h-20">
               {/* Logo */}
-              <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={simLogoPurple} alt="SIM" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+              <button onClick={() => navigate('/')} className="flex items-center hover:scale-105 transition-transform duration-200">
+                <img src={simLogoPurple} alt="SIM" className="h-10 sm:h-12 md:h-14 w-auto object-contain" />
               </button>
               
               {/* Right side - User dropdown or Request Access */}
-              <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 {user ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="border-gray-300 text-black hover:bg-gray-100 gap-2">
+                      <Button variant="outline" size="sm" className="border-primary/20 text-foreground hover:bg-primary/5 hover:border-primary/40 gap-2 transition-all">
                         <User className="h-4 w-4" />
                         Account
                       </Button>
@@ -280,9 +280,8 @@ const Marketplace = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu> : <Button 
-                    variant="outline" 
                     size="sm" 
-                    className="border-gray-300 text-black hover:bg-gray-100"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300"
                     onClick={() => {
                       const contactSection = document.getElementById('contact-form');
                       contactSection?.scrollIntoView({ behavior: 'smooth' });
@@ -296,23 +295,27 @@ const Marketplace = () => {
         </nav>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 px-2 leading-tight font-montserrat">
-            AI-Powered Shopping Assistant
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] text-center py-12">
+          {/* Badge */}
+          <div className="inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white font-semibold text-sm mb-8 border border-white/30">
+            🤖 Revolutionary Agentic Commerce
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-white mb-6 px-2 leading-tight font-montserrat">
+            AI-Powered Shopping<br className="hidden sm:block" /> Assistant
           </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white mb-6 sm:mb-8 max-w-4xl mx-auto px-4 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 mb-10 sm:mb-12 max-w-4xl mx-auto px-4 leading-relaxed font-light">
             Transform your online store with an intelligent AI agent that guides customers and drives conversions
           </p>
           
           {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
             <Button 
-              variant="default"
               size="lg"
               onClick={() => window.open('/store/sim', '_blank')}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className="bg-white text-primary hover:bg-white/90 shadow-2xl hover:shadow-white/20 h-14 px-8 text-base font-semibold transition-all duration-300 hover:scale-105"
             >
-              View Demo
+              View Live Demo
             </Button>
             <Button 
               variant="outline"
@@ -321,10 +324,15 @@ const Marketplace = () => {
                 const contactSection = document.getElementById('contact-form');
                 contactSection?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="bg-white text-black border-2 border-white hover:bg-white/90"
+              className="bg-transparent text-white border-2 border-white/50 hover:bg-white/10 hover:border-white h-14 px-8 text-base font-semibold backdrop-blur-sm transition-all duration-300"
             >
               Request Access
             </Button>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="mt-16 flex flex-wrap items-center justify-center gap-8 opacity-80">
+            <div className="text-white/70 text-sm font-medium">Trusted by innovative brands</div>
           </div>
         </div>
       </div>
@@ -341,15 +349,19 @@ const Marketplace = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="relative bg-gradient-to-b from-white to-primary/5 border-t border-primary/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center">
-              <img src={simLogoPurple} alt="SIM" className="h-8 sm:h-12 w-auto" />
+              <img src={simLogoPurple} alt="SIM" className="h-10 sm:h-14 w-auto" />
             </div>
-            <p className="text-sm text-gray-600">
-              © 2025 SIM. All rights reserved.
-            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-6 text-sm text-muted-foreground">
+              <span>© 2025 SIM. All rights reserved.</span>
+              <span className="hidden sm:block">•</span>
+              <span className="font-medium bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Revolutionizing Commerce with AI
+              </span>
+            </div>
           </div>
         </div>
       </footer>
