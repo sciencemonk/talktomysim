@@ -23,6 +23,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { userProfileService } from "@/services/userProfileService";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
+import { HowItWorksLanding } from "@/components/landing/HowItWorksLanding";
+import { PricingLanding } from "@/components/landing/PricingLanding";
+import { ContactFormLanding } from "@/components/landing/ContactFormLanding";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -258,7 +261,7 @@ const Marketplace = () => {
                 <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-5 sm:h-8 md:h-10 w-auto object-contain" />
               </button>
               
-              {/* Right side - User dropdown or Sign In + Theme Toggle */}
+              {/* Right side - User dropdown or Request Access */}
               <div className="flex items-center gap-2 sm:gap-4">
                 {user ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -278,9 +281,17 @@ const Marketplace = () => {
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu> : <div className="scale-90">
-                    <AuthButton />
-                  </div>}
+                  </DropdownMenu> : <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-gray-300 text-black hover:bg-gray-100"
+                    onClick={() => {
+                      const contactSection = document.getElementById('contact-form');
+                      contactSection?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    Request Access
+                  </Button>}
               </div>
             </div>
           </div>
@@ -295,16 +306,8 @@ const Marketplace = () => {
             Make more sales with an AI Agent trained on your product catalog
           </p>
           
-          {/* Buy SIMAI and View Demo Buttons */}
+          {/* Action Buttons */}
           <div className="flex items-center justify-center gap-4">
-            <Button 
-              variant="default"
-              size="lg"
-              onClick={() => window.open('https://dexscreener.com/solana/dm9nxs5e1kzhszksm8bw1r4xf3wvvbee6hptysfjszx8', '_blank')}
-              className="bg-black text-white hover:bg-gray-800"
-            >
-              Buy SIMAI
-            </Button>
             <Button 
               variant="outline" 
               size="lg"
@@ -313,8 +316,30 @@ const Marketplace = () => {
             >
               View Demo
             </Button>
+            <Button 
+              variant="default"
+              size="lg"
+              onClick={() => {
+                const contactSection = document.getElementById('contact-form');
+                contactSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="bg-black text-white hover:bg-gray-800"
+            >
+              Request Access
+            </Button>
           </div>
         </div>
+      </div>
+
+      {/* How It Works Section */}
+      <HowItWorksLanding />
+
+      {/* Pricing Section */}
+      <PricingLanding />
+
+      {/* Contact Form */}
+      <div id="contact-form">
+        <ContactFormLanding />
       </div>
 
       {/* Footer */}
