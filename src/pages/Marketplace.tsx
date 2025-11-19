@@ -22,6 +22,8 @@ import { userProfileService } from "@/services/userProfileService";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
 import { HowItWorksLanding } from "@/components/landing/HowItWorksLanding";
+import { FeaturesShowcase } from "@/components/landing/FeaturesShowcase";
+import { SocialProof } from "@/components/landing/SocialProof";
 import { PricingLanding } from "@/components/landing/PricingLanding";
 import { ContactFormLanding } from "@/components/landing/ContactFormLanding";
 type MarketplaceItem = {
@@ -339,6 +341,12 @@ const Marketplace = () => {
 
       {/* How It Works Section */}
       <HowItWorksLanding />
+
+      {/* Features Showcase */}
+      <FeaturesShowcase />
+
+      {/* Social Proof */}
+      <SocialProof />
 
       {/* Pricing Section */}
       <PricingLanding />
