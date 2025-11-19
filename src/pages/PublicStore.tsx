@@ -56,9 +56,6 @@ export default function PublicStore() {
                 className="h-12 w-auto object-contain"
               />
             )}
-            {store.x_username === 'sim' && (
-              <span className="text-sm text-muted-foreground">Demo Store</span>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
