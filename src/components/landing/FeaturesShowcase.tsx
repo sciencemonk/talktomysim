@@ -68,53 +68,24 @@ export const FeaturesShowcase = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="group relative bg-white rounded-3xl p-8 border border-primary/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:scale-105"
+              className="relative bg-white rounded-3xl p-8 border border-primary/10"
             >
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
-              
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="mb-6">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className="w-7 h-7 text-white" />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <h3 className="text-2xl font-bold text-foreground mb-3 font-montserrat">
-                  {feature.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-
-                {/* Hover indicator */}
-                <div className="mt-6 flex items-center text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-sm font-semibold">Learn more</span>
-                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              {/* Icon */}
+              <div className="mb-6">
+                <div className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                  <feature.icon className="w-7 h-7 text-white" />
                 </div>
               </div>
 
-              {/* Corner decoration */}
-              <div className="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              {/* Content */}
+              <h3 className="text-2xl font-bold text-foreground mb-3 font-montserrat">
+                {feature.title}
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {feature.description}
+              </p>
             </div>
           ))}
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-24 text-center">
-          <div className="inline-flex flex-col items-center gap-6 p-12 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-3xl border border-primary/20">
-            <div className="text-4xl">🚀</div>
-            <h3 className="text-3xl font-bold text-foreground font-montserrat">
-              Ready to Transform Your Store?
-            </h3>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Join hundreds of businesses already using AI agents to increase conversions and delight customers.
-            </p>
-          </div>
         </div>
       </div>
     </section>
