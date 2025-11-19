@@ -41,7 +41,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ isActive }) => {
         // Pulsing effect
         const intensity = 0.5 + Math.sin(time * 4 + offset) * 0.3;
         if (sphere.material instanceof THREE.MeshStandardMaterial) {
-          sphere.material.emissive.setRGB(0.2 * intensity, 0.4 * intensity, 1 * intensity);
+          sphere.material.emissive.setRGB(0.37 * intensity, 0.06 * intensity, 0.93 * intensity);
         }
       }
     });
@@ -61,8 +61,8 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ isActive }) => {
           ]}
         >
           <meshStandardMaterial 
-            color="#007AFF"
-            emissive="#001a33"
+            color="#5E10EC"
+            emissive="#2A0866"
             roughness={0.2}
             metalness={0.8}
           />
@@ -72,8 +72,8 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ isActive }) => {
       {/* Central sphere */}
       <Sphere args={[0.3, 32, 32]} position={[0, 0, 0]}>
         <meshStandardMaterial 
-          color="#007AFF"
-          emissive="#004080"
+          color="#5E10EC"
+          emissive="#3A0A99"
           roughness={0.1}
           metalness={0.9}
         />
@@ -93,7 +93,7 @@ export const AudioIndicator: React.FC<AudioIndicatorProps> = ({ isActive, classN
       <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
         <ambientLight intensity={0.3} />
         <pointLight position={[10, 10, 10]} intensity={0.8} />
-        <pointLight position={[-10, -10, -10]} intensity={0.3} color="#4A90E2" />
+        <pointLight position={[-10, -10, -10]} intensity={0.3} color="#5E10EC" />
         <AudioVisualizer isActive={isActive} />
       </Canvas>
     </div>
