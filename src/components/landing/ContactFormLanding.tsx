@@ -56,10 +56,10 @@ export const ContactFormLanding = () => {
           <div className="inline-flex items-center justify-center px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm mb-6">
             ✨ Get Started
           </div>
-          <h2 className="text-5xl font-bold text-foreground mb-6 font-montserrat">
+          <h2 className="text-5xl font-bold text-black mb-6 font-montserrat">
             Request Access
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-gray-600">
             Tell us about your store and we'll get you started
           </p>
         </div>

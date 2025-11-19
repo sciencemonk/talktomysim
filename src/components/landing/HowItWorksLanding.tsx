@@ -86,10 +86,10 @@ export const HowItWorksLanding = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-24">
-          <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 font-montserrat">
+          <h2 className="text-5xl sm:text-6xl font-bold text-black mb-6 font-montserrat">
             How It Works
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Transform your store into an AI-powered sales machine in three simple steps. 
             No technical expertise required.
           </p>
@@ -111,19 +111,19 @@ export const HowItWorksLanding = () => {
                 </div>
                 
                 <div className="space-y-3 flex-1 flex flex-col">
-                  <h3 className="text-2xl font-bold text-foreground font-montserrat leading-tight">
+                  <h3 className="text-2xl font-bold text-black font-montserrat leading-tight">
                     {step.title}
                   </h3>
                   <p className="text-base text-primary font-medium">
                     {step.subtitle}
                   </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                  <p className="text-sm text-gray-600 leading-relaxed flex-1">
                     {step.description}
                   </p>
 
                   <ul className="space-y-2.5 pt-3">
                     {step.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2.5 text-foreground text-sm">
+                      <li key={idx} className="flex items-center gap-2.5 text-black text-sm">
                         <div className="flex-shrink-0 w-4 h-4 bg-primary/10 rounded-full flex items-center justify-center">
                           <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                         </div>
@@ -143,10 +143,10 @@ export const HowItWorksLanding = () => {
             <div className="inline-flex items-center justify-center px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm mb-6">
               🤖 AI Capabilities
             </div>
-            <h3 className="text-4xl font-bold text-foreground mb-4 font-montserrat">
+            <h3 className="text-4xl font-bold text-black mb-4 font-montserrat">
               What Your AI Agent Can Do
             </h3>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Powered by advanced language models and trained specifically for e-commerce
             </p>
           </div>
@@ -162,10 +162,10 @@ export const HowItWorksLanding = () => {
                     <capability.icon className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-foreground mb-2 text-lg">
+                    <h4 className="font-bold text-black mb-2 text-lg">
                       {capability.title}
                     </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed">
                       {capability.description}
                     </p>
                   </div>
