@@ -8,9 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
 import { useQuery } from "@tanstack/react-query";
-import simHeroLogo from "@/assets/sim-hero-logo.png";
-import agenticCommerceLogo from "@/assets/agentic-commerce-logo.png";
-import simLogoWhite from "@/assets/sim-logo-white.png";
+import simLogoPurple from "@/assets/sim-logo-purple.png";
 import xIcon from "@/assets/x-icon.png";
 import shopifyLogo from "@/assets/shopify-logo.png";
 import visaLogo from "@/assets/visa-logo.png";
@@ -258,7 +256,7 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-5 sm:h-8 md:h-10 w-auto object-contain" />
+                <img src={simLogoPurple} alt="SIM" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
               </button>
               
               {/* Right side - User dropdown or Request Access */}
@@ -300,30 +298,30 @@ const Marketplace = () => {
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] text-center py-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 px-2 leading-tight font-montserrat">
-            AI Your Online Store
+            AI-Powered Shopping Assistant
           </h1>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white mb-6 sm:mb-8 max-w-4xl mx-auto px-4 leading-relaxed">
-            Make more sales with an AI Agent trained on your product catalog
+            Transform your online store with an intelligent AI agent that guides customers and drives conversions
           </p>
           
           {/* Action Buttons */}
           <div className="flex items-center justify-center gap-4">
             <Button 
-              variant="outline" 
+              variant="default"
               size="lg"
               onClick={() => window.open('/store/sim', '_blank')}
-              className="bg-white text-black border-gray-300 hover:bg-gray-100 dark:bg-white dark:text-black dark:hover:bg-gray-100"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               View Demo
             </Button>
             <Button 
-              variant="default"
+              variant="outline"
               size="lg"
               onClick={() => {
                 const contactSection = document.getElementById('contact-form');
                 contactSection?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="bg-black text-white hover:bg-gray-800"
+              className="bg-white text-black border-2 border-white hover:bg-white/90"
             >
               Request Access
             </Button>
@@ -347,7 +345,7 @@ const Marketplace = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center">
-              <img src={agenticCommerceLogo} alt="Agentic Commerce" className="h-8 sm:h-12 w-auto" />
+              <img src={simLogoPurple} alt="SIM" className="h-8 sm:h-12 w-auto" />
             </div>
             <p className="text-sm text-gray-600">
               © 2025 SIM. All rights reserved.

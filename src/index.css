@@ -11,7 +11,7 @@
     --card-foreground: 0 0% 3%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3%;
-    --primary: 221 83% 53%;
+    --primary: 261 87% 49%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 9%;
@@ -23,17 +23,17 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89%;
     --input: 0 0% 89%;
-    --ring: 221 83% 53%;
+    --ring: 261 87% 49%;
     --radius: 0.75rem;
 
-    /* Apple-inspired minimalist tokens */
+    /* Shopping AI Agent theme */
     --bg: 0 0% 100%;
     --bg-muted: 0 0% 97%;
     --fg: 0 0% 3%;
     --fg-muted: 0 0% 45%;
-    --brand-purple: 243 100% 68%;
-    --brand-blue: 221 83% 53%;
-    --brand-pink: 221 83% 53%;
+    --brand-purple: 261 87% 49%;
+    --brand-blue: 261 87% 49%;
+    --brand-pink: 261 87% 49%;
     --input-bg: 0 0% 98%;
     --input-border: 0 0% 89%;
     --focus-ring: 221 83% 53%;
@@ -51,7 +51,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3%;
     --popover-foreground: 0 0% 98%;
-    --primary: 221 83% 53%;
+    --primary: 261 87% 49%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 98%;
@@ -63,16 +63,16 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 221 83% 53%;
+    --ring: 261 87% 49%;
 
-    /* Apple-inspired dark mode tokens */
+    /* Shopping AI Agent theme - dark mode */
     --bg: 0 0% 3%;
     --bg-muted: 0 0% 8%;
     --fg: 0 0% 98%;
     --fg-muted: 0 0% 63%;
-    --brand-purple: 243 100% 68%;
-    --brand-blue: 221 83% 53%;
-    --brand-pink: 221 83% 53%;
+    --brand-purple: 261 87% 49%;
+    --brand-blue: 261 87% 49%;
+    --brand-pink: 261 87% 49%;
     --input-bg: 0 0% 0%;
     --input-border: 0 0% 20%;
     --focus-ring: 221 83% 53%;
