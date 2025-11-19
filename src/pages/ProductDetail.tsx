@@ -6,11 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Package, DollarSign, Info, ExternalLink } from "lucide-react";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
-import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { ShareButton } from "@/components/ShareButton";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
-import { useStoreChatPersistence } from "@/hooks/useStoreChatPersistence";
 
 const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
@@ -46,14 +44,6 @@ type Store = {
   agent_prompt?: string;
 };
 
-type ChatMessage = {
-  id: string;
-  role: 'user' | 'agent';
-  content: string;
-  timestamp: Date;
-  productId?: string;
-};
-
 export default function ProductDetail() {
   const { username, productId } = useParams<{ username: string; productId: string }>();
   const navigate = useNavigate();
@@ -62,13 +52,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [chatOpen, setChatOpen] = useState(true);
-  const [chatMessage, setChatMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  
-  // Use persistent chat hook
-  const { chatMessages, setChatMessages } = useStoreChatPersistence(username, store);
 
   useEffect(() => {
     if (username && productId) {
@@ -96,19 +79,6 @@ export default function ProductDetail() {
       }
 
       setStore(storeData);
-
-      // Get all products for the store
-      const { data: allProductsData } = await supabase
-        .from('products')
-        .select('*')
-        .eq('store_id', storeData.id)
-        .eq('is_active', true);
-      
-      const typedAllProducts = (allProductsData || []).map((p: any) => ({
-        ...p,
-        image_urls: Array.isArray(p.image_urls) ? p.image_urls : []
-      }));
-      setAllProducts(typedAllProducts);
 
       // Then get the product
       const { data: productData, error: productError } = await supabase
@@ -167,88 +137,6 @@ export default function ProductDetail() {
     navigate(`/store/${username}`);
   };
 
-  const handleSendMessage = async (purchaseMessage?: ChatMessage) => {
-    const messageToSend = purchaseMessage || {
-      id: Date.now().toString(),
-      role: 'user' as const,
-      content: chatMessage.trim(),
-      timestamp: new Date()
-    };
-
-    if (!messageToSend.content.trim() || isSending || !store?.id) return;
-
-    setIsSending(true);
-    const newUserMessage = messageToSend;
-    setChatMessages(prev => [...prev, newUserMessage]);
-    if (!purchaseMessage) setChatMessage('');
-
-    try {
-      const conversationHistory = chatMessages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const clientProducts = allProducts.map(p => ({
-        id: p.id,
-        title: p.title,
-        description: p.description,
-        price: p.price,
-        currency: p.currency,
-        image_urls: p.image_urls
-      }));
-
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/store-agent-chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-          conversationHistory,
-          storeId: store.id,
-          message: newUserMessage.content,
-          clientProducts
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Edge function error:', errorData);
-        throw new Error(errorData.error || 'Failed to get response');
-      }
-
-      const data = await response.json();
-      
-      if (data.products && data.products.length > 0) {
-        data.products.forEach((productId: string) => {
-          const agentProductMessage: ChatMessage = {
-            id: `${Date.now()}-product-${productId}`,
-            role: 'agent',
-            content: '',
-            timestamp: new Date(),
-            productId
-          };
-          setChatMessages(prev => [...prev, agentProductMessage]);
-        });
-      }
-
-      const agentMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: 'agent',
-        content: data.response,
-        timestamp: new Date()
-      };
-
-      setChatMessages(prev => [...prev, agentMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error("Failed to send message");
-      setChatMessages(prev => prev.filter(msg => msg.id !== newUserMessage.id));
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -268,10 +156,8 @@ export default function ProductDetail() {
   const productUrl = `${window.location.origin}/store/${username}/product/${productId}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 relative flex flex-col lg:flex-row">
-      <div className={`flex-1 transition-all duration-300 ${
-        chatOpen ? 'lg:mr-96' : ''
-      }`}>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 relative">
+      <div className="flex-1">
         <div className="container mx-auto px-4 md:px-6 py-8">
         {/* Back Button and Share */}
         <div className="flex items-center justify-between mb-6">
@@ -413,28 +299,6 @@ export default function ProductDetail() {
         />
       )}
 
-      <StoreChatSidebar
-        isOpen={chatOpen}
-        onToggle={() => setChatOpen(!chatOpen)}
-        store={{
-          id: store.id,
-          store_name: store.store_name,
-          avatar_url: store.avatar_url,
-          agent_prompt: store.agent_prompt
-        }}
-        chatMessages={chatMessages}
-        chatMessage={chatMessage}
-        setChatMessage={setChatMessage}
-        handleSendMessage={() => handleSendMessage()}
-        isSending={isSending}
-        products={allProducts}
-        onViewProduct={(productId) => {
-          if (productId !== product.id) {
-            navigate(`/store/${username}/product/${productId}`);
-          }
-        }}
-        positioning="absolute"
-      />
     </div>
   );
 }

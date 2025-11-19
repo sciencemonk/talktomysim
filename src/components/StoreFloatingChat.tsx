@@ -78,20 +78,27 @@ export const StoreFloatingChat = ({
   
   return (
     <>
-      {/* Floating Avatar Button */}
+      {/* Floating Voice Agent Button */}
       <div className="fixed bottom-6 right-6 z-50">
         {isVoiceActive && !chatOpen ? (
           <button
             onClick={handleToggleMode}
-            className="flex gap-1 items-end h-12 bg-background/80 backdrop-blur-sm px-3 rounded-full border border-border shadow-lg hover:shadow-xl transition-all"
+            className="group relative h-16 w-16 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center"
           >
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '100%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
-            <div className="w-1.5 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
+            {/* Pulsing ring effect */}
+            <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
+            <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+            
+            {/* Sound wave visualization */}
+            <div className="relative flex gap-0.5 items-end h-8">
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '90%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
+              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
+            </div>
           </button>
         ) : chatOpen ? (
           <div className="bg-background border border-border rounded-2xl shadow-2xl w-[380px] h-[600px] flex flex-col overflow-hidden">
