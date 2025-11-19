@@ -86,9 +86,6 @@ export const HowItWorksLanding = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-24">
-          <div className="inline-flex items-center justify-center px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm mb-6 animate-fade-in">
-            🚀 Simple Yet Powerful
-          </div>
           <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 font-montserrat">
             How It Works
           </h2>
@@ -98,36 +95,36 @@ export const HowItWorksLanding = () => {
           </p>
         </div>
 
-        {/* Main Steps */}
-        <div className="space-y-32 mb-32">
+        {/* Main Steps - Grid Layout */}
+        <div className="grid md:grid-cols-3 gap-8 mb-32">
           {steps.map((step, index) => (
-            <div key={index} className="relative">
-              <div className="max-w-4xl mx-auto">
-                {/* Content Side */}
-                <div className="space-y-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl shadow-xl mb-4">
-                    <step.icon className="w-8 h-8 text-white" />
-                  </div>
-                  
-                  <div>
-                    <div className="inline-block px-3 py-1 bg-primary/10 rounded-full text-primary text-sm font-semibold mb-3">
-                      Step {index + 1}
-                    </div>
-                    <h3 className="text-4xl font-bold text-foreground mb-2 font-montserrat">
-                      {step.title}
-                    </h3>
-                    <p className="text-lg text-primary font-medium mb-4">
-                      {step.subtitle}
-                    </p>
-                    <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                      {step.description}
-                    </p>
-                  </div>
+            <div key={index} className="relative group">
+              <div className={`h-full bg-gradient-to-br ${step.gradient} backdrop-blur-sm border border-primary/20 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-105`}>
+                {/* Step Number Badge */}
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">{index + 1}</span>
+                </div>
 
-                  <ul className="space-y-3">
+                {/* Icon */}
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl shadow-xl mb-6">
+                  <step.icon className="w-8 h-8 text-white" />
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-bold text-foreground font-montserrat">
+                    {step.title}
+                  </h3>
+                  <p className="text-lg text-primary font-medium">
+                    {step.subtitle}
+                  </p>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
+
+                  <ul className="space-y-3 pt-4">
                     {step.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-3 text-foreground">
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                      <li key={idx} className="flex items-center gap-3 text-foreground text-sm">
+                        <div className="flex-shrink-0 w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                         </div>
                         <span>{feature}</span>
@@ -135,15 +132,7 @@ export const HowItWorksLanding = () => {
                     ))}
                   </ul>
                 </div>
-
               </div>
-
-              {/* Connector line */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:flex justify-center my-20">
-                  <div className="w-px h-24 bg-gradient-to-b from-primary/30 via-primary/20 to-transparent"></div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -166,10 +155,10 @@ export const HowItWorksLanding = () => {
             {capabilities.map((capability, index) => (
               <div 
                 key={index} 
-                className="group p-6 bg-white rounded-2xl border border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:scale-105"
+                className="p-6 bg-white rounded-2xl border border-primary/10 transition-all duration-300 hover:border-primary/30 hover:shadow-xl"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
                     <capability.icon className="w-6 h-6 text-primary" />
                   </div>
                   <div>
