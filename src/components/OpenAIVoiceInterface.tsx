@@ -10,6 +10,7 @@ interface OpenAIVoiceInterfaceProps {
   onInitiatePurchase?: (productId: string) => void;
   onNavigateToProduct?: (productId: string) => void;
   onNavigateToStore?: () => void;
+  onShowReview?: (review: any) => void;
   autoStart?: boolean;
   onSpeakingChange?: (speaking: boolean) => void;
 }
@@ -109,6 +110,7 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
   onInitiatePurchase,
   onNavigateToProduct,
   onNavigateToStore,
+  onShowReview,
   autoStart = false,
   onSpeakingChange
 }) => {
@@ -172,6 +174,8 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
             onNavigateToProduct?.(data.productId);
           } else if (data.type === 'navigate_to_store') {
             onNavigateToStore?.();
+          } else if (data.type === 'show_review') {
+            onShowReview?.(data.review);
           } else if (data.type === 'response.audio.delta') {
             setIsSpeaking(true);
             onSpeakingChange?.(true);

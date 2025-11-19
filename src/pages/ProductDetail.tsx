@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Package, DollarSign, Info, ExternalLink, Star } from "lucide-react";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
+import { ReviewModal } from "@/components/ReviewModal";
 import { ShareButton } from "@/components/ShareButton";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
@@ -62,6 +63,21 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+
+  // Listen for agent messages to show reviews
+  useEffect(() => {
+    const handleShowReview = (event: CustomEvent) => {
+      if (event.detail && product) {
+        setSelectedReview(event.detail);
+        setShowReviewModal(true);
+      }
+    };
+
+    window.addEventListener('show_review' as any, handleShowReview);
+    return () => window.removeEventListener('show_review' as any, handleShowReview);
+  }, [product]);
 
   useEffect(() => {
     if (username && productId) {
@@ -366,6 +382,18 @@ export default function ProductDetail() {
             checkout_fields: product.checkout_fields,
           }}
           storeId={store.id}
+        />
+      )}
+
+      {showReviewModal && selectedReview && product && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedReview(null);
+          }}
+          review={selectedReview}
+          productTitle={product.title}
         />
       )}
 
