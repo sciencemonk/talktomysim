@@ -98,17 +98,11 @@ ${productContext}${productIdMapping}
 
 CRITICAL GUIDELINES:
 - Keep responses SHORT - 1-2 sentences max unless answering detailed questions
-- ALWAYS combine tool calls with text (e.g., "Check out {Product Name}!")
-- Use show_product tool ONLY when FIRST introducing a NEW product
-- Answer follow-up questions about shown products with text ONLY - NO repeat tools
-- When customer asks general questions, respond with TEXT ONLY
-- Use exact product IDs from the list above when calling show_product
-- REMEMBER: Most of your messages should be helpful text, not product cards
-
-NAVIGATION GUIDELINES:
-- When discussing a specific product in detail, use navigate_to_product tool to show the product page
-- Use navigate_to_store when customer wants to see all products or return to browsing
-- Navigate proactively based on conversation context to enhance the shopping experience`;
+- When mentioning ANY specific product, IMMEDIATELY use navigate_to_product tool with that product's ID
+- ALWAYS navigate to products you're talking about - this is MANDATORY for all product mentions
+- Use navigate_to_store when switching topics or when customer asks to see all products
+- Use exact product IDs from the list above when calling navigate_to_product
+- Combine navigation with conversational text (e.g., "Let me show you {Product Name}!" while navigating)`;
         
         console.log('System instruction built for store:', store.store_name);
         
@@ -170,7 +164,7 @@ NAVIGATION GUIDELINES:
                 {
                   type: "function",
                   name: "navigate_to_product",
-                  description: "Navigate to a specific product's detail page. Use when customer wants to see more details about a product or when discussing a specific product in depth.",
+                  description: "REQUIRED: Navigate to a specific product's detail page. You MUST call this immediately whenever you mention or discuss any specific product.",
                   parameters: {
                     type: "object",
                     properties: {
