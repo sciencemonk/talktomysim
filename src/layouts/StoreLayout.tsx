@@ -194,6 +194,12 @@ export const StoreLayout = () => {
     }
   };
 
+  const handleShowReview = (review: any) => {
+    // Dispatch custom event for ProductDetail to listen to
+    const event = new CustomEvent('show_review', { detail: review });
+    window.dispatchEvent(event);
+  };
+
   const handleViewProduct = (productId: string) => {
     navigate(`/store/${username}/${productId}`);
   };
@@ -225,6 +231,7 @@ export const StoreLayout = () => {
         products={products}
         onViewProduct={handleViewProduct}
         onNavigateToStore={handleNavigateToStore}
+        onShowReview={handleShowReview}
       />
     </div>
   );

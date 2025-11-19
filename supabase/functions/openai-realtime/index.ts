@@ -216,6 +216,25 @@ Remember: Get their name first. Use it SPARINGLY. SHORT responses. Ask questions
                     type: "object",
                     properties: {}
                   }
+                },
+                {
+                  type: "function",
+                  name: "show_review",
+                  description: "Display a specific customer review in a modal. Use this when discussing reviews or when a customer asks to see more details about a specific review.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      product_id: {
+                        type: "string",
+                        description: "The product ID that this review belongs to"
+                      },
+                      review_index: {
+                        type: "number",
+                        description: "The index of the review in the reviews array (0-based)"
+                      }
+                    },
+                    required: ["product_id", "review_index"]
+                  }
                 }
               ] : [];
               
@@ -333,6 +352,39 @@ Remember: Get their name first. Use it SPARINGLY. SHORT responses. Ask questions
                     output: JSON.stringify({ success: true, message: 'Navigating back to store' })
                   }
                 }));
+                
+                openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              }
+              
+              if (data.name === 'show_review') {
+                const product = products.find((p: any) => p.id === args.product_id);
+                if (product && product.reviews && product.reviews[args.review_index]) {
+                  const review = product.reviews[args.review_index];
+                  socket.send(JSON.stringify({
+                    type: 'show_review',
+                    review: review
+                  }));
+                  
+                  // Send function result back to OpenAI
+                  openAISocket?.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: {
+                      type: 'function_call_output',
+                      call_id: data.call_id,
+                      output: JSON.stringify({ success: true, message: `Showing review from ${review.reviewer_name}` })
+                    }
+                  }));
+                } else {
+                  // Send error if review not found
+                  openAISocket?.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: {
+                      type: 'function_call_output',
+                      call_id: data.call_id,
+                      output: JSON.stringify({ success: false, message: 'Review not found' })
+                    }
+                  }));
+                }
                 
                 openAISocket?.send(JSON.stringify({ type: 'response.create' }));
               }

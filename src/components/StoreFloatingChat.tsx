@@ -34,6 +34,7 @@ type StoreFloatingChatProps = {
   products: Product[];
   onViewProduct?: (productId: string) => void;
   onNavigateToStore?: () => void;
+  onShowReview?: (review: any) => void;
 };
 
 export const StoreFloatingChat = ({
@@ -46,6 +47,7 @@ export const StoreFloatingChat = ({
   products,
   onViewProduct,
   onNavigateToStore,
+  onShowReview,
 }: StoreFloatingChatProps) => {
   const { isVoiceActive, setIsVoiceActive } = useStoreChat();
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -101,6 +103,7 @@ export const StoreFloatingChat = ({
           onInitiatePurchase={onViewProduct}
           onNavigateToProduct={onViewProduct}
           onNavigateToStore={onNavigateToStore}
+          onShowReview={onShowReview}
           autoStart={true}
           onSpeakingChange={setIsSpeaking}
         />
