@@ -161,6 +161,30 @@ CRITICAL GUIDELINES:
                     },
                     required: ["product_id"]
                   }
+                },
+                {
+                  type: "function",
+                  name: "navigate_to_product",
+                  description: "Navigate to a specific product's detail page. Use when customer wants to see more details about a product or when discussing a specific product in depth.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      product_id: {
+                        type: "string",
+                        description: "The ID of the product to navigate to"
+                      }
+                    },
+                    required: ["product_id"]
+                  }
+                },
+                {
+                  type: "function",
+                  name: "navigate_to_store",
+                  description: "Navigate back to the main store page showing all products. Use when customer wants to browse more products or return to the main catalog.",
+                  parameters: {
+                    type: "object",
+                    properties: {}
+                  }
                 }
               ] : [];
               
@@ -236,6 +260,46 @@ CRITICAL GUIDELINES:
                     type: 'function_call_output',
                     call_id: data.call_id,
                     output: JSON.stringify({ success: true, message: `Opening checkout for ${product?.title}` })
+                  }
+                }));
+                
+                openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              }
+              
+              if (data.name === 'navigate_to_product') {
+                const product = products.find((p: any) => p.id === args.product_id);
+                if (product) {
+                  socket.send(JSON.stringify({
+                    type: 'navigate_to_product',
+                    productId: product.id
+                  }));
+                }
+                
+                // Send function result back to OpenAI
+                openAISocket?.send(JSON.stringify({
+                  type: 'conversation.item.create',
+                  item: {
+                    type: 'function_call_output',
+                    call_id: data.call_id,
+                    output: JSON.stringify({ success: true, message: `Navigating to ${product?.title}` })
+                  }
+                }));
+                
+                openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              }
+              
+              if (data.name === 'navigate_to_store') {
+                socket.send(JSON.stringify({
+                  type: 'navigate_to_store'
+                }));
+                
+                // Send function result back to OpenAI
+                openAISocket?.send(JSON.stringify({
+                  type: 'conversation.item.create',
+                  item: {
+                    type: 'function_call_output',
+                    call_id: data.call_id,
+                    output: JSON.stringify({ success: true, message: 'Navigating back to store' })
                   }
                 }));
                 
