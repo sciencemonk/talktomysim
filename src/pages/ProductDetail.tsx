@@ -252,15 +252,15 @@ export default function ProductDetail() {
                   onClick={handlePurchase}
                   size="lg"
                   className="flex-1"
-                  disabled={!product.is_active}
+                  disabled={!product.is_active || store.x_username === 'sim'}
                 >
                   <DollarSign className="h-5 w-5 mr-2" />
-                  Purchase Now
+                  {store.x_username === 'sim' ? 'Demo Product' : 'Purchase Now'}
                 </Button>
               </div>
 
               <div className="text-xs text-muted-foreground">
-                <p>Secure checkout powered by Solana blockchain</p>
+                <p>{store.x_username === 'sim' ? 'This is a demo store. Checkout is disabled.' : 'Secure checkout powered by Solana blockchain'}</p>
               </div>
             </div>
           </div>
