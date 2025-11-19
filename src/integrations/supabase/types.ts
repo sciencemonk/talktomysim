@@ -1133,6 +1133,9 @@ export type Database = {
           image_urls: Json | null
           is_active: boolean
           price: number
+          rating: number | null
+          review_count: number | null
+          reviews: Json | null
           store_id: string
           title: string
           updated_at: string
@@ -1147,6 +1150,9 @@ export type Database = {
           image_urls?: Json | null
           is_active?: boolean
           price: number
+          rating?: number | null
+          review_count?: number | null
+          reviews?: Json | null
           store_id: string
           title: string
           updated_at?: string
@@ -1161,6 +1167,9 @@ export type Database = {
           image_urls?: Json | null
           is_active?: boolean
           price?: number
+          rating?: number | null
+          review_count?: number | null
+          reviews?: Json | null
           store_id?: string
           title?: string
           updated_at?: string

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Package, DollarSign, Info, ExternalLink } from "lucide-react";
+import { ArrowLeft, Package, DollarSign, Info, ExternalLink, Star } from "lucide-react";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
 import { ShareButton } from "@/components/ShareButton";
 import { toast } from "sonner";
@@ -12,6 +12,13 @@ import { formatPrice } from "@/lib/utils";
 
 const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
+
+type Review = {
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+  date: string;
+};
 
 type Product = {
   id: string;
@@ -23,6 +30,9 @@ type Product = {
   is_active: boolean;
   delivery_info?: string;
   store_id: string;
+  rating?: number;
+  review_count?: number;
+  reviews?: Review[];
   checkout_fields?: {
     email?: boolean;
     name?: boolean;
@@ -105,6 +115,9 @@ export default function ProductDetail() {
         is_active: productData.is_active,
         delivery_info: productData.delivery_info,
         store_id: productData.store_id,
+        rating: productData.rating || 0,
+        review_count: productData.review_count || 0,
+        reviews: Array.isArray(productData.reviews) ? productData.reviews as Review[] : [],
         checkout_fields: typeof productData.checkout_fields === 'object' && productData.checkout_fields !== null
           ? productData.checkout_fields as Product['checkout_fields']
           : undefined,
@@ -224,9 +237,30 @@ export default function ProductDetail() {
                     {product.is_active ? 'Available' : 'Inactive'}
                   </Badge>
                 </div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-2xl font-bold text-primary mb-2">
                   ${formatPrice(product.price)} {product.currency}
                 </p>
+                
+                {/* Rating display */}
+                {product.rating && product.rating > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-5 h-5 ${
+                            star <= Math.round(product.rating!)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {product.rating.toFixed(1)} ({product.review_count} {product.review_count === 1 ? 'review' : 'reviews'})
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="prose prose-sm max-w-none">
@@ -266,6 +300,42 @@ export default function ProductDetail() {
           </div>
         </div>
         </div>
+
+        {/* Reviews Section */}
+        {product.reviews && product.reviews.length > 0 && (
+          <div className="max-w-4xl mx-auto px-4 pb-8">
+            <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+            <div className="space-y-4">
+              {product.reviews.map((review, index) => (
+                <Card key={index}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-semibold">{review.reviewer_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(review.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-4 h-4 ${
+                              star <= review.rating
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground">{review.comment}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         <footer className="mt-16 mb-8 flex justify-center">
           <a
