@@ -255,42 +255,7 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
     return () => handleDisconnect();
   }, []);
 
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 p-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Connecting voice agent...</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      {!isConnected ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Connecting voice...</span>
-        </>
-      ) : (
-        <>
-          {isSpeaking && (
-            <div className="flex items-center gap-2">
-              <Volume2 className="h-4 w-4 animate-pulse text-primary" />
-              <span>Agent speaking</span>
-            </div>
-          )}
-          {!isSpeaking && (
-            <div className="flex items-center gap-2">
-              <Mic className="h-4 w-4 text-primary" />
-              <span>Voice active</span>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
+  return null;
 };
 
 export default OpenAIVoiceInterface;
