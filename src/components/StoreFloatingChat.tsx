@@ -79,27 +79,30 @@ export const StoreFloatingChat = ({
   return (
     <>
       {/* Floating Voice Agent Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-1">
         {isVoiceActive && !chatOpen ? (
-          <button
-            onClick={handleToggleMode}
-            className="group relative h-16 w-16 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center"
-          >
-            {/* Pulsing ring effect */}
-            <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
-            <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
-            
-            {/* Sound wave visualization */}
-            <div className="relative flex gap-0.5 items-end h-8">
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '90%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
-              <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
-            </div>
-          </button>
+          <>
+            <button
+              onClick={handleToggleMode}
+              className="group relative h-16 w-16 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center"
+            >
+              {/* Pulsing ring effect */}
+              <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+              
+              {/* Sound wave visualization */}
+              <div className="relative flex gap-0.5 items-end h-8">
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '90%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '50%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '70%' }} />
+                <div className="w-1 bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '30%' }} />
+              </div>
+            </button>
+            <span className="text-[10px] text-muted-foreground/60">Powered by SIM</span>
+          </>
         ) : chatOpen ? (
           <div className="bg-background border border-border rounded-2xl shadow-2xl w-[380px] h-[600px] flex flex-col overflow-hidden">
             {/* Header */}
