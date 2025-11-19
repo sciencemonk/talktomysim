@@ -96,6 +96,7 @@ export const StoreFloatingChat = ({
           storeId={store.id}
           onTranscript={handleAddMessage}
           onShowProduct={onViewProduct}
+          onInitiatePurchase={onViewProduct}
           autoStart={true}
           onSpeakingChange={setIsSpeaking}
         />

@@ -7,6 +7,7 @@ interface OpenAIVoiceInterfaceProps {
   onTranscript?: (role: 'user' | 'agent', content: string, productId?: string) => void;
   onConnectionChange?: (connected: boolean) => void;
   onShowProduct?: (productId: string) => void;
+  onInitiatePurchase?: (productId: string) => void;
   autoStart?: boolean;
   onSpeakingChange?: (speaking: boolean) => void;
 }
@@ -103,6 +104,7 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
   onTranscript,
   onConnectionChange,
   onShowProduct,
+  onInitiatePurchase,
   autoStart = false,
   onSpeakingChange
 }) => {
@@ -160,6 +162,8 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
             startAudioCapture();
           } else if (data.type === 'show_product') {
             onShowProduct?.(data.product.id);
+          } else if (data.type === 'initiate_purchase') {
+            onInitiatePurchase?.(data.productId);
           } else if (data.type === 'response.audio.delta') {
             setIsSpeaking(true);
             onSpeakingChange?.(true);
