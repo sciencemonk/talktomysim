@@ -333,7 +333,14 @@ const Marketplace = () => {
 
           {/* Trust indicators */}
           <div className="mt-16 flex flex-wrap items-center justify-center gap-8 opacity-80">
-            <div className="text-white/70 text-sm font-medium">Trusted by innovative brands</div>
+            <a 
+              href="https://dexscreener.com/solana/dm9nxs5e1kzhszksm8bw1r4xf3wvvbee6hptysfjszx8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/70 text-sm font-medium no-underline hover:text-white/90 transition-colors"
+            >
+              Get $SIMAI
+            </a>
           </div>
         </div>
       </div>
