@@ -297,8 +297,8 @@ const Marketplace = () => {
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] text-center py-12">
           {/* Badge */}
-          <div className="inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full font-medium text-sm mb-8 border border-white/30">
-            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+          <div className="inline-flex items-center justify-center px-4 py-2 bg-primary backdrop-blur-sm rounded-full font-medium text-sm mb-8 border border-primary">
+            <span className="text-white">
               Revolutionizing Commerce with AI
             </span>
           </div>
