@@ -115,7 +115,10 @@ export const StoreFloatingChat = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setChatOpen(false)}
+                  onClick={() => {
+                    setChatOpen(false);
+                    setIsVoiceActive(true);
+                  }}
                   className="h-8 w-8"
                 >
                   <X className="h-4 w-4" />
