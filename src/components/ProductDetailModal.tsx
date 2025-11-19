@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X402PaymentModal } from "./X402PaymentModal";
+import { MockCheckoutModal } from "./MockCheckoutModal";
 import { Package, DollarSign, Info } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
@@ -56,15 +56,11 @@ export const ProductDetailModal = ({
     : [];
 
   const handlePurchase = () => {
-    if (!storeWalletAddress) {
-      toast.error("The store owner has not added a SOL wallet to their account. Purchases are currently unavailable.");
-      return;
-    }
     setShowPaymentModal(true);
   };
 
-  const handlePaymentSuccess = (sessionId: string) => {
-    console.log("Payment successful:", sessionId);
+  const handlePaymentSuccess = (productTitle: string) => {
+    console.log("Checkout successful:", productTitle);
     setShowPaymentModal(false);
     onClose();
     // Notify the chat about the purchase
@@ -196,23 +192,22 @@ export const ProductDetailModal = ({
       </Dialog>
       </div>
 
-      {/* X402 Payment Modal */}
-      <X402PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        onPaymentSuccess={handlePaymentSuccess}
-        simName={`${storeName} - ${product.title}`}
-        price={product.price}
-        walletAddress={storeWalletAddress}
-        product={{
-          id: product.id,
-          title: product.title,
-          description: product.description,
-          delivery_info: product.delivery_info,
-          checkout_fields: product.checkout_fields
-        }}
-        storeId={product.store_id}
-      />
+      {/* Mock Checkout Modal */}
+      {showPaymentModal && product && (
+        <MockCheckoutModal
+          product={{
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            currency: product.currency,
+            image_urls: images,
+          }}
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          storeName={storeName}
+          onCheckoutComplete={handlePaymentSuccess}
+        />
+      )}
     </>
   );
 };
