@@ -74,9 +74,12 @@ serve(async (req) => {
         // Build system instruction like text agent
         let productContext = '';
         if (products.length > 0) {
-          productContext = '\n\nAVAILABLE PRODUCTS:\n' + products.map((p: any) => 
-            `- ${p.title} ($${p.price} ${p.currency || 'USD'}): ${p.description}${p.delivery_info ? ` | Delivery: ${p.delivery_info}` : ''}`
-          ).join('\n');
+          productContext = '\n\nAVAILABLE PRODUCTS:\n' + products.map((p: any) => {
+            const reviewSummary = p.reviews && Array.isArray(p.reviews) && p.reviews.length > 0
+              ? `\n  Customer Reviews (${p.rating}/5 stars, ${p.review_count} reviews): ${p.reviews.slice(0, 3).map((r: any) => `"${r.comment}" - ${r.reviewer_name}`).join('; ')}`
+              : '';
+            return `- ${p.title} ($${p.price} ${p.currency || 'USD'}): ${p.description}${p.delivery_info ? ` | Delivery: ${p.delivery_info}` : ''}${reviewSummary}`;
+          }).join('\n');
         } else {
           productContext = '\n\nNote: No products are currently available in the catalog.';
         }
@@ -106,6 +109,7 @@ ${productContext}${productIdMapping}
 4. Listen more than you talk - encourage the customer to share what they're looking for
 5. ACTIVELY navigate customers through the store - show them products, take them back to browse more
 6. Ask follow-up questions based on what they say (budget, style, use case, etc.)
+7. Reference product reviews and ratings when relevant to help customers make informed decisions
 
 NAVIGATION BEHAVIOR:
 - When mentioning a product: IMMEDIATELY call navigate_to_product with that product's ID
