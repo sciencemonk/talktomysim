@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
 import { Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface OpenAIVoiceInterfaceProps {
   storeId: string;
-  onTranscript?: (role: 'user' | 'agent', content: string) => void;
+  onTranscript?: (role: 'user' | 'agent', content: string, productId?: string) => void;
   onConnectionChange?: (connected: boolean) => void;
   onShowProduct?: (productId: string) => void;
   autoStart?: boolean;
+  onSpeakingChange?: (speaking: boolean) => void;
 }
 
 class AudioQueue {
@@ -103,10 +103,11 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
   onTranscript,
   onConnectionChange,
   onShowProduct,
-  autoStart = false
+  autoStart = false,
+  onSpeakingChange
 }) => {
-  const { toast } = useToast();
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   
@@ -154,17 +155,14 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
           
           if (data.type === 'ready') {
             setIsConnected(true);
+            setIsConnecting(false);
             onConnectionChange?.(true);
             startAudioCapture();
-            
-            toast({
-              title: "Voice connected",
-              description: "AI agent is ready",
-            });
           } else if (data.type === 'show_product') {
             onShowProduct?.(data.product.id);
           } else if (data.type === 'response.audio.delta') {
             setIsSpeaking(true);
+            onSpeakingChange?.(true);
             const binaryString = atob(data.delta);
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
@@ -173,6 +171,7 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
             await audioQueueRef.current?.addToQueue(bytes);
           } else if (data.type === 'response.audio.done') {
             setIsSpeaking(false);
+            onSpeakingChange?.(false);
           } else if (data.type === 'response.audio_transcript.delta') {
             onTranscript?.('agent', data.delta);
           } else if (data.type === 'conversation.item.input_audio_transcription.completed') {
@@ -185,22 +184,12 @@ const OpenAIVoiceInterface: React.FC<OpenAIVoiceInterfaceProps> = ({
 
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        toast({
-          title: "Connection error",
-          description: "Failed to connect to voice service",
-          variant: "destructive"
-        });
       };
 
       ws.onclose = () => handleDisconnect();
 
     } catch (error) {
       console.error('Error connecting:', error);
-      toast({
-        title: "Microphone error",
-        description: "Please allow microphone access",
-        variant: "destructive"
-      });
     }
   };
 

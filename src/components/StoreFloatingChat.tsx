@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
@@ -54,6 +54,7 @@ export const StoreFloatingChat = ({
 }: StoreFloatingChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { chatOpen, setChatOpen, isVoiceActive, setIsVoiceActive } = useStoreChat();
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,32 +63,58 @@ export const StoreFloatingChat = ({
   const handleAddMessage = (role: 'user' | 'agent', content: string, productId?: string) => {
     console.log('Voice message:', { role, content, productId });
   };
+
+  const handleToggleMode = () => {
+    if (isVoiceActive) {
+      // Switching from voice to chat
+      setIsVoiceActive(false);
+      setChatOpen(true);
+    } else {
+      // Switching from chat to voice
+      setChatOpen(false);
+      setIsVoiceActive(true);
+    }
+  };
   
   return (
     <>
       {/* Floating Avatar Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        {!chatOpen ? (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="relative shadow-2xl rounded-full h-16 w-16 p-0 overflow-hidden border-2 border-primary transition-all duration-200 hover:scale-110 hover:shadow-primary/50"
-          >
-            {store.avatar_url ? (
-              <img 
-                src={store.avatar_url} 
-                alt={store.store_name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
-                <Bot className="h-8 w-8" />
+        {isVoiceActive && !chatOpen ? (
+          <div className="relative">
+            <button
+              onClick={handleToggleMode}
+              className="relative shadow-2xl rounded-full h-16 w-16 p-0 overflow-hidden border-2 border-primary transition-all duration-200 hover:scale-110 hover:shadow-primary/50"
+            >
+              {store.avatar_url ? (
+                <img 
+                  src={store.avatar_url} 
+                  alt={store.store_name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
+                  <Bot className="h-8 w-8" />
+                </div>
+              )}
+              {isSpeaking && (
+                <div className="absolute inset-0 bg-primary/20 animate-pulse rounded-full" />
+              )}
+            </button>
+            {/* Audio wave animation indicator */}
+            {isSpeaking && (
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-end h-6">
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.3s_infinite]" style={{ height: '100%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '60%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
+                <div className="w-1 bg-primary rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '40%' }} />
               </div>
             )}
-            {isVoiceActive && (
-              <div className="absolute inset-0 bg-primary/20 animate-pulse rounded-full" />
-            )}
-          </button>
-        ) : (
+          </div>
+        ) : chatOpen ? (
           <div className="bg-background border border-border rounded-2xl shadow-2xl w-[380px] h-[600px] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
@@ -103,19 +130,28 @@ export const StoreFloatingChat = ({
                 </Avatar>
                 <div>
                   <h3 className="font-semibold text-sm">{store.store_name}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {isVoiceActive ? 'Voice Active' : 'Voice Off'}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Chat Mode</p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setChatOpen(false)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleToggleMode}
+                  className="h-8 w-8"
+                  title="Switch to voice"
+                >
+                  <Mic className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setChatOpen(false)}
+                  className="h-8 w-8"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -208,14 +244,6 @@ export const StoreFloatingChat = ({
             {/* Input Area */}
             <div className="p-4 border-t border-border bg-muted/30">
               <div className="flex gap-2">
-                <Button
-                  variant={isVoiceActive ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => setIsVoiceActive(!isVoiceActive)}
-                  className="shrink-0"
-                >
-                  {isVoiceActive ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-                </Button>
                 <Input
                   value={chatMessage}
                   onChange={(e) => setChatMessage(e.target.value)}
@@ -235,7 +263,7 @@ export const StoreFloatingChat = ({
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Voice Interface (always active when enabled) */}
         {isVoiceActive && (
@@ -244,6 +272,7 @@ export const StoreFloatingChat = ({
             onTranscript={handleAddMessage}
             onShowProduct={onViewProduct}
             autoStart={true}
+            onSpeakingChange={setIsSpeaking}
           />
         )}
       </div>
