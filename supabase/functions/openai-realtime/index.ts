@@ -146,6 +146,21 @@ CRITICAL GUIDELINES:
                     },
                     required: ["product_id"]
                   }
+                },
+                {
+                  type: "function",
+                  name: "initiate_purchase",
+                  description: "Open the checkout page for a product when customer wants to buy it. Use this when customer expresses intent to purchase, checkout, or buy a product.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      product_id: {
+                        type: "string",
+                        description: "The ID of the product to purchase"
+                      }
+                    },
+                    required: ["product_id"]
+                  }
                 }
               ] : [];
               
@@ -199,6 +214,28 @@ CRITICAL GUIDELINES:
                     type: 'function_call_output',
                     call_id: data.call_id,
                     output: JSON.stringify({ success: true, message: `Displayed ${product?.title}` })
+                  }
+                }));
+                
+                openAISocket?.send(JSON.stringify({ type: 'response.create' }));
+              }
+              
+              if (data.name === 'initiate_purchase') {
+                const product = products.find((p: any) => p.id === args.product_id);
+                if (product) {
+                  socket.send(JSON.stringify({
+                    type: 'initiate_purchase',
+                    productId: product.id
+                  }));
+                }
+                
+                // Send function result back to OpenAI
+                openAISocket?.send(JSON.stringify({
+                  type: 'conversation.item.create',
+                  item: {
+                    type: 'function_call_output',
+                    call_id: data.call_id,
+                    output: JSON.stringify({ success: true, message: `Opening checkout for ${product?.title}` })
                   }
                 }));
                 
