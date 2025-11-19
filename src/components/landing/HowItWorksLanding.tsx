@@ -99,35 +99,35 @@ export const HowItWorksLanding = () => {
         <div className="grid md:grid-cols-3 gap-8 mb-32">
           {steps.map((step, index) => (
             <div key={index} className="relative group">
-              <div className={`h-full bg-gradient-to-br ${step.gradient} backdrop-blur-sm border border-primary/20 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-105`}>
+              <div className={`h-full min-h-[600px] bg-gradient-to-br ${step.gradient} backdrop-blur-sm border border-primary/20 rounded-3xl p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 flex flex-col`}>
                 {/* Step Number Badge */}
                 <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">{index + 1}</span>
                 </div>
 
                 {/* Icon */}
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl shadow-xl mb-6">
-                  <step.icon className="w-8 h-8 text-white" />
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-2xl shadow-xl mb-4">
+                  <step.icon className="w-7 h-7 text-white" />
                 </div>
                 
-                <div className="space-y-4">
-                  <h3 className="text-3xl font-bold text-foreground font-montserrat">
+                <div className="space-y-3 flex-1 flex flex-col">
+                  <h3 className="text-2xl font-bold text-foreground font-montserrat leading-tight">
                     {step.title}
                   </h3>
-                  <p className="text-lg text-primary font-medium">
+                  <p className="text-base text-primary font-medium">
                     {step.subtitle}
                   </p>
-                  <p className="text-base text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                     {step.description}
                   </p>
 
-                  <ul className="space-y-3 pt-4">
+                  <ul className="space-y-2.5 pt-3">
                     {step.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-3 text-foreground text-sm">
-                        <div className="flex-shrink-0 w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <li key={idx} className="flex items-center gap-2.5 text-foreground text-sm">
+                        <div className="flex-shrink-0 w-4 h-4 bg-primary/10 rounded-full flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                         </div>
-                        <span>{feature}</span>
+                        <span className="leading-snug">{feature}</span>
                       </li>
                     ))}
                   </ul>
