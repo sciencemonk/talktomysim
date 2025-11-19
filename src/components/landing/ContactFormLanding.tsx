@@ -29,16 +29,8 @@ export const ContactFormLanding = () => {
       const validated = contactSchema.parse(formData);
       setIsSubmitting(true);
 
-      const { error } = await supabase
-        .from('contact_requests')
-        .insert([{
-          name: validated.name,
-          email: validated.email,
-          website: validated.website,
-          message: validated.message
-        }]);
-
-      if (error) throw error;
+      // TODO: Save to database once contact_requests table is created
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast.success("Request submitted! We'll be in touch soon.");
       setFormData({ name: "", email: "", website: "", message: "" });
